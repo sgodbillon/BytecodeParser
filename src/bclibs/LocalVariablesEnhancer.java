@@ -20,9 +20,6 @@ import javassist.bytecode.CodeAttribute;
 import javassist.bytecode.CodeIterator;
 import javassist.bytecode.LineNumberAttribute;
 import javassist.bytecode.LocalVariableAttribute;
-import javassist.bytecode.SignatureAttribute;
-import javassist.bytecode.SignatureAttribute.ArrayType;
-import javassist.bytecode.SignatureAttribute.ClassType;
 import javassist.bytecode.SignatureAttribute.ObjectType;
 import javassist.bytecode.analysis.Analyzer;
 import javassist.bytecode.analysis.Frame;
@@ -32,114 +29,11 @@ import javassist.compiler.CompileError;
 import javassist.compiler.Javac;
 import javassist.expr.ExprEditor;
 import javassist.expr.MethodCall;
+import bclibs.analysis.Stack;
 import bclibs.utils.LocalVariableOpcodes;
-import bclibs.utils.Utils;
 import bclibs.utils.LocalVariableOpcodes.LocalVariableOp;
 
 public class LocalVariablesEnhancer {
-	public class LocalVariable {
-		public final String name;
-		public final int index;
-		public final LocalVariableType type;
-		
-		public int[] getValidityRange() {
-			int[] result = new int[2];
-			LocalVariableAttribute localVariableAttribute = Utils.getLocalVariableAttribute(behavior);
-			result[0] = localVariableAttribute.startPc(index);
-			result[1] = result[0] + localVariableAttribute.codeLength(index);
-			return result;
-		}
-		
-		public int getSlot() {
-			return Utils.getLocalVariableAttribute(behavior).index(index);
-		}
-		
-		public LocalVariable(int index, String name, LocalVariableType type) {
-			this.index = index;
-			this.name = name;
-			this.type = type;
-		}
-		@Override
-		public String toString() {
-			return name + " (" + type.typeName + ") " + "[" + index + " -> " + getSlot() + "] between [" + getValidityRange()[0] + "," + getValidityRange()[1] + "]";
-		}
-	}
-	
-	public static class LocalVariableType {
-		public final boolean isPrimitive;
-		public final String signature;
-		public final String typeName;
-		public final String shortTypeName;
-		public final int dimensions;
-		
-		private LocalVariableType(String signature, String typeName, String shortTypeName, boolean isPrimitive, int dimensions) {
-			this.signature = signature;
-			this.typeName = typeName;
-			this.shortTypeName = shortTypeName;
-			this.isPrimitive = isPrimitive;
-			this.dimensions = dimensions;
-		}
-		public boolean isArray() {
-			return dimensions > 0;
-		}
-		
-		public static LocalVariableType parse(String signature) {
-			int dimensions = 0;
-			for(int i = 0; i < signature.length(); i++) {
-				if(signature.charAt(i) == '[')
-					dimensions++;
-				else break;
-			}
-			try {
-				javassist.bytecode.SignatureAttribute.Type objectType = SignatureAttribute.toFieldSignature(signature);
-				if(objectType instanceof ArrayType)
-					objectType = ((ArrayType) objectType).getComponentType();
-				if(objectType instanceof ClassType) {
-					String typeName = ((ClassType) objectType).getName();
-					return new LocalVariableType(signature, addArrayTypeInfo(typeName, dimensions), typeName, false, dimensions);
-				}
-				throw new RuntimeException("unknown signature: " + signature + ", objectType=" + objectType.getClass());
-			} catch(BadBytecode e) {
-				// not a class
-				String typeName = primitiveSymbols.get("" + signature.charAt(dimensions));
-				return new LocalVariableType(signature, addArrayTypeInfo(typeName, dimensions), typeName, true, dimensions);
-			}
-		}
-		
-		private static String addArrayTypeInfo(String typeName, int dimensions) {
-			String result = typeName;
-			for(int i = 0; i < dimensions; i++)
-				result += "[]";
-			return result;
-		}
-		
-		private static Map<String, String> primitiveSymbols = new HashMap<String, String>();
-		static {
-			primitiveSymbols.put("V", "void");
-			primitiveSymbols.put("Z", "boolean");
-			primitiveSymbols.put("B", "byte");
-			primitiveSymbols.put("C", "char");
-			primitiveSymbols.put("S", "short");
-			primitiveSymbols.put("I", "int");
-			primitiveSymbols.put("J", "long");
-			primitiveSymbols.put("F", "float");
-			primitiveSymbols.put("D", "double");
-		}
-	}
-	
-	/*public static class LocalVariableAccess {
-		public int line;
-		public int index;
-		
-		public LocalVariable localVariable;
-		public boolean read;
-		
-		@Override
-		public String toString() {
-			return String.format("LocalVariableAccess (%s) on %s at line %s (index %s)", read ? "read" : "write", localVariable, line, index);
-		}
-	}*/
-	
 	public Map<Integer, LocalVariable> variables = new HashMap<Integer, LocalVariable>();
 	//public Map<Integer, Set<LocalVariableAccess>> variableAccesses = new HashMap<Integer, Set<LocalVariableAccess>>();
 	//public Map<Integer, Set<LocalVariable>> reads = new HashMap<Integer, Set<LocalVariable>>();
@@ -260,7 +154,7 @@ public class LocalVariablesEnhancer {
 					System.out.println("methodcall " + m.getMethodName() + " at index " + index);
 					Frame frame = frames[index];
 					FrameDetails beginning = findBeginning(index, frames);
-					it.move(beginning.index);
+					/*it.move(beginning.index);
 					int currentIndex = beginning.index;
 					while(it.hasNext() && currentIndex < index && currentIndex >= 0) {
 						it.next();
@@ -270,8 +164,10 @@ public class LocalVariablesEnhancer {
 							System.out.println("found variable=" + v + " on stack");
 						}
 						currentIndex = it.lookAhead();
-					}
+					}*/
 					System.out.println("frame [" + index + "]" + frame.toString() + " starts with frame [" + (beginning.index) + "]::: " + beginning.frame);
+					Stack stack = new Stack(behavior);
+					stack.process(beginning.index, index);
 				} catch (Exception e) {
 					e.printStackTrace();
 					throw new RuntimeException(e);
@@ -332,14 +228,15 @@ public class LocalVariablesEnhancer {
 	}
 	
 	private void findLocalVariables() throws BadBytecode {
-		CodeAttribute codeAttribute = behavior.getMethodInfo().getCodeAttribute();
+		this.variables = LocalVariable.findVariables(behavior);
+		/*CodeAttribute codeAttribute = behavior.getMethodInfo().getCodeAttribute();
 		LocalVariableAttribute localVariableAttribute = (LocalVariableAttribute) codeAttribute.getAttribute("LocalVariableTable");
 		for(int i = 0; i < localVariableAttribute.tableLength(); i++) {
-			LocalVariable localVariable = new LocalVariable(i, localVariableAttribute.variableName(i), LocalVariableType.parse(localVariableAttribute.signature(i)));
+			LocalVariable localVariable = new LocalVariable(i, localVariableAttribute.variableName(i), LocalVariableType.parse(localVariableAttribute.signature(i)), behavior);
 			variables.put(i, localVariable);
 			System.out.println("found var "+localVariable);
 			//System.out.println(String.format("findLocalVariables: var %s is '%s' (slot %s)", i, localVariable.name, localVariable.getSlot()));
-		}
+		}*/
 	}
 	
 	private int insert(CodeIterator it, int index, String statement) throws CompileError, NotFoundException, BadBytecode {

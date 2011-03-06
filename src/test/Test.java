@@ -9,10 +9,7 @@ import java.util.Map.Entry;
 
 import com.sun.org.apache.bcel.internal.util.ClassPath;
 
-import bclibs.LocalVariableTraceEnhancer;
 import bclibs.LocalVariablesEnhancer;
-import bclibs.LocalVariablesFinder;
-import bclibs.LocalVariablesFinder.LocalVariable;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtMethod;
@@ -58,19 +55,6 @@ public class Test {
 		}
 	}
 	
-	void _assert(Set<LocalVariable> localVariables, String... names) {
-		assertEquals(localVariables.size(), names.length);
-		String[] lvNames = new String[localVariables.size()];
-		int i = 0;
-		for(LocalVariable lv : localVariables) {
-			lvNames[i++] = lv.name;
-		}
-		Arrays.sort(names);
-		Arrays.sort(lvNames);
-		for(i = 0; i < names.length; i++)
-			assertEquals(names[i], lvNames[i]);
-	}
-	
 	/*
 5		int i;
 6		i = 1;
@@ -93,16 +77,5 @@ public class Test {
 	
 	public static void main(String[] args) {
 		new Test().coucou();
-	}
-	
-	private static void show(String prefix, Map<Integer, Set<LocalVariable>> map) {
-		for(Entry<Integer, Set<LocalVariable>> entry : map.entrySet())
-			for(LocalVariable localVar : entry.getValue()) {
-				Integer integer = entry.getKey();
-				Set<LocalVariable> localVars = entry.getValue();
-				System.out.println(integer);
-				System.out.println(localVars);
-				System.out.println(prefix + " :: " +entry.getKey() + " -> " + localVar.name);
-			}
 	}
 }

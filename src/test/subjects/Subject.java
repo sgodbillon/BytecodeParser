@@ -22,7 +22,7 @@ public class Subject {
 		String[] names = new String[] { "y1", "y2" };
 		long toto = 3;
 		Object object__ = new Object();
-		machin("kbce", name2, names, toto *6, object__);
+		machin("kbce", name2, names, x6(toto), object__);
 	}
 	
 	public void machin(String coucou, String bidule, String[] chponk, long toto, Object o) {
@@ -32,6 +32,10 @@ public class Subject {
 	public void truc() {
 		int i = 0;
 		i = i + 1;
+	}
+	
+	public long x6(long i) {
+		return i * 6;
 	}
 	/*
 		read :: 9 -> smth
