@@ -3,6 +3,7 @@ package test;
 import static org.junit.Assert.*;
 
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
@@ -11,6 +12,14 @@ import com.sun.org.apache.bcel.internal.util.ClassPath;
 
 import bclibs.LocalVariablesEnhancer;
 import bclibs.utils.Opcodes;
+import bclibs.utils.Opcodes.DecodedMethodInvocationOp;
+import bclibs.utils.Opcodes.MethodInvocationOpcode;
+import bclibs.utils.Opcodes.Op;
+import bclibs.utils.Opcodes.StackElement;
+import bclibs.utils.Opcodes.StackParser;
+import bclibs.utils.Opcodes.StackOpHandler;
+import bclibs.utils.Opcodes.CodeParser;
+import bclibs.utils.Opcodes.TOP;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtMethod;
@@ -34,7 +43,34 @@ public class Test {
 			}
 		}
 		
-		Opcodes.parse(behavior);
+		final StackParser parser = new StackParser(new CodeParser(behavior));
+		parser.parse(new StackOpHandler() {
+			@Override
+			public void beforeComputeStack(Op op, int index) {
+				if(op instanceof MethodInvocationOpcode) {
+					MethodInvocationOpcode mop = (MethodInvocationOpcode) op;
+					DecodedMethodInvocationOp decoded = mop.decode(parser.parser.behavior, parser.parser.iterator, index);
+					String name = decoded.getName();
+					LinkedList<StackElement> stack = parser.getCurrentStack();
+					System.out.println("method " + name + " " + decoded.getDescriptor());
+					System.out.println("found " + name + " (" + decoded.getNbParameters() + " params), stack is: " + stack);
+					String s = ")";
+					int i = 0;
+					int nbParams = 0;
+					while(nbParams < decoded.getNbParameters()) {
+						if(nbParams != 0)
+							s = "," + s;
+						StackElement se = stack.get(i++);
+						if(se instanceof TOP)
+							se = stack.get(i++);
+						s = se + s;
+						nbParams++;
+					}
+					s = name + "(" + s;
+					System.out.println("method names ::: " + s);
+				}
+			}
+		});
 		//LocalVariablesEnhancer enhancer = new LocalVariablesEnhancer(behavior);
 		//enhancer.proceed();
 		//enhancer.yop();

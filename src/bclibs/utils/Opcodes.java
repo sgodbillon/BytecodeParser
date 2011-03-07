@@ -21,6 +21,68 @@ import static bclibs.utils.Opcodes.StackElementLength.*;
 import static bclibs.utils.Opcodes.OpParameterType.*;
 
 public class Opcodes {
+	public static interface OpHandler {
+		void handle(Op op, int index);
+	}
+	public static abstract class StackOpHandler {
+		public void beforeComputeStack(Op op, int index) {
+			
+		}
+		public void afterComputeStack(Op op, int index) {
+			
+		}
+	}
+	public static class CodeParser {
+		public final CtBehavior behavior;
+		public final CodeIterator iterator;
+		public CodeParser(CtBehavior behavior) {
+			this.behavior = behavior;
+			this.iterator = behavior.getMethodInfo().getCodeAttribute().iterator();
+		}
+		public void parse(OpHandler opHandler) throws BadBytecode {
+			iterator.begin();
+			while(iterator.hasNext()) {
+				int index = iterator.next();
+				Op op = OPCODES.get(iterator.byteAt(index)).init(behavior, iterator, index);
+				opHandler.handle(op, index);
+			}
+		}
+	}
+	
+	public static class StackParser {
+		public final CodeParser parser;
+		final Stack stack;
+		
+		public StackParser(CodeParser parser) {
+			this.parser = parser;
+			this.stack = new Stack();
+		}
+		
+		public void parse(final StackOpHandler stackOpHandler) throws BadBytecode {
+			parser.parse(new OpHandler() {
+				@Override
+				public void handle(Op op, int index) {
+					stackOpHandler.beforeComputeStack(op, index);
+					op.simulate(stack, parser.behavior, parser.iterator, index);
+					stackOpHandler.afterComputeStack(op, index);
+				}
+			});
+		}
+		
+		public LinkedList<StackElement> getCurrentStack() {
+			return new LinkedList<StackElement>(stack.stack);
+		}
+	}
+	
+	public static void parse(CtBehavior behavior, OpHandler opHandler) throws BadBytecode {
+		CodeIterator iterator = behavior.getMethodInfo().getCodeAttribute().iterator();
+		while(iterator.hasNext()) {
+			int index = iterator.next();
+			Op op = OPCODES.get(iterator.byteAt(index)).init(behavior, iterator, index);
+			opHandler.handle(op, index);
+		}
+	}
+	
 	public static Stack parse(CtBehavior behavior) throws BadBytecode {
 		CodeIterator iterator = behavior.getMethodInfo().getCodeAttribute().iterator();
 		Stack stack = new Stack();
