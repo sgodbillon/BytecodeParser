@@ -4,17 +4,59 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
 
 import bclibs.LocalVariable;
 
+import javassist.ClassPool;
 import javassist.CtBehavior;
+import javassist.CtClass;
+import javassist.CtPrimitiveType;
+import javassist.bytecode.BadBytecode;
 import javassist.bytecode.CodeIterator;
+import javassist.bytecode.Descriptor;
 import javassist.bytecode.Opcode;
 import static bclibs.utils.Opcodes.StackElementLength.*;
 import static bclibs.utils.Opcodes.OpParameterType.*;
 
 public class Opcodes {
+	public static Stack parse(CtBehavior behavior) throws BadBytecode {
+		CodeIterator iterator = behavior.getMethodInfo().getCodeAttribute().iterator();
+		Stack stack = new Stack();
+		while(iterator.hasNext()) {
+			int index = iterator.next();
+			Op op = OPCODES.get(iterator.byteAt(index)).init(behavior, iterator, index);
+			System.out.println("found op="+ op.getName());
+			if(op instanceof MethodInvocationOpcode) {
+				MethodInvocationOpcode mop = (MethodInvocationOpcode) op;
+				DecodedMethodInvocationOp decoded = mop.decode(behavior, iterator, index);
+				System.out.println("method " + decoded.name + " " + decoded.descriptor);
+				if(decoded.name.equals("machin") || decoded.name.equals("x6")) {
+					System.out.println("found " + decoded.name + " (" + decoded.nbParameters + " params), stack is: " + stack);
+					String s = ")";
+					int i = 0;
+					int nbParams = 0;
+					while(nbParams < decoded.nbParameters) {
+						if(nbParams != 0)
+							s = "," + s;
+						StackElement se = stack.stack.get(i++);
+						if(se instanceof TOP)
+							se = stack.stack.get(i++);
+						s = se + s;
+						nbParams++;
+					}
+					s = decoded.name + "(" + s;
+					System.out.println("method names ::: " + s);
+				}
+			}
+			op.simulate(stack, behavior, iterator, index);
+			System.out.println(stack);
+		}
+		return stack;
+	}
+	
+	
 	public static enum StackElementLength {
 		ONE, // u1
 		DOUBLE // u2
@@ -29,8 +71,106 @@ public class Opcodes {
 		S4
 	}
 	
-	public static abstract class Stack {
-		//public void pop();
+	public static abstract class StackElement { 
+		public abstract StackElement copy();
+		@Override public String toString() {
+			return this.getClass().toString();
+		}
+	}
+	
+	public static class OtherElement extends StackElement {
+		@Override
+		public StackElement copy() {
+			return new OtherElement();
+		}
+		@Override
+		public String toString() {
+			return "Whatever";
+		}
+	}
+	
+	public static class TOP extends StackElement {
+		@Override
+		public StackElement copy() {
+			return new TOP();
+		}
+		@Override
+		public String toString() {
+			return "TOP";
+		}
+	}
+	
+	public static class ValueFromLocalVariable extends StackElement {
+		public final LocalVariable localVariable;
+		public ValueFromLocalVariable(LocalVariable localVariable) {
+			this.localVariable = localVariable;
+		}
+		@Override
+		public StackElement copy() {
+			return new ValueFromLocalVariable(localVariable);
+		}
+		
+		@Override
+		public String toString() {
+			return "ValueFromLocalVariable '" + localVariable.name + "'";
+		}
+	}
+	
+	public static class Stack {
+		protected LinkedList<StackElement> stack = new LinkedList<StackElement>();
+		
+		public StackElement pop() {
+			StackElement se = stack.pop();
+			if(se instanceof TOP)
+				System.out.println("WARN: popped a TOP!");
+			return se;
+		}
+		
+		public StackElement pop2() {
+			StackElement se = stack.pop();
+			if( !(se instanceof TOP) )
+				System.out.println("WARN: popped2 top is not a TOP!");
+			se = stack.pop();
+			if(se instanceof TOP)
+				System.out.println("WARN: popped2 a TOP!");
+			return se;
+		}
+		
+		public StackElement peek() {
+			StackElement se = stack.peek();
+			if(se instanceof TOP)
+				System.out.println("WARN: popped a TOP!");
+			return se;
+		}
+		
+		public StackElement peek2() {
+			StackElement se = stack.get(stack.size() - 2);
+			if(se instanceof TOP)
+				System.out.println("WARN: peek2 a TOP!");
+			return se;
+		}
+		
+		public Stack push(StackElement se) {
+			stack.push(se);
+			return this;
+		}
+		
+		public Stack push2(StackElement se) {
+			stack.push(se);
+			stack.push(new TOP());
+			return this;
+		}
+		
+		@Override
+		public String toString() {
+			StringBuffer sb = new StringBuffer("stack: ");
+			for(int i = 0; i < stack.size(); i++) {
+				if(i > 0)
+					sb.append(", ");
+				sb.append(stack.get(i));
+			}
+			return sb.toString();
+		}
 	}
 	
 	public static class DecodedOp {
@@ -59,6 +199,66 @@ public class Opcodes {
 		}
 	}
 	
+	public static class DecodedMethodInvocationOp extends DecodedOp {
+		protected int nbParameters;
+		protected String descriptor;
+		protected String name;
+		protected StackElementLength[] pops;
+		protected StackElementLength[] pushes;
+		public DecodedMethodInvocationOp(int methodRefIndex) {
+			super(new OpParameterType[] { U2 }, new int[] { methodRefIndex });
+		}
+		
+		public int getMethodRefIndex() {
+			return parameterValues[0];
+		}
+		public String getDescriptor() {
+			return descriptor;
+		}
+		public String getName() {
+			return name;
+		}
+		public int getNbParameters() {
+			return nbParameters;
+		}
+		public StackElementLength[] getPops() {
+			return pops;
+		}
+		public StackElementLength[] getPushes() {
+			return pushes;
+		}
+	}
+	
+	public static class DecodedFieldOp extends DecodedOp {
+		protected String descriptor;
+		protected boolean load;
+		protected StackElementLength stackElementLength;
+		
+		public DecodedFieldOp(int methodRefIndex) {
+			super(new OpParameterType[] { U2 }, new int[] { methodRefIndex });
+		}
+		
+		public int getMethodRefIndex() {
+			return parameterValues[0];
+		}
+		public String getDescriptor() {
+			return descriptor;
+		}
+		public StackElementLength[] getPops() {
+			if(!load)
+				return new StackElementLength[] { stackElementLength };
+			return new StackElementLength[0];
+		}
+		public StackElementLength[] getPushes() {
+			if(load)
+				return new StackElementLength[] { stackElementLength };
+			return new StackElementLength[0];
+		}
+		public boolean isRead() {
+			return load;
+		}
+	}
+	
 	public static abstract class Op {
 		protected final int code;
 		protected final OpParameterType[] parameterTypes;
@@ -68,8 +268,16 @@ public class Opcodes {
 			this.parameterTypes = opParameterTypes;
 		}
 		
-		public abstract void simulate(Stack stack);
+		public abstract void simulate(Stack stack, CtBehavior behavior, CodeIterator iterator, int index);
 		public abstract DecodedOp decode(CtBehavior behavior, CodeIterator iterator, int index);
+		
+		/**
+		 * Should be called before using this object.
+		 * @return this object's copy with some contextual information, if needed.
+		 */
+		public Op init(CtBehavior behavior, CodeIterator iterator, int index) {
+			return this;
+		}
 		
 		public int getCode() {
 			return code;
@@ -83,6 +291,11 @@ public class Opcodes {
 			if(name == null)
 				name = findOpName(code);
 			return name;
+		}
+		
+		@Override
+		public String toString() {
+			return "op: " + getName() + "";
 		}
 		
 		protected final int[] decodeValues(CodeIterator iterator, int index) {
@@ -142,15 +355,28 @@ public class Opcodes {
 			return new DecodedOp(parameterTypes, decodeValues(iterator, index));
 		}
 		@Override
-		public void simulate(Stack stack) {
-			// TODO
+		public void simulate(Stack stack, CtBehavior behavior, CodeIterator iterator, int index) {
+			for(int i = 0; i < getPops().length; i++) {
+				if(getPops()[i] == DOUBLE)
+					stack.pop2();
+				else stack.pop();
+			}
+			for(int i = 0; i < getPushes().length; i++) {
+				if(getPushes()[i] == DOUBLE)
+					stack.push2(new OtherElement());
+				else stack.push(new OtherElement());
+			}
 		}
-		public BasicOpcode setPops(StackElementLength... pops) {
+		@Override
+		public String toString() {
+			return "BasicOp: " + getName();
+		}
+		protected BasicOpcode setPops(StackElementLength... pops) {
 			if(pops != null)
 				this.pops = pops;
 			return this;
 		}
-		public BasicOpcode setPushes(StackElementLength... pushes) {
+		protected BasicOpcode setPushes(StackElementLength... pushes) {
 			if(pushes != null)
 				this.pushes = pushes;
 			return this;
@@ -182,6 +408,139 @@ public class Opcodes {
 			result.load = load;
 			result.localVariable = LocalVariable.getLocalVariable(slot, index, LocalVariable.findVariables(behavior));
 			return result;
+		}
+		@Override
+		public void simulate(Stack stack, CtBehavior behavior, CodeIterator iterator, int index) {
+			ValueFromLocalVariable toPush = new ValueFromLocalVariable(decode(behavior, iterator, index).localVariable);
+			for(int i = 0; i < getPops().length; i++) {
+				if(getPops()[i] == DOUBLE)
+					stack.pop2();
+				else stack.pop();
+			}
+			for(int i = 0; i < getPushes().length; i++) {
+				if(getPushes()[i] == DOUBLE)
+					stack.push2(toPush);
+				else stack.push(toPush);
+			}
+		}
+		@Override
+		public String toString() {
+			return "LocalVariableOp: " + getName();
+		}
+	}
+	
+	public static class FieldOpcode extends BasicOpcode {
+		private final DecodedFieldOp decodedOp;
+		
+		public FieldOpcode(int code) {
+			this(code, null);
+		}
+		private FieldOpcode(int code, DecodedFieldOp decodedOp) {
+			super(code, U2);
+			this.decodedOp = decodedOp;
+		}
+		@Override
+		public FieldOpcode init(CtBehavior behavior, CodeIterator iterator, int index) {
+			return new FieldOpcode(code, decode(behavior, iterator, index));
+		}
+		@Override
+		public DecodedFieldOp decode(CtBehavior behavior, CodeIterator iterator, int index) {
+			if(decodedOp != null)
+				return decodedOp;
+			try {
+				DecodedFieldOp decodedOp = new DecodedFieldOp(decodeValues(iterator, index)[0]);
+				String descriptor = behavior.getMethodInfo().getConstPool().getFieldrefType(decodedOp.getMethodRefIndex());
+				StackElementLength sel = ONE;
+				if(Descriptor.dataSize(descriptor) == 2)
+					sel = DOUBLE;
+				decodedOp.stackElementLength = sel;
+				decodedOp.descriptor = descriptor;
+				decodedOp.load = code == Opcode.GETFIELD || code == Opcode.GETSTATIC;
+				return decodedOp;
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+		}
+		@Override
+		public StackElementLength[] getPops() {
+			if(decodedOp == null)
+				throw new IllegalStateException("must be initialized before !");
+			return decodedOp.getPops();
+		}
+		@Override
+		public StackElementLength[] getPushes() {
+			if(decodedOp == null)
+				throw new IllegalStateException("must be initialized before !");
+			return decodedOp.getPushes();
+		}
+	}
+	
+	public static class MethodInvocationOpcode extends BasicOpcode {
+		private final DecodedMethodInvocationOp decodedOp;
+		
+		public MethodInvocationOpcode(int code) {
+			this(code, null);
+		}
+		private MethodInvocationOpcode(int code, DecodedMethodInvocationOp decodedOp) {
+			super(code, U2);
+			this.decodedOp = decodedOp;
+		}
+		@Override
+		public MethodInvocationOpcode init(CtBehavior behavior, CodeIterator iterator, int index) {
+			System.out.println("init");
+			return new MethodInvocationOpcode(code, decode(behavior, iterator, index));
+		}
+		@Override
+		public DecodedMethodInvocationOp decode(CtBehavior behavior, CodeIterator iterator, int index) {
+			if(decodedOp != null)
+				return decodedOp;
+			try {
+				DecodedMethodInvocationOp decodedOp = new DecodedMethodInvocationOp(decodeValues(iterator, index)[0]);
+				decodedOp.descriptor = behavior.getMethodInfo().getConstPool().getMethodrefType(decodedOp.getMethodRefIndex());
+				decodedOp.name = behavior.getMethodInfo().getConstPool().getMethodrefName(decodedOp.getMethodRefIndex());
+				ClassPool cp = behavior.getDeclaringClass().getClassPool();
+				CtClass[] methodParameterTypes = Descriptor.getParameterTypes(decodedOp.descriptor, cp);
+				decodedOp.nbParameters = methodParameterTypes.length;
+				StackElementLength[] pops = new StackElementLength[super.getPops().length + methodParameterTypes.length];
+				for(int i = methodParameterTypes.length - 1, j = 0; i >= 0; i--, j++) {
+					CtClass ctClass = methodParameterTypes[i];
+					if(ctClass.isPrimitive()) {
+						char d = ((CtPrimitiveType) ctClass).getDescriptor();
+						if(d == 'J' || d == 'D') {
+							pops[j] = DOUBLE;
+						} else {
+							pops[j] = ONE;
+						}
+					}
+				}
+				if(super.getPops().length == 1)
+					pops[pops.length - 1] = ONE;
+				decodedOp.pops = pops;
+				CtClass returnType = Descriptor.getReturnType(decodedOp.descriptor, cp);
+				StackElementLength returnTypeLength = ONE;
+				if(returnType.isPrimitive()) {
+					char d = ((CtPrimitiveType) returnType).getDescriptor();
+					if(d == 'J' || d == 'D') {
+						returnTypeLength = DOUBLE;
+					}
+				}
+				decodedOp.pushes = new StackElementLength[] { returnTypeLength };
+				return decodedOp;
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+		}
+		@Override
+		public StackElementLength[] getPops() {
+			if(decodedOp == null)
+				throw new IllegalStateException("must be initialized before !");
+			return decodedOp.getPops();
+		}
+		@Override
+		public StackElementLength[] getPushes() {
+			if(decodedOp == null)
+				throw new IllegalStateException("must be initialized before !");
+			return decodedOp.getPushes();
 		}
 	}
 	
@@ -295,14 +654,53 @@ public class Opcodes {
 		opcodes.put(Opcode.SASTORE, new BasicOpcode(Opcode.SASTORE).setPops(ONE, ONE, ONE));
 		opcodes.put(Opcode.POP, new BasicOpcode(Opcode.POP).setPops(ONE));
 		opcodes.put(Opcode.POP2, new BasicOpcode(Opcode.POP2).setPops(DOUBLE));
-		// DUP
-		// DUP_X1
-		// DUP_X2
-		opcodes.put(Opcode.DUP2, new BasicOpcode(Opcode.DUP2).setPops(DOUBLE).setPushes(DOUBLE, DOUBLE));
-		// DUP
-		// DUP2_X1
-		// DUP2_X2
-		// SWAP
+		opcodes.put(Opcode.DUP, new BasicOpcode(Opcode.DUP) {
+			@Override
+			public void simulate(Stack stack, CtBehavior behavior, CodeIterator iterator, int index) {
+				stack.push(stack.peek().copy());
+			}
+		});
+		opcodes.put(Opcode.DUP_X1, new BasicOpcode(Opcode.DUP_X1) {
+			@Override
+			public void simulate(Stack stack, CtBehavior behavior, CodeIterator iterator, int index) {
+				StackElement se = stack.peek().copy();
+				stack.stack.add(stack.stack.size() - 2, se);
+			}
+		});
+		opcodes.put(Opcode.DUP_X2, new BasicOpcode(Opcode.DUP_X2) {
+			@Override
+			public void simulate(Stack stack, CtBehavior behavior, CodeIterator iterator, int index) {
+				StackElement se = stack.peek().copy();
+				stack.stack.add(stack.stack.size() - 3, se);
+			}
+		});
+		opcodes.put(Opcode.DUP2, new BasicOpcode(Opcode.DUP2) {
+			@Override
+			public void simulate(Stack stack, CtBehavior behavior, CodeIterator iterator, int index) {
+				stack.push2(stack.peek2().copy());
+			}
+		});
+		opcodes.put(Opcode.DUP2_X1, new BasicOpcode(Opcode.DUP2_X1) {
+			@Override
+			public void simulate(Stack stack, CtBehavior behavior, CodeIterator iterator, int index) {
+				StackElement se = stack.peek2().copy();
+				stack.stack.add(stack.stack.size() - 3, se);
+			}
+		});
+		opcodes.put(Opcode.DUP2_X2, new BasicOpcode(Opcode.DUP2_X1) {
+			@Override
+			public void simulate(Stack stack, CtBehavior behavior, CodeIterator iterator, int index) {
+				StackElement se = stack.peek2().copy();
+				stack.stack.add(stack.stack.size() - 4, se);
+			}
+		});
+		opcodes.put(Opcode.SWAP, new BasicOpcode(Opcode.SWAP) {
+			@Override
+			public void simulate(Stack stack, CtBehavior behavior, CodeIterator iterator, int index) {
+				StackElement se = stack.pop();
+				stack.stack.add(stack.stack.size() - 1, se);
+			}
+		});
 		opcodes.put(Opcode.IADD, new BasicOpcode(Opcode.IADD).setPops(ONE, ONE).setPushes(ONE));
 		opcodes.put(Opcode.LADD, new BasicOpcode(Opcode.LADD).setPops(DOUBLE, DOUBLE).setPushes(DOUBLE));
 		opcodes.put(Opcode.FADD, new BasicOpcode(Opcode.FADD).setPops(ONE, ONE).setPushes(ONE));
@@ -386,14 +784,14 @@ public class Opcodes {
 		opcodes.put(Opcode.DRETURN, new BasicOpcode(Opcode.DRETURN).setPops(DOUBLE));
 		opcodes.put(Opcode.ARETURN, new BasicOpcode(Opcode.ARETURN).setPops(ONE));
 		opcodes.put(Opcode.RETURN, new BasicOpcode(Opcode.RETURN));
-		// GETSTATIC
-		// PUTSTATIC
-		// GETFIELD
-		// PUTFIELD
-		// INVOKEVIRTUAL
-		// INVOKESPECIAL
-		// INVOKESTATIC
-		// INVOKEINTERFACE
+		opcodes.put(Opcode.GETSTATIC, new FieldOpcode(Opcode.GETSTATIC));
+		opcodes.put(Opcode.PUTSTATIC, new FieldOpcode(Opcode.PUTSTATIC));
+		opcodes.put(Opcode.GETFIELD, new FieldOpcode(Opcode.GETFIELD));
+		opcodes.put(Opcode.PUTFIELD, new FieldOpcode(Opcode.PUTFIELD));
+		opcodes.put(Opcode.INVOKEVIRTUAL, new MethodInvocationOpcode(Opcode.INVOKEVIRTUAL).setPops(ONE));
+		opcodes.put(Opcode.INVOKESPECIAL, new MethodInvocationOpcode(Opcode.INVOKESPECIAL));
+		opcodes.put(Opcode.INVOKESTATIC, new MethodInvocationOpcode(Opcode.INVOKESTATIC));
+		opcodes.put(Opcode.INVOKEINTERFACE, new MethodInvocationOpcode(Opcode.INVOKEINTERFACE).setPops(ONE));
 		opcodes.put(Opcode.NEW, new BasicOpcode(Opcode.NEW, U2).setPushes(ONE));
 		opcodes.put(Opcode.NEWARRAY, new BasicOpcode(Opcode.NEWARRAY, U1).setPops(ONE).setPushes(ONE));
 		opcodes.put(Opcode.ANEWARRAY, new BasicOpcode(Opcode.ANEWARRAY, U2).setPops(ONE).setPushes(ONE));

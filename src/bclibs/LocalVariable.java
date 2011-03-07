@@ -48,7 +48,7 @@ public class LocalVariable {
 		for(int i = 0; i < localVariableAttribute.tableLength(); i++) {
 			LocalVariable localVariable = new LocalVariable(i, localVariableAttribute.variableName(i), LocalVariableType.parse(localVariableAttribute.signature(i)), behavior);
 			variables.put(i, localVariable);
-			System.out.println("found var "+localVariable);
+			//System.out.println("found var "+localVariable);
 			//System.out.println(String.format("findLocalVariables: var %s is '%s' (slot %s)", i, localVariable.name, localVariable.getSlot()));
 		}
 		return variables;

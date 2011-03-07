@@ -10,6 +10,7 @@ import java.util.Map.Entry;
 import com.sun.org.apache.bcel.internal.util.ClassPath;
 
 import bclibs.LocalVariablesEnhancer;
+import bclibs.utils.Opcodes;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtMethod;
@@ -32,9 +33,11 @@ public class Test {
 				break;
 			}
 		}
-		LocalVariablesEnhancer enhancer = new LocalVariablesEnhancer(behavior);
+		
+		Opcodes.parse(behavior);
+		//LocalVariablesEnhancer enhancer = new LocalVariablesEnhancer(behavior);
 		//enhancer.proceed();
-		enhancer.yop();
+		//enhancer.yop();
 		
 		ctClass.defrost();
 		Class<?> clazz = ctClass.toClass(new ClassLoader() {
