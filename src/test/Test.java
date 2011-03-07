@@ -67,7 +67,8 @@ public class Test {
 						nbParams++;
 					}
 					s = name + "(" + s;
-					System.out.println("method names ::: " + s);
+					int line = parser.parser.behavior.getMethodInfo().getLineNumber(index);
+					System.out.println("method names ::: " + s + " at line " + line);
 				}
 			}
 		});
