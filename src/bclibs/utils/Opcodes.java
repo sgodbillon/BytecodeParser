@@ -78,10 +78,10 @@ public class Opcodes {
 		}
 	}
 	
-	public static class OtherElement extends StackElement {
+	public static class Whatever extends StackElement {
 		@Override
 		public StackElement copy() {
-			return new OtherElement();
+			return new Whatever();
 		}
 		@Override
 		public String toString() {
@@ -363,8 +363,8 @@ public class Opcodes {
 			}
 			for(int i = 0; i < getPushes().length; i++) {
 				if(getPushes()[i] == DOUBLE)
-					stack.push2(new OtherElement());
-				else stack.push(new OtherElement());
+					stack.push2(new Whatever());
+				else stack.push(new Whatever());
 			}
 		}
 		@Override
@@ -520,11 +520,14 @@ public class Opcodes {
 				StackElementLength returnTypeLength = ONE;
 				if(returnType.isPrimitive()) {
 					char d = ((CtPrimitiveType) returnType).getDescriptor();
+					if(d == 'V') {
+						returnTypeLength = null;
+					}
 					if(d == 'J' || d == 'D') {
 						returnTypeLength = DOUBLE;
 					}
 				}
-				decodedOp.pushes = new StackElementLength[] { returnTypeLength };
+				decodedOp.pushes = returnTypeLength != null ? new StackElementLength[] { returnTypeLength } : new StackElementLength[0];
 				return decodedOp;
 			} catch (Exception e) {
 				throw new RuntimeException(e);
@@ -789,7 +792,7 @@ public class Opcodes {
 		opcodes.put(Opcode.GETFIELD, new FieldOpcode(Opcode.GETFIELD));
 		opcodes.put(Opcode.PUTFIELD, new FieldOpcode(Opcode.PUTFIELD));
 		opcodes.put(Opcode.INVOKEVIRTUAL, new MethodInvocationOpcode(Opcode.INVOKEVIRTUAL).setPops(ONE));
-		opcodes.put(Opcode.INVOKESPECIAL, new MethodInvocationOpcode(Opcode.INVOKESPECIAL));
+		opcodes.put(Opcode.INVOKESPECIAL, new MethodInvocationOpcode(Opcode.INVOKESPECIAL).setPops(ONE).setPushes(ONE));
 		opcodes.put(Opcode.INVOKESTATIC, new MethodInvocationOpcode(Opcode.INVOKESTATIC));
 		opcodes.put(Opcode.INVOKEINTERFACE, new MethodInvocationOpcode(Opcode.INVOKEINTERFACE).setPops(ONE));
 		opcodes.put(Opcode.NEW, new BasicOpcode(Opcode.NEW, U2).setPushes(ONE));
