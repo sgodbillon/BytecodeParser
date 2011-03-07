@@ -163,13 +163,13 @@ public class Opcodes {
 		
 		@Override
 		public String toString() {
-			StringBuffer sb = new StringBuffer("stack: ");
+			StringBuffer sb = new StringBuffer("stack: [");
 			for(int i = 0; i < stack.size(); i++) {
 				if(i > 0)
 					sb.append(", ");
 				sb.append(stack.get(i));
 			}
-			return sb.toString();
+			return sb.append("]").toString();
 		}
 	}
 	
