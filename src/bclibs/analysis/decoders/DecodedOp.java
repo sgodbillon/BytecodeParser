@@ -3,23 +3,21 @@
  */
 package bclibs.analysis.decoders;
 
-import javassist.CtBehavior;
 import javassist.bytecode.CodeIterator;
+import bclibs.analysis.Context;
 import bclibs.analysis.Opcodes.OpParameterType;
 import bclibs.analysis.opcodes.Op;
 
 public class DecodedOp {
 	public final OpParameterType[] parameterTypes;
 	public final int[] parameterValues;
-	public final CtBehavior behavior;
-	public final CodeIterator iterator;
+	public final Context context;
 	public final int index;
 	
-	public DecodedOp(Op op, CtBehavior behavior, CodeIterator iterator, int index) {
+	public DecodedOp(Op op, Context context, int index) {
 		this.parameterTypes = op.getParameterTypes();
-		this.parameterValues = decodeValues(iterator, index);
-		this.behavior = behavior;
-		this.iterator = iterator;
+		this.parameterValues = decodeValues(context.iterator, index);
+		this.context = context;
 		this.index = index;
 	}
 	

@@ -5,21 +5,19 @@ package bclibs.analysis;
 
 import javassist.CtBehavior;
 import javassist.bytecode.BadBytecode;
-import javassist.bytecode.CodeIterator;
 import bclibs.analysis.opcodes.Op;
 
 public class CodeParser {
-	public final CtBehavior behavior;
-	public final CodeIterator iterator;
+	public final Context context;
+	
 	public CodeParser(CtBehavior behavior) {
-		this.behavior = behavior;
-		this.iterator = behavior.getMethodInfo().getCodeAttribute().iterator();
+		this.context = new Context(behavior, behavior.getMethodInfo().getCodeAttribute().iterator());
 	}
 	public void parse(OpHandler opHandler) throws BadBytecode {
-		iterator.begin();
-		while(iterator.hasNext()) {
-			int index = iterator.next();
-			Op op = Opcodes.OPCODES.get(iterator.byteAt(index)).init(behavior, iterator, index);
+		context.iterator.begin();
+		while(context.iterator.hasNext()) {
+			int index = context.iterator.next();
+			Op op = Opcodes.OPCODES.get(context.iterator.byteAt(index)).init(context, index);
 			opHandler.handle(op, index);
 		}
 	}

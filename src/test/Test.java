@@ -12,6 +12,7 @@ import com.sun.org.apache.bcel.internal.util.ClassPath;
 
 import bclibs.LocalVariablesEnhancer;
 import bclibs.analysis.CodeParser;
+import bclibs.analysis.Context;
 import bclibs.analysis.Opcodes;
 import bclibs.analysis.StackOpHandler;
 import bclibs.analysis.StackParser;
@@ -43,7 +44,7 @@ public class Test {
 			}
 		}
 		
-		final StackParser parser = new StackParser(new CodeParser(behavior));
+		final StackParser parser = new StackParser(behavior);
 		parser.parse(new StackOpHandler() {
 			@Override
 			public void beforeComputeStack(Op op, int index) {
@@ -51,7 +52,7 @@ public class Test {
 				System.out.println(stack);
 				if(op instanceof MethodInvocationOpcode) {
 					MethodInvocationOpcode mop = (MethodInvocationOpcode) op;
-					DecodedMethodInvocationOp decoded = mop.decode(parser.parser.behavior, parser.parser.iterator, index);
+					DecodedMethodInvocationOp decoded = mop.decode(parser.parser.context, index);
 					String name = decoded.getName();
 					//System.out.println("method " + name + " " + decoded.getDescriptor());
 					//System.out.println("found " + name + " (" + decoded.getNbParameters() + " params), stack is: " + stack);
@@ -68,7 +69,7 @@ public class Test {
 						nbParams++;
 					}
 					s = name + "(" + s;
-					int line = parser.parser.behavior.getMethodInfo().getLineNumber(index);
+					int line = parser.parser.context.behavior.getMethodInfo().getLineNumber(index);
 					System.out.println("method ::: " + s + " at line " + line);
 				}
 			}

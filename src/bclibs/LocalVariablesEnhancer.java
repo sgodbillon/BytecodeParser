@@ -45,7 +45,7 @@ public class LocalVariablesEnhancer {
 		behavior = null;
 	}
 	
-	public LocalVariablesEnhancer(CtBehavior behavior) throws BadBytecode {
+	public LocalVariablesEnhancer(CtBehavior behavior) throws BadBytecode, NotFoundException {
 		System.out.println(behavior.getLongName());
 		this.behavior = behavior;
 		findLocalVariables();
@@ -227,7 +227,7 @@ public class LocalVariablesEnhancer {
 		}
 	}
 	
-	private void findLocalVariables() throws BadBytecode {
+	private void findLocalVariables() throws BadBytecode, NotFoundException {
 		this.variables = LocalVariable.findVariables(behavior);
 		/*CodeAttribute codeAttribute = behavior.getMethodInfo().getCodeAttribute();
 		LocalVariableAttribute localVariableAttribute = (LocalVariableAttribute) codeAttribute.getAttribute("LocalVariableTable");

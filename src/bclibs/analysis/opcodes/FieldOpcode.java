@@ -4,8 +4,7 @@
 package bclibs.analysis.opcodes;
 
 import static bclibs.analysis.Opcodes.OpParameterType.U2;
-import javassist.CtBehavior;
-import javassist.bytecode.CodeIterator;
+import bclibs.analysis.Context;
 import bclibs.analysis.Opcodes.StackElementLength;
 import bclibs.analysis.decoders.DecodedFieldOp;
 
@@ -20,15 +19,15 @@ public class FieldOpcode extends BasicOpcode {
 		this.decodedOp = decodedOp;
 	}
 	@Override
-	public FieldOpcode init(CtBehavior behavior, CodeIterator iterator, int index) {
-		return new FieldOpcode(code, decode(behavior, iterator, index));
+	public FieldOpcode init(Context context, int index) {
+		return new FieldOpcode(code, decode(context, index));
 	}
 	@Override
-	public DecodedFieldOp decode(CtBehavior behavior, CodeIterator iterator, int index) {
+	public DecodedFieldOp decode(Context context, int index) {
 		if(decodedOp != null)
 			return decodedOp;
 		try {
-			DecodedFieldOp decodedOp = new DecodedFieldOp(this, behavior, iterator, index);
+			DecodedFieldOp decodedOp = new DecodedFieldOp(this, context, index);
 			return decodedOp;
 		} catch (Exception e) {
 			throw new RuntimeException(e);

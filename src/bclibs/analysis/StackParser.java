@@ -5,6 +5,7 @@ package bclibs.analysis;
 
 import java.util.LinkedList;
 
+import javassist.CtBehavior;
 import javassist.bytecode.BadBytecode;
 import bclibs.analysis.opcodes.Op;
 import bclibs.analysis.stack.Stack;
@@ -14,8 +15,8 @@ public class StackParser {
 	public final CodeParser parser;
 	final Stack stack;
 	
-	public StackParser(CodeParser parser) {
-		this.parser = parser;
+	public StackParser(CtBehavior behavior) {
+		this.parser = new CodeParser(behavior);
 		this.stack = new Stack();
 	}
 	
@@ -24,7 +25,7 @@ public class StackParser {
 			@Override
 			public void handle(Op op, int index) {
 				stackOpHandler.beforeComputeStack(op, index);
-				op.simulate(stack, parser.behavior, parser.iterator, index);
+				op.simulate(stack, parser.context, index);
 				stackOpHandler.afterComputeStack(op, index);
 			}
 		});

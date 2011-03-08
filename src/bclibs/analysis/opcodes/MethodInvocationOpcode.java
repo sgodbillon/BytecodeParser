@@ -8,8 +8,7 @@ import static bclibs.analysis.Opcodes.StackElementLength.*;
 
 import com.sun.xml.internal.ws.org.objectweb.asm.Opcodes;
 
-import javassist.CtBehavior;
-import javassist.bytecode.CodeIterator;
+import bclibs.analysis.Context;
 import bclibs.analysis.decoders.DecodedMethodInvocationOp;
 import bclibs.analysis.stack.Stack;
 import bclibs.analysis.stack.Whatever;
@@ -28,22 +27,22 @@ public class MethodInvocationOpcode extends Op {
 		return code != Opcodes.INVOKESTATIC;
 	}
 	@Override
-	public MethodInvocationOpcode init(CtBehavior behavior, CodeIterator iterator, int index) {
-		return new MethodInvocationOpcode(code, decode(behavior, iterator, index));
+	public MethodInvocationOpcode init(Context context, int index) {
+		return new MethodInvocationOpcode(code, decode(context, index));
 	}
 	@Override
-	public DecodedMethodInvocationOp decode(CtBehavior behavior, CodeIterator iterator, int index) {
+	public DecodedMethodInvocationOp decode(Context context, int index) {
 		if(decodedOp != null)
 			return decodedOp;
 		try {
-			return new DecodedMethodInvocationOp(this, behavior, iterator, index);
+			return new DecodedMethodInvocationOp(this, context, index);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
 	}
 	@Override
-	public void simulate(Stack stack, CtBehavior behavior, CodeIterator iterator, int index) {
-		DecodedMethodInvocationOp decodedOp = decode(behavior, iterator, index);
+	public void simulate(Stack stack, Context context, int index) {
+		DecodedMethodInvocationOp decodedOp = decode(context, index);
 		for(int i = 0; i < decodedOp.getPops().length; i++) {
 			if(decodedOp.getPops()[i] == DOUBLE)
 				stack.pop2();

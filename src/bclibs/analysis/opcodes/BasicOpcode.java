@@ -4,8 +4,7 @@
 package bclibs.analysis.opcodes;
 
 import static bclibs.analysis.Opcodes.StackElementLength.DOUBLE;
-import javassist.CtBehavior;
-import javassist.bytecode.CodeIterator;
+import bclibs.analysis.Context;
 import bclibs.analysis.Opcodes.OpParameterType;
 import bclibs.analysis.Opcodes.StackElementLength;
 import bclibs.analysis.decoders.DecodedOp;
@@ -29,11 +28,11 @@ public class BasicOpcode extends Op {
 		return pushes;
 	}
 	@Override
-	public DecodedOp decode(CtBehavior behavior, CodeIterator iterator, int index) {
-		return new DecodedOp(this, behavior, iterator, index);
+	public DecodedOp decode(Context context, int index) {
+		return new DecodedOp(this, context, index);
 	}
 	@Override
-	public void simulate(Stack stack, CtBehavior behavior, CodeIterator iterator, int index) {
+	public void simulate(Stack stack, Context context, int index) {
 		for(int i = 0; i < getPops().length; i++) {
 			if(getPops()[i] == DOUBLE)
 				stack.pop2();

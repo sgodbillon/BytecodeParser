@@ -14,8 +14,6 @@ import bclibs.analysis.opcodes.Op;
 import bclibs.analysis.stack.Stack;
 import bclibs.analysis.stack.StackElement;
 
-import javassist.CtBehavior;
-import javassist.bytecode.CodeIterator;
 import javassist.bytecode.Opcode;
 import static bclibs.analysis.Opcodes.OpParameterType.*;
 import static bclibs.analysis.Opcodes.StackElementLength.*;
@@ -147,47 +145,47 @@ public class Opcodes {
 		opcodes.put(Opcode.POP2, new BasicOpcode(Opcode.POP2).setPops(DOUBLE));
 		opcodes.put(Opcode.DUP, new BasicOpcode(Opcode.DUP) {
 			@Override
-			public void simulate(Stack stack, CtBehavior behavior, CodeIterator iterator, int index) {
+			public void simulate(Stack stack, Context context, int index) {
 				stack.push(stack.peek().copy());
 			}
 		});
 		opcodes.put(Opcode.DUP_X1, new BasicOpcode(Opcode.DUP_X1) {
 			@Override
-			public void simulate(Stack stack, CtBehavior behavior, CodeIterator iterator, int index) {
+			public void simulate(Stack stack, Context context, int index) {
 				StackElement se = stack.peek().copy();
 				stack.stack.add(stack.stack.size() - 2, se);
 			}
 		});
 		opcodes.put(Opcode.DUP_X2, new BasicOpcode(Opcode.DUP_X2) {
 			@Override
-			public void simulate(Stack stack, CtBehavior behavior, CodeIterator iterator, int index) {
+			public void simulate(Stack stack, Context context, int index) {
 				StackElement se = stack.peek().copy();
 				stack.stack.add(stack.stack.size() - 3, se);
 			}
 		});
 		opcodes.put(Opcode.DUP2, new BasicOpcode(Opcode.DUP2) {
 			@Override
-			public void simulate(Stack stack, CtBehavior behavior, CodeIterator iterator, int index) {
+			public void simulate(Stack stack, Context context, int index) {
 				stack.push2(stack.peek2().copy());
 			}
 		});
 		opcodes.put(Opcode.DUP2_X1, new BasicOpcode(Opcode.DUP2_X1) {
 			@Override
-			public void simulate(Stack stack, CtBehavior behavior, CodeIterator iterator, int index) {
+			public void simulate(Stack stack, Context context, int index) {
 				StackElement se = stack.peek2().copy();
 				stack.stack.add(stack.stack.size() - 3, se);
 			}
 		});
 		opcodes.put(Opcode.DUP2_X2, new BasicOpcode(Opcode.DUP2_X1) {
 			@Override
-			public void simulate(Stack stack, CtBehavior behavior, CodeIterator iterator, int index) {
+			public void simulate(Stack stack, Context context, int index) {
 				StackElement se = stack.peek2().copy();
 				stack.stack.add(stack.stack.size() - 4, se);
 			}
 		});
 		opcodes.put(Opcode.SWAP, new BasicOpcode(Opcode.SWAP) {
 			@Override
-			public void simulate(Stack stack, CtBehavior behavior, CodeIterator iterator, int index) {
+			public void simulate(Stack stack, Context context, int index) {
 				StackElement se = stack.pop();
 				stack.stack.add(stack.stack.size() - 1, se);
 			}

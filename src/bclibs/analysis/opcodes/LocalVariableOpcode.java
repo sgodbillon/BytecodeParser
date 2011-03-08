@@ -4,8 +4,7 @@
 package bclibs.analysis.opcodes;
 
 import static bclibs.analysis.Opcodes.StackElementLength.DOUBLE;
-import javassist.CtBehavior;
-import javassist.bytecode.CodeIterator;
+import bclibs.analysis.Context;
 import bclibs.analysis.Opcodes.OpParameterType;
 import bclibs.analysis.Opcodes.StackElementLength;
 import bclibs.analysis.decoders.DecodedLocalVariableOp;
@@ -27,12 +26,12 @@ public class LocalVariableOpcode extends BasicOpcode {
 		this.load = load;
 	}
 	@Override
-	public DecodedLocalVariableOp decode(CtBehavior behavior, CodeIterator iterator, int index) {
-		return new DecodedLocalVariableOp(this, behavior, iterator, index);
+	public DecodedLocalVariableOp decode(Context context, int index) {
+		return new DecodedLocalVariableOp(this, context, index);
 	}
 	@Override
-	public void simulate(Stack stack, CtBehavior behavior, CodeIterator iterator, int index) {
-		ValueFromLocalVariable toPush = new ValueFromLocalVariable(decode(behavior, iterator, index).localVariable);
+	public void simulate(Stack stack, Context context, int index) {
+		ValueFromLocalVariable toPush = new ValueFromLocalVariable(decode(context, index).localVariable);
 		for(int i = 0; i < getPops().length; i++) {
 			if(getPops()[i] == DOUBLE)
 				stack.pop2();

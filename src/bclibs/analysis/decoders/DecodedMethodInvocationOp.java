@@ -6,12 +6,11 @@ package bclibs.analysis.decoders;
 import static bclibs.analysis.Opcodes.StackElementLength.DOUBLE;
 import static bclibs.analysis.Opcodes.StackElementLength.ONE;
 import javassist.ClassPool;
-import javassist.CtBehavior;
 import javassist.CtClass;
 import javassist.CtPrimitiveType;
 import javassist.NotFoundException;
-import javassist.bytecode.CodeIterator;
 import javassist.bytecode.Descriptor;
+import bclibs.analysis.Context;
 import bclibs.analysis.Opcodes.StackElementLength;
 import bclibs.analysis.opcodes.MethodInvocationOpcode;
 
@@ -22,11 +21,11 @@ public class DecodedMethodInvocationOp extends DecodedOp {
 	protected StackElementLength[] pops;
 	protected StackElementLength[] pushes;
 	
-	public DecodedMethodInvocationOp(MethodInvocationOpcode mop, CtBehavior behavior, CodeIterator iterator, int index) throws NotFoundException {
-		super(mop, behavior, iterator, index);
-		descriptor = behavior.getMethodInfo().getConstPool().getMethodrefType(getMethodRefIndex());
-		name = behavior.getMethodInfo().getConstPool().getMethodrefName(getMethodRefIndex());
-		ClassPool cp = behavior.getDeclaringClass().getClassPool();
+	public DecodedMethodInvocationOp(MethodInvocationOpcode mop, Context context, int index) throws NotFoundException {
+		super(mop, context, index);
+		descriptor = context.behavior.getMethodInfo().getConstPool().getMethodrefType(getMethodRefIndex());
+		name = context.behavior.getMethodInfo().getConstPool().getMethodrefName(getMethodRefIndex());
+		ClassPool cp = context.behavior.getDeclaringClass().getClassPool();
 		CtClass[] methodParameterTypes = Descriptor.getParameterTypes(descriptor, cp);
 		nbParameters = methodParameterTypes.length;
 		StackElementLength[] pops = new StackElementLength[methodParameterTypes.length + (mop.isInstanceMethod() ? 1 : 0)];

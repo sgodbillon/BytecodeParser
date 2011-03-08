@@ -8,6 +8,8 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import javassist.CtBehavior;
+import javassist.Modifier;
+import javassist.NotFoundException;
 import javassist.bytecode.CodeAttribute;
 import javassist.bytecode.LocalVariableAttribute;
 import bclibs.utils.Utils;
@@ -17,6 +19,7 @@ public class LocalVariable {
 	public final String name;
 	public final int index;
 	public final LocalVariableType type;
+	public final boolean isParameter;
 	
 	public int[] getValidityRange() {
 		int[] result = new int[2];
@@ -30,23 +33,27 @@ public class LocalVariable {
 		return Utils.getLocalVariableAttribute(behavior).index(index);
 	}
 	
-	public LocalVariable(int index, String name, LocalVariableType type, CtBehavior behavior) {
+	public LocalVariable(int index, String name, LocalVariableType type,  boolean isParameter, CtBehavior behavior) {
 		this.index = index;
 		this.name = name;
 		this.type = type;
 		this.behavior = behavior;
+		this.isParameter = isParameter;
 	}
 	@Override
 	public String toString() {
 		return name + " (" + type.typeName + ") " + "[" + index + " -> " + getSlot() + "] between [" + getValidityRange()[0] + "," + getValidityRange()[1] + "]";
 	}
 	
-	public static Map<Integer, LocalVariable> findVariables(CtBehavior behavior) {
+	public static Map<Integer, LocalVariable> findVariables(CtBehavior behavior) throws NotFoundException {
+		int nbParameters = behavior.getParameterTypes().length;
+		boolean isStatic = Modifier.isStatic(behavior.getModifiers());
 		Map<Integer, LocalVariable> variables = new HashMap<Integer, LocalVariable>();
 		CodeAttribute codeAttribute = behavior.getMethodInfo().getCodeAttribute();
 		LocalVariableAttribute localVariableAttribute = (LocalVariableAttribute) codeAttribute.getAttribute("LocalVariableTable");
 		for(int i = 0; i < localVariableAttribute.tableLength(); i++) {
-			LocalVariable localVariable = new LocalVariable(i, localVariableAttribute.variableName(i), LocalVariableType.parse(localVariableAttribute.signature(i)), behavior);
+			boolean isParameter = i < nbParameters || !isStatic && i == nbParameters;
+			LocalVariable localVariable = new LocalVariable(i, localVariableAttribute.variableName(i), LocalVariableType.parse(localVariableAttribute.signature(i)), isParameter, behavior);
 			variables.put(i, localVariable);
 			//System.out.println("found var "+localVariable);
 			//System.out.println(String.format("findLocalVariables: var %s is '%s' (slot %s)", i, localVariable.name, localVariable.getSlot()));

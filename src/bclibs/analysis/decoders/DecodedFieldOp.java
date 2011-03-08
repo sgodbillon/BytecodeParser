@@ -3,12 +3,10 @@
  */
 package bclibs.analysis.decoders;
 
-import static bclibs.analysis.Opcodes.StackElementLength.DOUBLE;
-import static bclibs.analysis.Opcodes.StackElementLength.ONE;
-import javassist.CtBehavior;
-import javassist.bytecode.CodeIterator;
+import static bclibs.analysis.Opcodes.StackElementLength.*;
 import javassist.bytecode.Descriptor;
 import javassist.bytecode.Opcode;
+import bclibs.analysis.Context;
 import bclibs.analysis.Opcodes.StackElementLength;
 import bclibs.analysis.opcodes.FieldOpcode;
 
@@ -17,9 +15,9 @@ public class DecodedFieldOp extends DecodedOp {
 	protected boolean load;
 	protected StackElementLength stackElementLength;
 	
-	public DecodedFieldOp(FieldOpcode fo, CtBehavior behavior, CodeIterator iterator, int index) {
-		super(fo, behavior, iterator, index);
-		String descriptor = behavior.getMethodInfo().getConstPool().getFieldrefType(getMethodRefIndex());
+	public DecodedFieldOp(FieldOpcode fo, Context context, int index) {
+		super(fo, context, index);
+		String descriptor = context.behavior.getMethodInfo().getConstPool().getFieldrefType(getMethodRefIndex());
 		StackElementLength sel = ONE;
 		if(Descriptor.dataSize(descriptor) == 2)
 			sel = DOUBLE;
