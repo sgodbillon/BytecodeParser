@@ -29,7 +29,7 @@ import javassist.compiler.CompileError;
 import javassist.compiler.Javac;
 import javassist.expr.ExprEditor;
 import javassist.expr.MethodCall;
-import bclibs.analysis.Stack;
+import bclibs.analysis.stack.Stack;
 import bclibs.utils.LocalVariableOpcodes;
 import bclibs.utils.LocalVariableOpcodes.LocalVariableOp;
 
@@ -142,7 +142,7 @@ public class LocalVariablesEnhancer {
 		//new FramePrinter(System.out).print(behavior.getDeclaringClass());
 	}
 	
-	public void yop() throws CannotCompileException, BadBytecode {
+	/*public void yop() throws CannotCompileException, BadBytecode {
 		final Frame[] frames = new Analyzer().analyze((CtMethod) behavior);
 		System.out.println(frames.length + " frames");
 		behavior.instrument(new ExprEditor() {
@@ -164,7 +164,7 @@ public class LocalVariablesEnhancer {
 							System.out.println("found variable=" + v + " on stack");
 						}
 						currentIndex = it.lookAhead();
-					}*/
+					} /* /
 					System.out.println("frame [" + index + "]" + frame.toString() + " starts with frame [" + (beginning.index) + "]::: " + beginning.frame);
 					Stack stack = new Stack(behavior);
 					stack.process(beginning.index, index);
@@ -174,7 +174,7 @@ public class LocalVariablesEnhancer {
 				}
 			}
 		});
-	}
+	}*/
 	
 	private FrameDetails findBeginning(int index, Frame[] frames) {
 		for(int i = index; i >= 0; i--) {

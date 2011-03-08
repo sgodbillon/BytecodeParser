@@ -11,15 +11,15 @@ import java.util.Map.Entry;
 import com.sun.org.apache.bcel.internal.util.ClassPath;
 
 import bclibs.LocalVariablesEnhancer;
-import bclibs.utils.Opcodes;
-import bclibs.utils.Opcodes.DecodedMethodInvocationOp;
-import bclibs.utils.Opcodes.MethodInvocationOpcode;
-import bclibs.utils.Opcodes.Op;
-import bclibs.utils.Opcodes.StackElement;
-import bclibs.utils.Opcodes.StackParser;
-import bclibs.utils.Opcodes.StackOpHandler;
-import bclibs.utils.Opcodes.CodeParser;
-import bclibs.utils.Opcodes.TOP;
+import bclibs.analysis.CodeParser;
+import bclibs.analysis.Opcodes;
+import bclibs.analysis.StackOpHandler;
+import bclibs.analysis.StackParser;
+import bclibs.analysis.decoders.DecodedMethodInvocationOp;
+import bclibs.analysis.opcodes.MethodInvocationOpcode;
+import bclibs.analysis.opcodes.Op;
+import bclibs.analysis.stack.StackElement;
+import bclibs.analysis.stack.TOP;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtMethod;
@@ -47,13 +47,14 @@ public class Test {
 		parser.parse(new StackOpHandler() {
 			@Override
 			public void beforeComputeStack(Op op, int index) {
+				LinkedList<StackElement> stack = parser.getCurrentStack();
+				System.out.println(stack);
 				if(op instanceof MethodInvocationOpcode) {
 					MethodInvocationOpcode mop = (MethodInvocationOpcode) op;
 					DecodedMethodInvocationOp decoded = mop.decode(parser.parser.behavior, parser.parser.iterator, index);
 					String name = decoded.getName();
-					LinkedList<StackElement> stack = parser.getCurrentStack();
-					System.out.println("method " + name + " " + decoded.getDescriptor());
-					System.out.println("found " + name + " (" + decoded.getNbParameters() + " params), stack is: " + stack);
+					//System.out.println("method " + name + " " + decoded.getDescriptor());
+					//System.out.println("found " + name + " (" + decoded.getNbParameters() + " params), stack is: " + stack);
 					String s = ")";
 					int i = 0;
 					int nbParams = 0;
@@ -68,7 +69,7 @@ public class Test {
 					}
 					s = name + "(" + s;
 					int line = parser.parser.behavior.getMethodInfo().getLineNumber(index);
-					System.out.println("method names ::: " + s + " at line " + line);
+					System.out.println("method ::: " + s + " at line " + line);
 				}
 			}
 		});
