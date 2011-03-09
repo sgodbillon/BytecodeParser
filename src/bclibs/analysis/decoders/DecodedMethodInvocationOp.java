@@ -3,15 +3,14 @@
  */
 package bclibs.analysis.decoders;
 
-import static bclibs.analysis.Opcodes.StackElementLength.DOUBLE;
-import static bclibs.analysis.Opcodes.StackElementLength.ONE;
+import static bclibs.analysis.stack.Stack.StackElementLength;
+import static bclibs.analysis.stack.Stack.StackElementLength.*;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtPrimitiveType;
 import javassist.NotFoundException;
 import javassist.bytecode.Descriptor;
 import bclibs.analysis.Context;
-import bclibs.analysis.Opcodes.StackElementLength;
 import bclibs.analysis.opcodes.MethodInvocationOpcode;
 
 public class DecodedMethodInvocationOp extends DecodedOp {

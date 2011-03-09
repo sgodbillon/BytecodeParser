@@ -5,7 +5,7 @@ package bclibs.analysis.opcodes;
 
 import static bclibs.analysis.Opcodes.OpParameterType.U2;
 import bclibs.analysis.Context;
-import bclibs.analysis.Opcodes.StackElementLength;
+import static bclibs.analysis.stack.Stack.StackElementLength;
 import bclibs.analysis.decoders.DecodedFieldOp;
 
 public class FieldOpcode extends BasicOpcode {

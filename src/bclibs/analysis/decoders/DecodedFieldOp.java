@@ -3,11 +3,11 @@
  */
 package bclibs.analysis.decoders;
 
-import static bclibs.analysis.Opcodes.StackElementLength.*;
+import static bclibs.analysis.stack.Stack.StackElementLength;
+import static bclibs.analysis.stack.Stack.StackElementLength.*;
 import javassist.bytecode.Descriptor;
 import javassist.bytecode.Opcode;
 import bclibs.analysis.Context;
-import bclibs.analysis.Opcodes.StackElementLength;
 import bclibs.analysis.opcodes.FieldOpcode;
 
 public class DecodedFieldOp extends DecodedOp {

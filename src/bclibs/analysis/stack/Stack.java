@@ -5,8 +5,25 @@ package bclibs.analysis.stack;
 
 import java.util.LinkedList;
 
-public class Stack {	
+public class Stack {
+	public static enum StackElementLength {
+		ONE, // one word
+		DOUBLE; // two words
+		
+		public static int add(StackElementLength... stackElementLengths) {
+			int result = 0;
+			for(StackElementLength sel : stackElementLengths) {
+				result += sel == ONE ? 1 : 2;
+			}
+			return result;
+		}
+	}
+	
 	public LinkedList<StackElement> stack = new LinkedList<StackElement>();
+	
+	public boolean isEmpty() {
+		return stack.size() == 0;
+	}
 	
 	public StackElement pop() {
 		StackElement se = stack.pop();
@@ -25,6 +42,12 @@ public class Stack {
 		return se;
 	}
 	
+	public StackElement pop(StackElementLength length) {
+		if(length == StackElementLength.DOUBLE)
+			return pop2();
+		return pop();
+	}
+	
 	public StackElement peek() {
 		StackElement se = stack.peek();
 		if(se instanceof TOP)
@@ -39,6 +62,12 @@ public class Stack {
 		return se;
 	}
 	
+	public StackElement peek(StackElementLength length) {
+		if(length == StackElementLength.DOUBLE)
+			return peek2();
+		return peek();
+	}
+	
 	public Stack push(StackElement se) {
 		stack.push(se);
 		return this;
@@ -48,6 +77,10 @@ public class Stack {
 		stack.push(se);
 		stack.push(new TOP());
 		return this;
+	}
+	
+	public StackElement getFromTop(int i) {
+		return stack.get(i);
 	}
 	
 	public Stack copy() {

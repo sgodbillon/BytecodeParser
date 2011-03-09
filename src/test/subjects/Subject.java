@@ -3,7 +3,7 @@ package test.subjects;
 public class Subject {
 	public void say(String smth) {
 		int i;
-		i = 1;
+		i = 15;
 		int j = 0;
 		int k = j + i;
 		System.out.println(k);
@@ -20,12 +20,24 @@ public class Subject {
 		String name = "truc";
 		String name2 = "truc2";
 		String[] names = new String[] { "y1", "y2" };
-		long toto = 3;
+		long toto = 398738947098720L;
 		Object object__ = new Object();
 		machin("kbce", name2, names, x6(toto), object__);
+		process("a", "b");
+		processStatic("c", "d");
+		String ff = "ff";
+		process(ff);
 	}
 	
 	public void machin(String coucou, String bidule, String[] chponk, long toto, Object o) {
+		
+	}
+	
+	public void process(String...strings) {
+		// blob
+	}
+	
+	public static void processStatic(String...strings) {
 		
 	}
 	

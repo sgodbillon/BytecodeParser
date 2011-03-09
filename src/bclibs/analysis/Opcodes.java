@@ -6,7 +6,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import bclibs.analysis.opcodes.ArrayOpcode;
+import bclibs.analysis.opcodes.ArrayCreationOpcode;
 import bclibs.analysis.opcodes.BasicOpcode;
+import bclibs.analysis.opcodes.ConstantPushOpcode;
 import bclibs.analysis.opcodes.FieldOpcode;
 import bclibs.analysis.opcodes.LocalVariableOpcode;
 import bclibs.analysis.opcodes.MethodInvocationOpcode;
@@ -16,14 +19,9 @@ import bclibs.analysis.stack.StackElement;
 
 import javassist.bytecode.Opcode;
 import static bclibs.analysis.Opcodes.OpParameterType.*;
-import static bclibs.analysis.Opcodes.StackElementLength.*;
+import static bclibs.analysis.stack.Stack.StackElementLength.*;
 
 public class Opcodes {
-	public static enum StackElementLength {
-		ONE, // one word
-		DOUBLE // two words
-	}
-	
 	public static enum OpParameterType {
 		U1,
 		U2,
@@ -56,25 +54,25 @@ public class Opcodes {
 		
 		opcodes.put(Opcode.NOP, new BasicOpcode(Opcode.NOP));
 		opcodes.put(Opcode.ACONST_NULL, new BasicOpcode(Opcode.ACONST_NULL).setPushes(ONE));
-		opcodes.put(Opcode.ICONST_M1, new BasicOpcode(Opcode.ICONST_M1).setPushes(ONE));
-		opcodes.put(Opcode.ICONST_0, new BasicOpcode(Opcode.ICONST_0).setPushes(ONE));
-		opcodes.put(Opcode.ICONST_1, new BasicOpcode(Opcode.ICONST_1).setPushes(ONE));
-		opcodes.put(Opcode.ICONST_2, new BasicOpcode(Opcode.ICONST_2).setPushes(ONE));
-		opcodes.put(Opcode.ICONST_3, new BasicOpcode(Opcode.ICONST_3).setPushes(ONE));
-		opcodes.put(Opcode.ICONST_4, new BasicOpcode(Opcode.ICONST_4).setPushes(ONE));
-		opcodes.put(Opcode.ICONST_5, new BasicOpcode(Opcode.ICONST_5).setPushes(ONE));
-		opcodes.put(Opcode.LCONST_0, new BasicOpcode(Opcode.LCONST_0).setPushes(DOUBLE));
-		opcodes.put(Opcode.LCONST_1, new BasicOpcode(Opcode.LCONST_1).setPushes(DOUBLE));
-		opcodes.put(Opcode.FCONST_0, new BasicOpcode(Opcode.FCONST_0).setPushes(ONE));
-		opcodes.put(Opcode.FCONST_1, new BasicOpcode(Opcode.FCONST_1).setPushes(ONE));
-		opcodes.put(Opcode.FCONST_2, new BasicOpcode(Opcode.FCONST_2).setPushes(ONE));
-		opcodes.put(Opcode.DCONST_0, new BasicOpcode(Opcode.DCONST_0).setPushes(DOUBLE));
-		opcodes.put(Opcode.DCONST_1, new BasicOpcode(Opcode.DCONST_1).setPushes(DOUBLE));
-		opcodes.put(Opcode.BIPUSH, new BasicOpcode(Opcode.BIPUSH, S1).setPushes(ONE));
-		opcodes.put(Opcode.SIPUSH, new BasicOpcode(Opcode.SIPUSH, S2).setPushes(ONE));
-		opcodes.put(Opcode.LDC, new BasicOpcode(Opcode.LDC, U1).setPushes(ONE));
-		opcodes.put(Opcode.LDC_W, new BasicOpcode(Opcode.LDC_W, U2).setPushes(ONE));
-		opcodes.put(Opcode.LDC2_W, new BasicOpcode(Opcode.LDC2_W, U2).setPushes(DOUBLE));
+		opcodes.put(Opcode.ICONST_M1, new ConstantPushOpcode(Opcode.ICONST_M1, Opcode.ICONST_0).setPushes(ONE));
+		opcodes.put(Opcode.ICONST_0, new ConstantPushOpcode(Opcode.ICONST_0, Opcode.ICONST_0).setPushes(ONE));
+		opcodes.put(Opcode.ICONST_1, new ConstantPushOpcode(Opcode.ICONST_1, Opcode.ICONST_0).setPushes(ONE));
+		opcodes.put(Opcode.ICONST_2, new ConstantPushOpcode(Opcode.ICONST_2, Opcode.ICONST_0).setPushes(ONE));
+		opcodes.put(Opcode.ICONST_3, new ConstantPushOpcode(Opcode.ICONST_3, Opcode.ICONST_0).setPushes(ONE));
+		opcodes.put(Opcode.ICONST_4, new ConstantPushOpcode(Opcode.ICONST_4, Opcode.ICONST_0).setPushes(ONE));
+		opcodes.put(Opcode.ICONST_5, new ConstantPushOpcode(Opcode.ICONST_5, Opcode.ICONST_0).setPushes(ONE));
+		opcodes.put(Opcode.LCONST_0, new ConstantPushOpcode(Opcode.LCONST_0).setPushes(DOUBLE));
+		opcodes.put(Opcode.LCONST_1, new ConstantPushOpcode(Opcode.LCONST_1, Opcode.LCONST_0).setPushes(DOUBLE));
+		opcodes.put(Opcode.FCONST_0, new ConstantPushOpcode(Opcode.FCONST_0).setPushes(ONE));
+		opcodes.put(Opcode.FCONST_1, new ConstantPushOpcode(Opcode.FCONST_1, Opcode.FCONST_0).setPushes(ONE));
+		opcodes.put(Opcode.FCONST_2, new ConstantPushOpcode(Opcode.FCONST_2, Opcode.FCONST_0).setPushes(ONE));
+		opcodes.put(Opcode.DCONST_0, new ConstantPushOpcode(Opcode.DCONST_0).setPushes(DOUBLE));
+		opcodes.put(Opcode.DCONST_1, new ConstantPushOpcode(Opcode.DCONST_1, Opcode.DCONST_0).setPushes(DOUBLE));
+		opcodes.put(Opcode.BIPUSH, new ConstantPushOpcode(Opcode.BIPUSH, S1).setPushes(ONE));
+		opcodes.put(Opcode.SIPUSH, new ConstantPushOpcode(Opcode.SIPUSH, S2).setPushes(ONE));
+		opcodes.put(Opcode.LDC, new ConstantPushOpcode(Opcode.LDC, U1).setPushes(ONE));
+		opcodes.put(Opcode.LDC_W, new ConstantPushOpcode(Opcode.LDC_W, U2).setPushes(ONE));
+		opcodes.put(Opcode.LDC2_W, new ConstantPushOpcode(Opcode.LDC2_W, U2).setPushes(DOUBLE));
 		opcodes.put(Opcode.ILOAD, new LocalVariableOpcode(Opcode.ILOAD, true, U1).setPushes(ONE));
 		opcodes.put(Opcode.LLOAD, new LocalVariableOpcode(Opcode.LLOAD, true, U1).setPushes(DOUBLE));
 		opcodes.put(Opcode.FLOAD, new LocalVariableOpcode(Opcode.FLOAD, true, U1).setPushes(ONE));
@@ -100,14 +98,14 @@ public class Opcodes {
 		opcodes.put(Opcode.ALOAD_1, new LocalVariableOpcode(Opcode.ALOAD_1, Opcode.ALOAD_0, true).setPushes(ONE));
 		opcodes.put(Opcode.ALOAD_2, new LocalVariableOpcode(Opcode.ALOAD_2, Opcode.ALOAD_0, true).setPushes(ONE));
 		opcodes.put(Opcode.ALOAD_3, new LocalVariableOpcode(Opcode.ALOAD_3, Opcode.ALOAD_0, true).setPushes(ONE));
-		opcodes.put(Opcode.IALOAD, new BasicOpcode(Opcode.IALOAD).setPops(ONE, ONE).setPushes(ONE));
-		opcodes.put(Opcode.LALOAD, new BasicOpcode(Opcode.LALOAD).setPops(ONE, ONE).setPushes(DOUBLE));
-		opcodes.put(Opcode.FALOAD, new BasicOpcode(Opcode.FALOAD).setPops(ONE, ONE).setPushes(ONE));
-		opcodes.put(Opcode.DALOAD, new BasicOpcode(Opcode.DALOAD).setPops(ONE, ONE).setPushes(DOUBLE));
-		opcodes.put(Opcode.AALOAD, new BasicOpcode(Opcode.AALOAD).setPops(ONE, ONE).setPushes(ONE));
-		opcodes.put(Opcode.BALOAD, new BasicOpcode(Opcode.BALOAD).setPops(ONE, ONE).setPushes(ONE));
-		opcodes.put(Opcode.CALOAD, new BasicOpcode(Opcode.CALOAD).setPops(ONE, ONE).setPushes(ONE));
-		opcodes.put(Opcode.SALOAD, new BasicOpcode(Opcode.SALOAD).setPops(ONE, ONE).setPushes(ONE));
+		opcodes.put(Opcode.IALOAD, new ArrayOpcode(Opcode.IALOAD, true).setPops(ONE, ONE).setPushes(ONE)); // ARRAY
+		opcodes.put(Opcode.LALOAD, new ArrayOpcode(Opcode.LALOAD, true).setPops(ONE, ONE).setPushes(DOUBLE)); // ARRAY
+		opcodes.put(Opcode.FALOAD, new ArrayOpcode(Opcode.FALOAD, true).setPops(ONE, ONE).setPushes(ONE)); // ARRAY
+		opcodes.put(Opcode.DALOAD, new ArrayOpcode(Opcode.DALOAD, true).setPops(ONE, ONE).setPushes(DOUBLE)); // ARRAY
+		opcodes.put(Opcode.AALOAD, new ArrayOpcode(Opcode.AALOAD, true).setPops(ONE, ONE).setPushes(ONE)); // ARRAY
+		opcodes.put(Opcode.BALOAD, new ArrayOpcode(Opcode.BALOAD, true).setPops(ONE, ONE).setPushes(ONE)); // ARRAY
+		opcodes.put(Opcode.CALOAD, new ArrayOpcode(Opcode.CALOAD, true).setPops(ONE, ONE).setPushes(ONE)); // ARRAY
+		opcodes.put(Opcode.SALOAD, new ArrayOpcode(Opcode.SALOAD, true).setPops(ONE, ONE).setPushes(ONE)); // ARRAY
 		opcodes.put(Opcode.ISTORE, new LocalVariableOpcode(Opcode.ISTORE, false, U1).setPops(ONE));
 		opcodes.put(Opcode.LSTORE, new LocalVariableOpcode(Opcode.LSTORE, false, U1).setPops(DOUBLE));
 		opcodes.put(Opcode.FSTORE, new LocalVariableOpcode(Opcode.FSTORE, false, U1).setPops(ONE));
@@ -133,14 +131,14 @@ public class Opcodes {
 		opcodes.put(Opcode.ASTORE_1, new LocalVariableOpcode(Opcode.ASTORE_1, Opcode.ASTORE_0, false).setPops(ONE));
 		opcodes.put(Opcode.ASTORE_2, new LocalVariableOpcode(Opcode.ASTORE_2, Opcode.ASTORE_0, false).setPops(ONE));
 		opcodes.put(Opcode.ASTORE_3, new LocalVariableOpcode(Opcode.ASTORE_3, Opcode.ASTORE_0, false).setPops(ONE));
-		opcodes.put(Opcode.IASTORE, new BasicOpcode(Opcode.IASTORE).setPops(ONE, ONE, ONE));
-		opcodes.put(Opcode.LASTORE, new BasicOpcode(Opcode.LASTORE).setPops(DOUBLE, ONE, ONE));
-		opcodes.put(Opcode.FASTORE, new BasicOpcode(Opcode.FASTORE).setPops(ONE, ONE, ONE));
-		opcodes.put(Opcode.DASTORE, new BasicOpcode(Opcode.DASTORE).setPops(DOUBLE, ONE, ONE));
-		opcodes.put(Opcode.AASTORE, new BasicOpcode(Opcode.AASTORE).setPops(ONE, ONE, ONE));
-		opcodes.put(Opcode.BASTORE, new BasicOpcode(Opcode.BASTORE).setPops(ONE, ONE, ONE));
-		opcodes.put(Opcode.CASTORE, new BasicOpcode(Opcode.CASTORE).setPops(ONE, ONE, ONE));
-		opcodes.put(Opcode.SASTORE, new BasicOpcode(Opcode.SASTORE).setPops(ONE, ONE, ONE));
+		opcodes.put(Opcode.IASTORE, new ArrayOpcode(Opcode.IASTORE, false).setPops(ONE, ONE, ONE)); // ARRAY
+		opcodes.put(Opcode.LASTORE, new ArrayOpcode(Opcode.LASTORE, false).setPops(DOUBLE, ONE, ONE)); // ARRAY
+		opcodes.put(Opcode.FASTORE, new ArrayOpcode(Opcode.FASTORE, false).setPops(ONE, ONE, ONE)); // ARRAY
+		opcodes.put(Opcode.DASTORE, new ArrayOpcode(Opcode.DASTORE, false).setPops(DOUBLE, ONE, ONE)); // ARRAY
+		opcodes.put(Opcode.AASTORE, new ArrayOpcode(Opcode.AASTORE, false).setPops(ONE, ONE, ONE)); // ARRAY
+		opcodes.put(Opcode.BASTORE, new ArrayOpcode(Opcode.BASTORE, false).setPops(ONE, ONE, ONE)); // ARRAY
+		opcodes.put(Opcode.CASTORE, new ArrayOpcode(Opcode.CASTORE, false).setPops(ONE, ONE, ONE)); // ARRAY
+		opcodes.put(Opcode.SASTORE, new ArrayOpcode(Opcode.SASTORE, false).setPops(ONE, ONE, ONE)); // ARRAY
 		opcodes.put(Opcode.POP, new BasicOpcode(Opcode.POP).setPops(ONE));
 		opcodes.put(Opcode.POP2, new BasicOpcode(Opcode.POP2).setPops(DOUBLE));
 		opcodes.put(Opcode.DUP, new BasicOpcode(Opcode.DUP) {
@@ -282,9 +280,9 @@ public class Opcodes {
 		opcodes.put(Opcode.INVOKESTATIC, new MethodInvocationOpcode(Opcode.INVOKESTATIC));
 		opcodes.put(Opcode.INVOKEINTERFACE, new MethodInvocationOpcode(Opcode.INVOKEINTERFACE));
 		opcodes.put(Opcode.NEW, new BasicOpcode(Opcode.NEW, U2).setPushes(ONE));
-		opcodes.put(Opcode.NEWARRAY, new BasicOpcode(Opcode.NEWARRAY, U1).setPops(ONE).setPushes(ONE));
-		opcodes.put(Opcode.ANEWARRAY, new BasicOpcode(Opcode.ANEWARRAY, U2).setPops(ONE).setPushes(ONE));
-		opcodes.put(Opcode.ARRAYLENGTH, new BasicOpcode(Opcode.ARRAYLENGTH).setPops(ONE).setPushes(ONE));
+		opcodes.put(Opcode.NEWARRAY, new ArrayCreationOpcode(Opcode.NEWARRAY, U1).setPops(ONE).setPushes(ONE)); // ARRAY
+		opcodes.put(Opcode.ANEWARRAY, new ArrayCreationOpcode(Opcode.ANEWARRAY, U2).setPops(ONE).setPushes(ONE)); // ARRAY
+		opcodes.put(Opcode.ARRAYLENGTH, new BasicOpcode(Opcode.ARRAYLENGTH).setPops(ONE).setPushes(ONE)); // ARRAY
 		opcodes.put(Opcode.ATHROW, new BasicOpcode(Opcode.ATHROW).setPops(ONE));
 		opcodes.put(Opcode.CHECKCAST, new BasicOpcode(Opcode.CHECKCAST, U2).setPops(ONE).setPushes(ONE));
 		opcodes.put(Opcode.INSTANCEOF, new BasicOpcode(Opcode.INSTANCEOF, U2).setPops(ONE).setPushes(ONE));

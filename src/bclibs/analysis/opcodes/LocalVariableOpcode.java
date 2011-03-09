@@ -3,10 +3,10 @@
  */
 package bclibs.analysis.opcodes;
 
-import static bclibs.analysis.Opcodes.StackElementLength.DOUBLE;
+import static bclibs.analysis.stack.Stack.StackElementLength;
+import static bclibs.analysis.stack.Stack.StackElementLength.*;
 import bclibs.analysis.Context;
 import bclibs.analysis.Opcodes.OpParameterType;
-import bclibs.analysis.Opcodes.StackElementLength;
 import bclibs.analysis.decoders.DecodedLocalVariableOp;
 import bclibs.analysis.stack.Stack;
 import bclibs.analysis.stack.ValueFromLocalVariable;

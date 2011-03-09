@@ -4,7 +4,7 @@
 package bclibs.analysis.opcodes;
 
 import static bclibs.analysis.Opcodes.OpParameterType.U2;
-import static bclibs.analysis.Opcodes.StackElementLength.*;
+import static bclibs.analysis.stack.Stack.StackElementLength.*;
 
 import com.sun.xml.internal.ws.org.objectweb.asm.Opcodes;
 

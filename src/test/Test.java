@@ -21,6 +21,7 @@ import bclibs.analysis.opcodes.MethodInvocationOpcode;
 import bclibs.analysis.opcodes.Op;
 import bclibs.analysis.stack.StackElement;
 import bclibs.analysis.stack.TOP;
+import bclibs.analysis.stack.TrackableArray;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtMethod;
@@ -65,7 +66,20 @@ public class Test {
 						StackElement se = stack.get(i++);
 						if(se instanceof TOP)
 							se = stack.get(i++);
-						s = se + s;
+						String toAppend = se.toString();
+						if(se instanceof TrackableArray) {
+							TrackableArray trackableArray = (TrackableArray) se;
+							if(!trackableArray.isDirty && nbParams == 0) { // varargs
+								StringBuffer asb = new StringBuffer();
+								if(trackableArray.elements.length > 0) {
+									asb.append(trackableArray.elements[0]);
+									for(int j = 1; j < trackableArray.elements.length; j++)
+										asb.append(",").append(trackableArray.elements[j]);
+								}
+								toAppend = asb.toString();
+							}
+						}
+						s = toAppend + s;
 						nbParams++;
 					}
 					s = name + "(" + s;
