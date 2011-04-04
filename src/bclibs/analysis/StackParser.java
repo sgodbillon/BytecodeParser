@@ -34,4 +34,13 @@ public class StackParser {
 	public LinkedList<StackElement> getCurrentStack() {
 		return stack.stack;
 	}
+	
+	public void init() throws BadBytecode {
+		new CodeParser(parser.context.behavior).parse(new OpHandler() {
+			@Override
+			public void handle(Op op, int index) {
+				
+			}
+		});
+	}
 }

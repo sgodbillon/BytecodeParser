@@ -43,6 +43,11 @@ public abstract class Op {
 		return name;
 	}
 	
+	@SuppressWarnings(value="unchecked")
+	public <T extends Op> T as(Class<T> specificOpClass) {
+		return (T) this;
+	}
+	
 	@Override
 	public String toString() {
 		return "op: " + getName() + "";

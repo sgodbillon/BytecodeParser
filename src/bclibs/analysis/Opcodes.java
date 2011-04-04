@@ -9,7 +9,9 @@ import java.util.Map;
 import bclibs.analysis.opcodes.ArrayOpcode;
 import bclibs.analysis.opcodes.ArrayCreationOpcode;
 import bclibs.analysis.opcodes.BasicOpcode;
+import bclibs.analysis.opcodes.BranchOpCode;
 import bclibs.analysis.opcodes.ConstantPushOpcode;
+import bclibs.analysis.opcodes.ExitOpcode;
 import bclibs.analysis.opcodes.FieldOpcode;
 import bclibs.analysis.opcodes.LocalVariableOpcode;
 import bclibs.analysis.opcodes.MethodInvocationOpcode;
@@ -246,31 +248,31 @@ public class Opcodes {
 		opcodes.put(Opcode.FCMPG, new BasicOpcode(Opcode.FCMPG).setPops(ONE, ONE).setPushes(ONE));
 		opcodes.put(Opcode.DCMPL, new BasicOpcode(Opcode.DCMPL).setPops(DOUBLE, DOUBLE).setPushes(ONE));
 		opcodes.put(Opcode.DCMPG, new BasicOpcode(Opcode.DCMPG).setPops(DOUBLE, DOUBLE).setPushes(ONE));
-		opcodes.put(Opcode.IFEQ, new BasicOpcode(Opcode.IFEQ, S2).setPops(ONE));
-		opcodes.put(Opcode.IFNE, new BasicOpcode(Opcode.IFNE, S2).setPops(ONE));
-		opcodes.put(Opcode.IFLT, new BasicOpcode(Opcode.IFLT, S2).setPops(ONE));
-		opcodes.put(Opcode.IFGE, new BasicOpcode(Opcode.IFGE, S2).setPops(ONE));
-		opcodes.put(Opcode.IFGT, new BasicOpcode(Opcode.IFGT, S2).setPops(ONE));
-		opcodes.put(Opcode.IFLE, new BasicOpcode(Opcode.IFLE, S2).setPops(ONE));
-		opcodes.put(Opcode.IF_ICMPEQ, new BasicOpcode(Opcode.IF_ICMPEQ, S2).setPops(ONE, ONE));
-		opcodes.put(Opcode.IF_ICMPNE, new BasicOpcode(Opcode.IF_ICMPNE, S2).setPops(ONE, ONE));
-		opcodes.put(Opcode.IF_ICMPLT, new BasicOpcode(Opcode.IF_ICMPLT, S2).setPops(ONE, ONE));
-		opcodes.put(Opcode.IF_ICMPGE, new BasicOpcode(Opcode.IF_ICMPGE, S2).setPops(ONE, ONE));
-		opcodes.put(Opcode.IF_ICMPGT, new BasicOpcode(Opcode.IF_ICMPGT, S2).setPops(ONE, ONE));
-		opcodes.put(Opcode.IF_ICMPLE, new BasicOpcode(Opcode.IF_ICMPLE, S2).setPops(ONE, ONE));
-		opcodes.put(Opcode.IF_ACMPEQ, new BasicOpcode(Opcode.IF_ACMPEQ, S2).setPops(ONE, ONE));
-		opcodes.put(Opcode.IF_ACMPNE, new BasicOpcode(Opcode.IF_ACMPNE, S2).setPops(ONE, ONE));
-		opcodes.put(Opcode.GOTO, new BasicOpcode(Opcode.GOTO, S2));
-		opcodes.put(Opcode.JSR, new BasicOpcode(Opcode.JSR, S2));
-		opcodes.put(Opcode.RET, new BasicOpcode(Opcode.RET, U1));
+		opcodes.put(Opcode.IFEQ, new BranchOpCode(Opcode.IFEQ, S2).setPops(ONE));
+		opcodes.put(Opcode.IFNE, new BranchOpCode(Opcode.IFNE, S2).setPops(ONE));
+		opcodes.put(Opcode.IFLT, new BranchOpCode(Opcode.IFLT, S2).setPops(ONE));
+		opcodes.put(Opcode.IFGE, new BranchOpCode(Opcode.IFGE, S2).setPops(ONE));
+		opcodes.put(Opcode.IFGT, new BranchOpCode(Opcode.IFGT, S2).setPops(ONE));
+		opcodes.put(Opcode.IFLE, new BranchOpCode(Opcode.IFLE, S2).setPops(ONE));
+		opcodes.put(Opcode.IF_ICMPEQ, new BranchOpCode(Opcode.IF_ICMPEQ, S2).setPops(ONE, ONE));
+		opcodes.put(Opcode.IF_ICMPNE, new BranchOpCode(Opcode.IF_ICMPNE, S2).setPops(ONE, ONE));
+		opcodes.put(Opcode.IF_ICMPLT, new BranchOpCode(Opcode.IF_ICMPLT, S2).setPops(ONE, ONE));
+		opcodes.put(Opcode.IF_ICMPGE, new BranchOpCode(Opcode.IF_ICMPGE, S2).setPops(ONE, ONE));
+		opcodes.put(Opcode.IF_ICMPGT, new BranchOpCode(Opcode.IF_ICMPGT, S2).setPops(ONE, ONE));
+		opcodes.put(Opcode.IF_ICMPLE, new BranchOpCode(Opcode.IF_ICMPLE, S2).setPops(ONE, ONE));
+		opcodes.put(Opcode.IF_ACMPEQ, new BranchOpCode(Opcode.IF_ACMPEQ, S2).setPops(ONE, ONE));
+		opcodes.put(Opcode.IF_ACMPNE, new BranchOpCode(Opcode.IF_ACMPNE, S2).setPops(ONE, ONE));
+		opcodes.put(Opcode.GOTO, new BranchOpCode(Opcode.GOTO, S2));
+		opcodes.put(Opcode.JSR, new BranchOpCode(Opcode.JSR, S2));
+		opcodes.put(Opcode.RET, new BranchOpCode(Opcode.RET, U1));
 		// TABLESWITCH
 		// LOOKUPSWITCH
-		opcodes.put(Opcode.IRETURN, new BasicOpcode(Opcode.IRETURN).setPops(ONE));
-		opcodes.put(Opcode.LRETURN, new BasicOpcode(Opcode.LRETURN).setPops(DOUBLE));
-		opcodes.put(Opcode.FRETURN, new BasicOpcode(Opcode.FRETURN).setPops(ONE));
-		opcodes.put(Opcode.DRETURN, new BasicOpcode(Opcode.DRETURN).setPops(DOUBLE));
-		opcodes.put(Opcode.ARETURN, new BasicOpcode(Opcode.ARETURN).setPops(ONE));
-		opcodes.put(Opcode.RETURN, new BasicOpcode(Opcode.RETURN));
+		opcodes.put(Opcode.IRETURN, new ExitOpcode(Opcode.IRETURN).setPops(ONE));
+		opcodes.put(Opcode.LRETURN, new ExitOpcode(Opcode.LRETURN).setPops(DOUBLE));
+		opcodes.put(Opcode.FRETURN, new ExitOpcode(Opcode.FRETURN).setPops(ONE));
+		opcodes.put(Opcode.DRETURN, new ExitOpcode(Opcode.DRETURN).setPops(DOUBLE));
+		opcodes.put(Opcode.ARETURN, new ExitOpcode(Opcode.ARETURN).setPops(ONE));
+		opcodes.put(Opcode.RETURN, new ExitOpcode(Opcode.RETURN));
 		opcodes.put(Opcode.GETSTATIC, new FieldOpcode(Opcode.GETSTATIC));
 		opcodes.put(Opcode.PUTSTATIC, new FieldOpcode(Opcode.PUTSTATIC));
 		opcodes.put(Opcode.GETFIELD, new FieldOpcode(Opcode.GETFIELD));
@@ -283,17 +285,17 @@ public class Opcodes {
 		opcodes.put(Opcode.NEWARRAY, new ArrayCreationOpcode(Opcode.NEWARRAY, U1).setPops(ONE).setPushes(ONE)); // ARRAY
 		opcodes.put(Opcode.ANEWARRAY, new ArrayCreationOpcode(Opcode.ANEWARRAY, U2).setPops(ONE).setPushes(ONE)); // ARRAY
 		opcodes.put(Opcode.ARRAYLENGTH, new BasicOpcode(Opcode.ARRAYLENGTH).setPops(ONE).setPushes(ONE)); // ARRAY
-		opcodes.put(Opcode.ATHROW, new BasicOpcode(Opcode.ATHROW).setPops(ONE));
+		opcodes.put(Opcode.ATHROW, new ExitOpcode(Opcode.ATHROW).setPops(ONE));
 		opcodes.put(Opcode.CHECKCAST, new BasicOpcode(Opcode.CHECKCAST, U2).setPops(ONE).setPushes(ONE));
 		opcodes.put(Opcode.INSTANCEOF, new BasicOpcode(Opcode.INSTANCEOF, U2).setPops(ONE).setPushes(ONE));
 		opcodes.put(Opcode.MONITORENTER, new BasicOpcode(Opcode.MONITORENTER).setPops(ONE));
 		opcodes.put(Opcode.MONITOREXIT, new BasicOpcode(Opcode.MONITOREXIT).setPops(ONE));
 		opcodes.put(Opcode.WIDE, new BasicOpcode(Opcode.WIDE));
 		// MULTINEWARRAY
-		opcodes.put(Opcode.IFNULL, new BasicOpcode(Opcode.IFNULL, S2).setPops(ONE));
-		opcodes.put(Opcode.IFNONNULL, new BasicOpcode(Opcode.IFNONNULL, S2).setPops(ONE));
-		opcodes.put(Opcode.GOTO_W, new BasicOpcode(Opcode.GOTO_W, S4));
-		opcodes.put(Opcode.JSR_W, new BasicOpcode(Opcode.JSR_W, S4).setPushes(ONE));
+		opcodes.put(Opcode.IFNULL, new BranchOpCode(Opcode.IFNULL, S2).setPops(ONE));
+		opcodes.put(Opcode.IFNONNULL, new BranchOpCode(Opcode.IFNONNULL, S2).setPops(ONE));
+		opcodes.put(Opcode.GOTO_W, new BranchOpCode(Opcode.GOTO_W, S4));
+		opcodes.put(Opcode.JSR_W, new BranchOpCode(Opcode.JSR_W, S4).setPushes(ONE));
 		
 		OPCODES = Collections.unmodifiableMap(opcodes);
 	}
