@@ -1,5 +1,6 @@
 package bclibs.analysis.opcodes;
 
+import javassist.bytecode.Opcode;
 import bclibs.analysis.Context;
 import bclibs.analysis.Opcodes.OpParameterType;
 import bclibs.analysis.decoders.DecodedBranchOp;
@@ -16,5 +17,9 @@ public class BranchOpCode extends BasicOpcode {
 	@Override
 	public DecodedBranchOp decode(Context context, int index) {
 		return new DecodedBranchOp(this, context, index);
+	}
+	
+	public boolean isConditional() {
+		return code >= Opcode.IFEQ && code <= Opcode.IF_ACMPNE || code == Opcode.IFNULL || code == Opcode.IFNONNULL;
 	}
 }

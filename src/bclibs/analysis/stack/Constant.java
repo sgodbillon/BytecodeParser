@@ -66,4 +66,13 @@ public abstract class Constant<T> extends StackElement {
 		}
 	}
 	
+	public static class WhateverConstant extends Constant<Object> {
+		public WhateverConstant(Object value) {
+			super(value);
+		}
+		@Override
+		public StackElement copy() {
+			return new WhateverConstant(value);
+		}
+	}
 }

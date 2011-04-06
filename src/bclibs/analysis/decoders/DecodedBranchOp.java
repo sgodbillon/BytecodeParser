@@ -12,6 +12,6 @@ public class DecodedBranchOp extends DecodedOp {
 	}
 	
 	public int getJump() {
-		return jump;
+		return jump + index;
 	}
 }

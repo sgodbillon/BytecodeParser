@@ -17,6 +17,6 @@ public class ValueFromLocalVariable extends StackElement {
 	
 	@Override
 	public String toString() {
-		return "ValueFromLocalVariable '" + localVariable.name + "'";
+		return "ValueFromLocalVariable '" + (localVariable != null ? localVariable.name : "NONAME") + "'";
 	}
 }

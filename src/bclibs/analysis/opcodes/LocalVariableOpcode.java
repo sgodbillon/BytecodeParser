@@ -32,12 +32,15 @@ public class LocalVariableOpcode extends BasicOpcode {
 	@Override
 	public void simulate(Stack stack, Context context, int index) {
 		ValueFromLocalVariable toPush = new ValueFromLocalVariable(decode(context, index).localVariable);
+		System.out.println("load " + index + ":" + getName() + " " + toPush.localVariable + "? " + load);
 		for(int i = 0; i < getPops().length; i++) {
+			System.out.println("pop");
 			if(getPops()[i] == DOUBLE)
 				stack.pop2();
 			else stack.pop();
 		}
 		for(int i = 0; i < getPushes().length; i++) {
+			System.out.println("push");
 			if(getPushes()[i] == DOUBLE)
 				stack.push2(toPush);
 			else stack.push(toPush);

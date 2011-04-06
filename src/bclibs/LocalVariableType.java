@@ -9,6 +9,7 @@ import java.util.Map;
 import javassist.bytecode.BadBytecode;
 import javassist.bytecode.SignatureAttribute;
 import javassist.bytecode.SignatureAttribute.ArrayType;
+import javassist.bytecode.SignatureAttribute.BaseType;
 import javassist.bytecode.SignatureAttribute.ClassType;
 
 public class LocalVariableType {
@@ -44,10 +45,12 @@ public class LocalVariableType {
 				String typeName = ((ClassType) objectType).getName();
 				return new LocalVariableType(signature, addArrayTypeInfo(typeName, dimensions), typeName, false, dimensions);
 			}
-			throw new RuntimeException("unknown signature: " + signature + ", objectType=" + objectType.getClass());
-		} catch(BadBytecode e) {
+			throw new RuntimeException("not a class ?");
+		} catch(Exception e) {
 			// not a class
 			String typeName = primitiveSymbols.get("" + signature.charAt(dimensions));
+			if(typeName == null)
+				throw new RuntimeException("unknown signature: " + signature);
 			return new LocalVariableType(signature, addArrayTypeInfo(typeName, dimensions), typeName, true, dimensions);
 		}
 	}

@@ -51,19 +51,23 @@ public class LocalVariable {
 		Map<Integer, LocalVariable> variables = new HashMap<Integer, LocalVariable>();
 		CodeAttribute codeAttribute = behavior.getMethodInfo().getCodeAttribute();
 		LocalVariableAttribute localVariableAttribute = (LocalVariableAttribute) codeAttribute.getAttribute("LocalVariableTable");
-		for(int i = 0; i < localVariableAttribute.tableLength(); i++) {
-			boolean isParameter = i < nbParameters || !isStatic && i == nbParameters;
-			LocalVariable localVariable = new LocalVariable(i, localVariableAttribute.variableName(i), LocalVariableType.parse(localVariableAttribute.signature(i)), isParameter, behavior);
-			variables.put(i, localVariable);
-			//System.out.println("found var "+localVariable);
-			//System.out.println(String.format("findLocalVariables: var %s is '%s' (slot %s)", i, localVariable.name, localVariable.getSlot()));
-		}
+		//System.out.println("search vars : " + localVariableAttribute + " > " + (localVariableAttribute != null ? localVariableAttribute.tableLength() : 0));
+		if(localVariableAttribute != null) {
+			for(int i = 0; i < localVariableAttribute.tableLength(); i++) {
+				boolean isParameter = i < nbParameters || !isStatic && i == nbParameters;
+				LocalVariable localVariable = new LocalVariable(i, localVariableAttribute.variableName(i), LocalVariableType.parse(localVariableAttribute.signature(i)), isParameter, behavior);
+				variables.put(i, localVariable);
+				//System.out.println("found var "+localVariable);
+				//System.out.println(String.format("findLocalVariables: var %s is '%s' (slot %s)", i, localVariable.name, localVariable.getSlot()));
+			}
+		} else System.out.println("no local vars found");
 		return variables;
 	}
 	
 	public static LocalVariable getLocalVariable(int slot, int index, Map<Integer, LocalVariable> variables) {
 		TreeMap<Integer, LocalVariable> variablesByDistance = new TreeMap<Integer, LocalVariable>();
 		for(LocalVariable lv : variables.values()) {
+			//System.out.println("lv " + lv);
 			if(lv.getSlot() == slot) {
 				int[] validityRange = lv.getValidityRange();
 				if(validityRange[1] >= index) {
@@ -74,6 +78,8 @@ public class LocalVariable {
 				}
 			}
 		}
-		return variablesByDistance.firstEntry().getValue();
+		if(variablesByDistance.size() > 0)
+			return variablesByDistance.firstEntry().getValue();
+		return null;
 	}
 }

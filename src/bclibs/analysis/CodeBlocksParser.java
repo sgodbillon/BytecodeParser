@@ -39,4 +39,12 @@ public class CodeBlocksParser {
 			exceptionHandlers.add(table.handlerPc(i));
 		}
 	}
+	
+	public List<Integer> getExceptionHandlers() {
+		return exceptionHandlers;
+	}
+	
+	public Map<Integer, Integer> getJumps() {
+		return jumps;
+	}
 }

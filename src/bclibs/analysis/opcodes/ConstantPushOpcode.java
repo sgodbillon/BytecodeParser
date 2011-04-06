@@ -1,5 +1,8 @@
 package bclibs.analysis.opcodes;
 
+import java.lang.reflect.Method;
+
+import javassist.bytecode.ConstPool;
 import javassist.bytecode.Opcode;
 import bclibs.analysis.Context;
 import bclibs.analysis.Opcodes.OpParameterType;
@@ -49,6 +52,24 @@ public class ConstantPushOpcode extends BasicOpcode {
 				stack.push(new IntegerConstant(decode(context, index).parameterValues[0]));
 			} else if(type == OpParameterType.U1 || type == OpParameterType.U2) {
 				Object o = context.behavior.getMethodInfo().getConstPool().getLdcValue(value);
+				if(o == null) {
+					System.out.println("$$ ERROR $$ " + index + ": " + getCode() + " (" + getName() + "), val="+value);
+					ConstPool cp = context.behavior.getMethodInfo().getConstPool();
+					for(Method m : ConstPool.class.getDeclaredMethods()) {
+						if(m.getName().equals("getItem")) {
+							m.setAccessible(true);
+							try {
+								Object _o = m.invoke(cp, new Integer(value));
+								System.out.println("entry was " + (_o == null ? "null" : _o.getClass().toString()));
+								stack.push(new WhateverConstant(_o));
+							} catch (Exception e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+						}
+					}
+					return;
+				}
 				if(o instanceof Integer)
 					stack.push(new IntegerConstant((Integer)o));
 				else if(o instanceof Long)

@@ -16,12 +16,15 @@ import bclibs.analysis.Context;
 import bclibs.analysis.Opcodes;
 import bclibs.analysis.StackOpHandler;
 import bclibs.analysis.StackParser;
+import bclibs.analysis.StackParser.Frame;
 import bclibs.analysis.decoders.DecodedMethodInvocationOp;
 import bclibs.analysis.opcodes.MethodInvocationOpcode;
 import bclibs.analysis.opcodes.Op;
+import bclibs.analysis.stack.Stack;
 import bclibs.analysis.stack.StackElement;
 import bclibs.analysis.stack.TOP;
 import bclibs.analysis.stack.TrackableArray;
+import bclibs.analysis.stack.ValueFromLocalVariable;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtMethod;
@@ -46,13 +49,48 @@ public class Test {
 		}
 		
 		final StackParser parser = new StackParser(behavior);
-		parser.parse(new StackOpHandler() {
+		Frame[] frames = parser.parse();
+		for(Frame frame : frames) {
+			if(frame != null) {
+				System.out.println(frame);
+				if(frame.op instanceof MethodInvocationOpcode) {
+					System.out.println(frame.op.as(MethodInvocationOpcode.class).decode(parser.context, frame.index).getDescriptor());
+					MethodInvocationOpcode mop = (MethodInvocationOpcode) frame.op;
+					DecodedMethodInvocationOp decoded = mop.decode(parser.context, frame.index);
+					String name = decoded.getName();
+					String[] names = methodInvocationNames(frame);
+					StringBuffer sb = new StringBuffer();
+					if(names.length > 0) {
+						sb.append(names[0]);
+						for(int i = 1; i < names.length; i++) {
+							sb.append(", ").append(names[i]);
+						}
+					}
+					sb.insert(0, "(").insert(0, name).append(")");
+					System.out.println("found method " + sb.toString());
+				}
+			}
+		}
+		/*parser.parse(new StackOpHandler() {
 			@Override
 			public void beforeComputeStack(Op op, int index) {
 				LinkedList<StackElement> stack = parser.getCurrentStack();
 				System.out.println(stack);
 				if(op instanceof MethodInvocationOpcode) {
 					MethodInvocationOpcode mop = (MethodInvocationOpcode) op;
+					DecodedMethodInvocationOp decoded = mop.decode(parser.parser.context, index);
+					String name = decoded.getName();
+					String[] names = methodInvocationNames(parser, (MethodInvocationOpcode) op, index);
+					StringBuffer sb = new StringBuffer();
+					if(names.length > 0) {
+						sb.append(names[0]);
+						for(int i = 1; i < names.length; i++) {
+							sb.append(", ").append(names[i]);
+						}
+					}
+					sb.insert(0, "(").insert(0, name).append(")");
+					System.out.println("found method " + sb.toString());
+					/*MethodInvocationOpcode mop = (MethodInvocationOpcode) op;
 					DecodedMethodInvocationOp decoded = mop.decode(parser.parser.context, index);
 					String name = decoded.getName();
 					//System.out.println("method " + name + " " + decoded.getDescriptor());
@@ -84,10 +122,10 @@ public class Test {
 					}
 					s = name + "(" + s;
 					int line = parser.parser.context.behavior.getMethodInfo().getLineNumber(index);
-					System.out.println("method ::: " + s + " at line " + line);
+					System.out.println("method ::: " + s + " at line " + line);* /
 				}
 			}
-		});
+		}); */
 		//LocalVariablesEnhancer enhancer = new LocalVariablesEnhancer(behavior);
 		//enhancer.proceed();
 		//enhancer.yop();
@@ -109,6 +147,39 @@ public class Test {
 			System.out.println("--->" + e);
 			e.printStackTrace();
 		}
+	}
+	
+	private static String getLocalVariableName(StackElement se) {
+		if(se instanceof ValueFromLocalVariable) {
+			ValueFromLocalVariable v = (ValueFromLocalVariable) se;
+			return v.localVariable.name;
+		}
+		return null;
+	}
+	
+	private static String[] methodInvocationNames(Frame frame) {
+		DecodedMethodInvocationOp decoded = frame.op.as(MethodInvocationOpcode.class).decode(null, frame.index);
+		String name = decoded.getName();
+		int nbParams = decoded.getNbParameters();
+		String[] result = new String[nbParams];
+		int stackIndex = 0;
+		if(frame.stackBefore.stack.get(stackIndex) instanceof TrackableArray) {
+			StackElement[] varargs = ((TrackableArray) frame.stackBefore.stack.get(0)).elements;
+			nbParams = nbParams + varargs.length - 1;
+			result = new String[nbParams];
+			for(int i = 0; i < varargs.length; i++, nbParams--) {
+				result[nbParams - 1] = getLocalVariableName(varargs[i]);
+			}
+			stackIndex++;
+		}
+		while(nbParams > 0) {
+			StackElement se = frame.stackBefore.stack.get(stackIndex++);
+			if(se instanceof TOP)
+				se = frame.stackBefore.stack.get(stackIndex++);
+			result[nbParams - 1] = getLocalVariableName(se);
+			nbParams--;
+		}
+		return result;
 	}
 	
 	/*

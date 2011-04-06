@@ -9,27 +9,34 @@ import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtPrimitiveType;
 import javassist.NotFoundException;
+import javassist.bytecode.ConstPool;
 import javassist.bytecode.Descriptor;
 import bclibs.analysis.Context;
 import bclibs.analysis.opcodes.MethodInvocationOpcode;
+import bclibs.utils.Utils;
 
 public class DecodedMethodInvocationOp extends DecodedOp {
 	protected int nbParameters;
 	protected String descriptor;
+	protected CtClass[] parameterTypes;
+	protected String declaringClassName;
 	protected String name;
 	protected StackElementLength[] pops;
 	protected StackElementLength[] pushes;
 	
 	public DecodedMethodInvocationOp(MethodInvocationOpcode mop, Context context, int index) throws NotFoundException {
 		super(mop, context, index);
-		descriptor = context.behavior.getMethodInfo().getConstPool().getMethodrefType(getMethodRefIndex());
-		name = context.behavior.getMethodInfo().getConstPool().getMethodrefName(getMethodRefIndex());
+		ConstPool constPool = Utils.getConstPool(context.behavior);
+		boolean interfaceMethod = constPool.getTag(getMethodRefIndex()) == ConstPool.CONST_InterfaceMethodref;
+		descriptor = interfaceMethod ? constPool.getInterfaceMethodrefType(getMethodRefIndex()) : constPool.getMethodrefType(getMethodRefIndex());
+		name = interfaceMethod ? constPool.getInterfaceMethodrefName(getMethodRefIndex()) : constPool.getMethodrefName(getMethodRefIndex());
+		declaringClassName = context.behavior.getDeclaringClass().getName();
 		ClassPool cp = context.behavior.getDeclaringClass().getClassPool();
-		CtClass[] methodParameterTypes = Descriptor.getParameterTypes(descriptor, cp);
-		nbParameters = methodParameterTypes.length;
-		StackElementLength[] pops = new StackElementLength[methodParameterTypes.length + (mop.isInstanceMethod() ? 1 : 0)];
-		for(int i = methodParameterTypes.length - 1, j = 0; i >= 0; i--, j++) {
-			CtClass ctClass = methodParameterTypes[i];
+		parameterTypes = Descriptor.getParameterTypes(descriptor, cp);
+		nbParameters = parameterTypes.length;
+		StackElementLength[] pops = new StackElementLength[parameterTypes.length + (mop.isInstanceMethod() ? 1 : 0)];
+		for(int i = parameterTypes.length - 1, j = 0; i >= 0; i--, j++) {
+			CtClass ctClass = parameterTypes[i];
 			if(ctClass.isPrimitive()) {
 				char d = ((CtPrimitiveType) ctClass).getDescriptor();
 				if(d == 'J' || d == 'D') {
@@ -64,6 +71,12 @@ public class DecodedMethodInvocationOp extends DecodedOp {
 	}
 	public String getName() {
 		return name;
+	}
+	public String getDeclaringClassName() {
+		return declaringClassName;
+	}
+	public CtClass[] getParameterTypes() {
+		return parameterTypes;
 	}
 	public int getNbParameters() {
 		return nbParameters;
