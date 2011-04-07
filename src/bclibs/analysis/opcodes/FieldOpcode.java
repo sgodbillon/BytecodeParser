@@ -8,7 +8,7 @@ import bclibs.analysis.Context;
 import static bclibs.analysis.stack.Stack.StackElementLength;
 import bclibs.analysis.decoders.DecodedFieldOp;
 
-public class FieldOpcode extends BasicOpcode {
+public class FieldOpcode extends Op {
 	private final DecodedFieldOp decodedOp;
 	
 	public FieldOpcode(int code) {
@@ -33,13 +33,13 @@ public class FieldOpcode extends BasicOpcode {
 			throw new RuntimeException(e);
 		}
 	}
-	@Override
+	
 	public StackElementLength[] getPops() {
 		if(decodedOp == null)
 			throw new IllegalStateException("must be initialized before !");
 		return decodedOp.getPops();
 	}
-	@Override
+	
 	public StackElementLength[] getPushes() {
 		if(decodedOp == null)
 			throw new IllegalStateException("must be initialized before !");

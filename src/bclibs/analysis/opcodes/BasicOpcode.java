@@ -4,15 +4,12 @@
 package bclibs.analysis.opcodes;
 
 import static bclibs.analysis.stack.Stack.StackElementLength;
-import static bclibs.analysis.stack.Stack.StackElementLength.*;
 import bclibs.analysis.Context;
 import bclibs.analysis.Opcodes.OpParameterType;
-import bclibs.analysis.decoders.DecodedOp;
-import bclibs.analysis.stack.Stack;
-import bclibs.analysis.stack.Whatever;
+import bclibs.analysis.decoders.DecodedBasicOp;
 
 public class BasicOpcode extends Op {
-	private StackElementLength[] pops, pushes;
+	protected StackElementLength[] pops, pushes;
 	public BasicOpcode(int code, OpParameterType... opParameterTypes) {
 		this(code, new StackElementLength[0], new StackElementLength[0], opParameterTypes);
 	}
@@ -28,21 +25,8 @@ public class BasicOpcode extends Op {
 		return pushes;
 	}
 	@Override
-	public DecodedOp decode(Context context, int index) {
-		return new DecodedOp(this, context, index);
-	}
-	@Override
-	public void simulate(Stack stack, Context context, int index) {
-		for(int i = 0; i < getPops().length; i++) {
-			if(getPops()[i] == DOUBLE)
-				stack.pop2();
-			else stack.pop();
-		}
-		for(int i = 0; i < getPushes().length; i++) {
-			if(getPushes()[i] == DOUBLE)
-				stack.push2(new Whatever());
-			else stack.push(new Whatever());
-		}
+	public DecodedBasicOp decode(Context context, int index) {
+		return new DecodedBasicOp(this, context, index);
 	}
 	@Override
 	public String toString() {

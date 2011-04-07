@@ -3,6 +3,8 @@
  */
 package bclibs.analysis.stack;
 
+import static bclibs.analysis.stack.Stack.StackElementLength.DOUBLE;
+
 import java.util.LinkedList;
 
 public class Stack {
@@ -98,5 +100,18 @@ public class Stack {
 			sb.append(stack.get(i));
 		}
 		return sb.append("]").toString();
+	}
+	
+	public static void processBasicAlteration(Stack stack, StackElementLength[] pops, StackElementLength[] pushes) {
+		for(int i = 0; i < pops.length; i++) {
+			if(pops[i] == DOUBLE)
+				stack.pop2();
+			else stack.pop();
+		}
+		for(int i = 0; i < pushes.length; i++) {
+			if(pushes[i] == DOUBLE)
+				stack.push2(new Whatever());
+			else stack.push(new Whatever());
+		}
 	}
 }

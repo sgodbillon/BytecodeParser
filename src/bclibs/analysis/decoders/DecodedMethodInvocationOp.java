@@ -13,6 +13,8 @@ import javassist.bytecode.ConstPool;
 import javassist.bytecode.Descriptor;
 import bclibs.analysis.Context;
 import bclibs.analysis.opcodes.MethodInvocationOpcode;
+import bclibs.analysis.stack.Stack;
+import bclibs.analysis.stack.Whatever;
 import bclibs.utils.Utils;
 
 public class DecodedMethodInvocationOp extends DecodedOp {
@@ -21,6 +23,7 @@ public class DecodedMethodInvocationOp extends DecodedOp {
 	protected CtClass[] parameterTypes;
 	protected String declaringClassName;
 	protected String name;
+	
 	protected StackElementLength[] pops;
 	protected StackElementLength[] pushes;
 	
@@ -61,6 +64,20 @@ public class DecodedMethodInvocationOp extends DecodedOp {
 			}
 		}
 		pushes = returnTypeLength != null ? new StackElementLength[] { returnTypeLength } : new StackElementLength[0];
+	}
+	
+	@Override
+	public void simulate(Stack stack) {
+		for(int i = 0; i < getPops().length; i++) {
+			if(getPops()[i] == DOUBLE)
+				stack.pop2();
+			else stack.pop();
+		}
+		for(int i = 0; i < getPushes().length; i++) {
+			if(getPushes()[i] == DOUBLE)
+				stack.push2(new Whatever());
+			else stack.push(new Whatever());
+		}
 	}
 	
 	public int getMethodRefIndex() {

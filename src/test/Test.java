@@ -53,10 +53,10 @@ public class Test {
 		for(Frame frame : frames) {
 			if(frame != null) {
 				System.out.println(frame);
-				if(frame.op instanceof MethodInvocationOpcode) {
-					System.out.println(frame.op.as(MethodInvocationOpcode.class).decode(parser.context, frame.index).getDescriptor());
-					MethodInvocationOpcode mop = (MethodInvocationOpcode) frame.op;
-					DecodedMethodInvocationOp decoded = mop.decode(parser.context, frame.index);
+				if(frame.decodedOp instanceof DecodedMethodInvocationOp) {
+					//System.out.println(frame.op.as(MethodInvocationOpcode.class).decode(parser.context, frame.index).getDescriptor());
+					//MethodInvocationOpcode mop = (MethodInvocationOpcode) frame.op;
+					DecodedMethodInvocationOp decoded = (DecodedMethodInvocationOp) frame.decodedOp;
 					String name = decoded.getName();
 					String[] names = methodInvocationNames(frame);
 					StringBuffer sb = new StringBuffer();
@@ -160,8 +160,7 @@ public class Test {
 	
 	public static String getMethodNamedSignature(Context context, Frame frame) {
 		//System.out.println(frame.op.as(MethodInvocationOpcode.class).decode(context, frame.index).getDescriptor());
-		MethodInvocationOpcode mop = (MethodInvocationOpcode) frame.op;
-		DecodedMethodInvocationOp decoded = mop.decode(context, frame.index);
+		DecodedMethodInvocationOp decoded = (DecodedMethodInvocationOp) frame.decodedOp;
 		String name = decoded.getName();
 		String[] names = methodInvocationNames(frame);
 		StringBuffer sb = new StringBuffer();
@@ -176,7 +175,7 @@ public class Test {
 	}
 	
 	public static String[] methodInvocationNames(Frame frame) {
-		DecodedMethodInvocationOp decoded = frame.op.as(MethodInvocationOpcode.class).decode(null, frame.index);
+		DecodedMethodInvocationOp decoded = (DecodedMethodInvocationOp) frame.decodedOp;
 		String name = decoded.getName();
 		int nbParams = decoded.getNbParameters();
 		String[] result = new String[nbParams];

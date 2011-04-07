@@ -1,24 +1,25 @@
-/**
- * 
- */
 package bclibs.analysis.decoders;
 
 import javassist.bytecode.CodeIterator;
 import bclibs.analysis.Context;
 import bclibs.analysis.Opcodes.OpParameterType;
 import bclibs.analysis.opcodes.Op;
+import bclibs.analysis.stack.Stack;
 
-public class DecodedOp {
-	public final OpParameterType[] parameterTypes;
-	public final int[] parameterValues;
+public abstract class DecodedOp {
 	public final Context context;
 	public final int index;
+	public final Op op;
+	
+	public final OpParameterType[] parameterTypes;
+	public final int[] parameterValues;
 	
 	public DecodedOp(Op op, Context context, int index) {
-		this.parameterTypes = op.getParameterTypes();
-		this.parameterValues = decodeValues(context.iterator, index);
 		this.context = context;
 		this.index = index;
+		this.op = op;
+		this.parameterTypes = op.getParameterTypes();
+		this.parameterValues = decodeValues(context.iterator, index);
 	}
 	
 	protected final int[] decodeValues(CodeIterator iterator, int index) {
@@ -55,4 +56,6 @@ public class DecodedOp {
 		}
 		return result;
 	}
+	
+	public abstract void simulate(Stack stack);
 }

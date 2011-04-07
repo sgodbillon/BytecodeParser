@@ -3,7 +3,7 @@ package bclibs.analysis.decoders;
 import bclibs.analysis.Context;
 import bclibs.analysis.opcodes.BasicOpcode;
 
-public class DecodedBranchOp extends DecodedOp {
+public class DecodedBranchOp extends DecodedBasicOp {
 	private final int jump;
 	
 	public DecodedBranchOp(BasicOpcode op, Context context, int index) {

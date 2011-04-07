@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import bclibs.analysis.decoders.DecodedOp;
 import bclibs.analysis.opcodes.ArrayOpcode;
 import bclibs.analysis.opcodes.ArrayCreationOpcode;
 import bclibs.analysis.opcodes.BasicOpcode;
@@ -143,51 +144,85 @@ public class Opcodes {
 		opcodes.put(Opcode.SASTORE, new ArrayOpcode(Opcode.SASTORE, false).setPops(ONE, ONE, ONE)); // ARRAY
 		opcodes.put(Opcode.POP, new BasicOpcode(Opcode.POP).setPops(ONE));
 		opcodes.put(Opcode.POP2, new BasicOpcode(Opcode.POP2).setPops(DOUBLE));
-		opcodes.put(Opcode.DUP, new BasicOpcode(Opcode.DUP) {
+		opcodes.put(Opcode.DUP, new Op(Opcode.DUP) {
 			@Override
-			public void simulate(Stack stack, Context context, int index) {
-				stack.push(stack.peek().copy());
+			public DecodedOp decode(Context context, int index) {
+				return new DecodedOp(this, context, index) {
+					@Override
+					public void simulate(Stack stack) {
+						stack.push(stack.peek().copy());
+					}
+				};
 			}
 		});
-		opcodes.put(Opcode.DUP_X1, new BasicOpcode(Opcode.DUP_X1) {
+		opcodes.put(Opcode.DUP_X1, new Op(Opcode.DUP_X1) {
 			@Override
-			public void simulate(Stack stack, Context context, int index) {
-				StackElement se = stack.peek().copy();
-				stack.stack.add(stack.stack.size() - 2, se);
+			public DecodedOp decode(Context context, int index) {
+				return new DecodedOp(this, context, index) {
+					@Override
+					public void simulate(Stack stack) {
+						StackElement se = stack.peek().copy();
+						stack.stack.add(stack.stack.size() - 2, se);
+					}
+				};
+			};
+		});
+		opcodes.put(Opcode.DUP_X2, new Op(Opcode.DUP_X2) {
+			@Override
+			public DecodedOp decode(Context context, int index) {
+				return new DecodedOp(this, context, index) {
+					@Override
+					public void simulate(Stack stack) {
+						StackElement se = stack.peek().copy();
+						stack.stack.add(stack.stack.size() - 3, se);
+					}
+				};
 			}
 		});
-		opcodes.put(Opcode.DUP_X2, new BasicOpcode(Opcode.DUP_X2) {
+		opcodes.put(Opcode.DUP2, new Op(Opcode.DUP2) {
 			@Override
-			public void simulate(Stack stack, Context context, int index) {
-				StackElement se = stack.peek().copy();
-				stack.stack.add(stack.stack.size() - 3, se);
+			public DecodedOp decode(Context context, int index) {
+				return new DecodedOp(this, context, index) {
+					@Override
+					public void simulate(Stack stack) {
+						stack.push2(stack.peek2().copy());
+					}
+				};
 			}
 		});
-		opcodes.put(Opcode.DUP2, new BasicOpcode(Opcode.DUP2) {
+		opcodes.put(Opcode.DUP2_X1, new Op(Opcode.DUP2_X1) {
 			@Override
-			public void simulate(Stack stack, Context context, int index) {
-				stack.push2(stack.peek2().copy());
+			public DecodedOp decode(Context context, int index) {
+				return new DecodedOp(this, context, index) {
+					@Override
+					public void simulate(Stack stack) {
+						StackElement se = stack.peek2().copy();
+						stack.stack.add(stack.stack.size() - 3, se);
+					}
+				};
 			}
 		});
-		opcodes.put(Opcode.DUP2_X1, new BasicOpcode(Opcode.DUP2_X1) {
-			@Override
-			public void simulate(Stack stack, Context context, int index) {
-				StackElement se = stack.peek2().copy();
-				stack.stack.add(stack.stack.size() - 3, se);
+		opcodes.put(Opcode.DUP2_X2, new Op(Opcode.DUP2_X1) {
+			public DecodedOp decode(Context context, int index) {
+				return new DecodedOp(this, context, index) {
+					@Override
+					public void simulate(Stack stack) {
+						StackElement se = stack.peek2().copy();
+						stack.stack.add(stack.stack.size() - 4, se);
+					}
+				};
 			}
 		});
-		opcodes.put(Opcode.DUP2_X2, new BasicOpcode(Opcode.DUP2_X1) {
+		opcodes.put(Opcode.SWAP, new Op(Opcode.SWAP) {
 			@Override
-			public void simulate(Stack stack, Context context, int index) {
-				StackElement se = stack.peek2().copy();
-				stack.stack.add(stack.stack.size() - 4, se);
-			}
-		});
-		opcodes.put(Opcode.SWAP, new BasicOpcode(Opcode.SWAP) {
-			@Override
-			public void simulate(Stack stack, Context context, int index) {
-				StackElement se = stack.pop();
-				stack.stack.add(stack.stack.size() - 1, se);
+			public DecodedOp decode(Context context, int index) {
+				return new DecodedOp(this, context, index) {
+					@Override
+					public void simulate(Stack stack) {
+						StackElement se = stack.pop();
+						stack.stack.add(stack.stack.size() - 1, se);
+					}
+				};
 			}
 		});
 		opcodes.put(Opcode.IADD, new BasicOpcode(Opcode.IADD).setPops(ONE, ONE).setPushes(ONE));

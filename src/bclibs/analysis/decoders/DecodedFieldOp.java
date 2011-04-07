@@ -9,6 +9,7 @@ import javassist.bytecode.Descriptor;
 import javassist.bytecode.Opcode;
 import bclibs.analysis.Context;
 import bclibs.analysis.opcodes.FieldOpcode;
+import bclibs.analysis.stack.Stack;
 
 public class DecodedFieldOp extends DecodedOp {
 	protected String descriptor;
@@ -24,6 +25,11 @@ public class DecodedFieldOp extends DecodedOp {
 		this.stackElementLength = sel;
 		this.descriptor = descriptor;
 		this.load = fo.getCode() == Opcode.GETFIELD || fo.getCode() == Opcode.GETSTATIC;
+	}
+	
+	@Override
+	public void simulate(Stack stack) {
+		Stack.processBasicAlteration(stack, getPops(), getPushes());
 	}
 	
 	public int getMethodRefIndex() {

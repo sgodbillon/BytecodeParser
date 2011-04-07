@@ -40,7 +40,7 @@ public class Subject {
 		process(toto, "a", "b");
 		processStatic("c", "d");
 		String ff = "ff";
-		process(toto);
+		process(toto, ff);
 	}
 	
 	static int hehe = 0;

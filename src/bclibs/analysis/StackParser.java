@@ -7,6 +7,7 @@ import java.util.LinkedList;
 
 import javassist.CtBehavior;
 import javassist.bytecode.BadBytecode;
+import bclibs.analysis.decoders.DecodedOp;
 import bclibs.analysis.opcodes.BranchOpCode;
 import bclibs.analysis.opcodes.ExitOpcode;
 import bclibs.analysis.opcodes.Op;
@@ -40,7 +41,7 @@ public class StackParser {
 			public void handle(Op op, int index) {
 				Frame frame = frames[index] = new Frame();
 				frame.index = index;
-				frame.op = op;
+				//frame.decodedOp = op.decode(context, index);
 				//System.out.println("init: " + frame);
 			}
 		});
@@ -65,7 +66,8 @@ public class StackParser {
 			Frame frame = frames[index];
 			frame.isAccessible = true;
 			frame.stackBefore = currentStack[0].copy();
-			op.simulate(currentStack[0], context, index);
+			frame.decodedOp = op.decode(context, index);
+			frame.decodedOp.simulate(currentStack[0]);
 			frame.stackAfter = currentStack[0].copy();
 			if(op instanceof ExitOpcode) {
 				break;
@@ -94,12 +96,12 @@ public class StackParser {
 		public Stack stackBefore;
 		public Stack stackAfter;
 		public int index;
-		public Op op;
+		public DecodedOp decodedOp;
 		public boolean isAccessible = false;
 		
 		@Override
 		public String toString() {
-			return "Frame " + index + " (" + op.getName() + "):" + stackBefore + " -> " + stackAfter + " " + (isAccessible ? "" : " NOT ACCESSIBLE");
+			return "Frame " + index + " (" + decodedOp.op.getName() + "):" + stackBefore + " -> " + stackAfter + " " + (isAccessible ? "" : " NOT ACCESSIBLE");
 		}
 	}
 }

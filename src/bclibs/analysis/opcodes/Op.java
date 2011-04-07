@@ -7,10 +7,9 @@ import bclibs.analysis.Context;
 import bclibs.analysis.Opcodes;
 import bclibs.analysis.Opcodes.OpParameterType;
 import bclibs.analysis.decoders.DecodedOp;
-import bclibs.analysis.stack.Stack;
 
 public abstract class Op {
-	protected final int code;
+	public final int code;
 	protected final OpParameterType[] parameterTypes;
 	private String name;
 	public Op(int code, OpParameterType... opParameterTypes) {
@@ -18,7 +17,7 @@ public abstract class Op {
 		this.parameterTypes = opParameterTypes;
 	}
 	
-	public abstract void simulate(Stack stack, Context context, int index);
+	//public abstract void simulate(Stack stack, Context context, int index);
 	public abstract DecodedOp decode(Context context, int index);
 	
 	/**
