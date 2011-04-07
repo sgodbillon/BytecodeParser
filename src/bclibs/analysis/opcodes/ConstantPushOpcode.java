@@ -2,7 +2,6 @@ package bclibs.analysis.opcodes;
 
 import bclibs.analysis.Context;
 import bclibs.analysis.Opcodes.OpParameterType;
-import bclibs.analysis.decoders.DecodedBasicOp;
 import bclibs.analysis.decoders.DecodedConstantPushOp;
 
 public class ConstantPushOpcode extends BasicOpcode {

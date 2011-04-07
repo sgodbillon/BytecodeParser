@@ -15,12 +15,13 @@ import bclibs.analysis.CodeParser;
 import bclibs.analysis.Context;
 import bclibs.analysis.Opcodes;
 import bclibs.analysis.StackOpHandler;
-import bclibs.analysis.StackParser;
-import bclibs.analysis.StackParser.Frame;
 import bclibs.analysis.decoders.DecodedMethodInvocationOp;
 import bclibs.analysis.opcodes.MethodInvocationOpcode;
 import bclibs.analysis.opcodes.Op;
 import bclibs.analysis.stack.Stack;
+import bclibs.analysis.stack.StackAnalyzer;
+import bclibs.analysis.stack.StackAnalyzer.Frame;
+import bclibs.analysis.stack.StackAnalyzer.Frames;
 import bclibs.analysis.stack.StackElement;
 import bclibs.analysis.stack.TOP;
 import bclibs.analysis.stack.TrackableArray;
@@ -48,8 +49,8 @@ public class Test {
 			}
 		}
 		
-		final StackParser parser = new StackParser(behavior);
-		Frame[] frames = parser.parse();
+		final StackAnalyzer parser = new StackAnalyzer(behavior);
+		Frames frames = parser.analyze();
 		for(Frame frame : frames) {
 			if(frame != null) {
 				System.out.println(frame);
