@@ -60,7 +60,7 @@ public class LocalVariable {
 				//System.out.println("found var "+localVariable);
 				//System.out.println(String.format("findLocalVariables: var %s is '%s' (slot %s)", i, localVariable.name, localVariable.getSlot()));
 			}
-		} else System.out.println("no local vars found");
+		} //else System.out.println("no local vars found");
 		return variables;
 	}
 	

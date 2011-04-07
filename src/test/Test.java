@@ -152,32 +152,52 @@ public class Test {
 	private static String getLocalVariableName(StackElement se) {
 		if(se instanceof ValueFromLocalVariable) {
 			ValueFromLocalVariable v = (ValueFromLocalVariable) se;
-			return v.localVariable.name;
+			if(v.localVariable != null)
+				return v.localVariable.name;
 		}
 		return null;
 	}
 	
-	private static String[] methodInvocationNames(Frame frame) {
+	public static String getMethodNamedSignature(Context context, Frame frame) {
+		//System.out.println(frame.op.as(MethodInvocationOpcode.class).decode(context, frame.index).getDescriptor());
+		MethodInvocationOpcode mop = (MethodInvocationOpcode) frame.op;
+		DecodedMethodInvocationOp decoded = mop.decode(context, frame.index);
+		String name = decoded.getName();
+		String[] names = methodInvocationNames(frame);
+		StringBuffer sb = new StringBuffer();
+		if(names.length > 0) {
+			sb.append(names[0]);
+			for(int i = 1; i < names.length; i++) {
+				sb.append(", ").append(names[i]);
+			}
+		}
+		sb.insert(0, "(").insert(0, name).append(")");
+		return sb.toString();
+	}
+	
+	public static String[] methodInvocationNames(Frame frame) {
 		DecodedMethodInvocationOp decoded = frame.op.as(MethodInvocationOpcode.class).decode(null, frame.index);
 		String name = decoded.getName();
 		int nbParams = decoded.getNbParameters();
 		String[] result = new String[nbParams];
-		int stackIndex = 0;
-		if(frame.stackBefore.stack.get(stackIndex) instanceof TrackableArray) {
-			StackElement[] varargs = ((TrackableArray) frame.stackBefore.stack.get(0)).elements;
-			nbParams = nbParams + varargs.length - 1;
-			result = new String[nbParams];
-			for(int i = 0; i < varargs.length; i++, nbParams--) {
-				result[nbParams - 1] = getLocalVariableName(varargs[i]);
+		if(nbParams > 0) {
+			int stackIndex = 0;
+			if(frame.stackBefore.stack.get(stackIndex) instanceof TrackableArray) {
+				StackElement[] varargs = ((TrackableArray) frame.stackBefore.stack.get(0)).elements;
+				nbParams = nbParams + varargs.length - 1;
+				result = new String[nbParams];
+				for(int i = 0; i < varargs.length; i++, nbParams--) {
+					result[nbParams - 1] = getLocalVariableName(varargs[i]) + "(" + varargs[i] + ")";
+				}
+				stackIndex++;
 			}
-			stackIndex++;
-		}
-		while(nbParams > 0) {
-			StackElement se = frame.stackBefore.stack.get(stackIndex++);
-			if(se instanceof TOP)
-				se = frame.stackBefore.stack.get(stackIndex++);
-			result[nbParams - 1] = getLocalVariableName(se);
-			nbParams--;
+			while(nbParams > 0) {
+				StackElement se = frame.stackBefore.stack.get(stackIndex++);
+				if(se instanceof TOP)
+					se = frame.stackBefore.stack.get(stackIndex++);
+				result[nbParams - 1] = getLocalVariableName(se) + "(" + se + ")";
+				nbParams--;
+			}
 		}
 		return result;
 	}

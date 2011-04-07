@@ -41,20 +41,20 @@ public class StackParser {
 				Frame frame = frames[index] = new Frame();
 				frame.index = index;
 				frame.op = op;
-				System.out.println("init: " + frame);
+				//System.out.println("init: " + frame);
 			}
 		});
 	}
 	
 	void parseCatchBlocks() throws BadBytecode {
 		for(int index : context.exceptionHandlers) {
-			System.out.println("parse catch block " + index + ", " + frames[index]);
+			//System.out.println("parse catch block " + index + ", " + frames[index]);
 			parse(index, new Stack().push(new Whatever()));
 		}
 	}
 	
 	void parse(int from, Stack stack) throws BadBytecode {
-		System.out.println("parse from " + from + " with stack " + stack);
+		//System.out.println("parse from " + from + " with stack " + stack);
 		if(frames[from].isAccessible) // already parsed
 			return;
 		context.iterator.move(from);
@@ -74,7 +74,7 @@ public class StackParser {
 				BranchOpCode branchOpCode = op.as(BranchOpCode.class);
 				try {
 					int jump = branchOpCode.decode(context, index).getJump();
-					System.out.println(op + " will jump to " + jump);
+					//System.out.println(op + " will jump to " + jump);
 					if(branchOpCode.isConditional())
 						parse(context.iterator.lookAhead(), frame.stackAfter);
 					parse(jump, frame.stackAfter);

@@ -23,7 +23,7 @@ public class ConstantPushOpcode extends BasicOpcode {
 
 	@Override
 	public void simulate(Stack stack, Context context, int index) {
-		System.out.println("simulate constantpush");
+		//System.out.println("simulate constantpush");
 		if(getParameterTypes().length == 0) {
 			switch(baseCode) {
 				case Opcode.ICONST_0:
@@ -45,7 +45,7 @@ public class ConstantPushOpcode extends BasicOpcode {
 			OpParameterType type = getParameterTypes()[0];
 			int value = decode(context, index).parameterValues[0];
 			if(type == OpParameterType.S1 || type == OpParameterType.S2) {
-				System.out.println("is bipush or sipush: " + value);
+				//System.out.println("is bipush or sipush: " + value);
 				for(int i = 0; i < getPops().length; i++) {
 					stack.pop(getPops()[i]);
 				}
@@ -53,14 +53,14 @@ public class ConstantPushOpcode extends BasicOpcode {
 			} else if(type == OpParameterType.U1 || type == OpParameterType.U2) {
 				Object o = context.behavior.getMethodInfo().getConstPool().getLdcValue(value);
 				if(o == null) {
-					System.out.println("$$ ERROR $$ " + index + ": " + getCode() + " (" + getName() + "), val="+value);
+					//System.out.println("$$ ERROR $$ " + index + ": " + getCode() + " (" + getName() + "), val="+value);
 					ConstPool cp = context.behavior.getMethodInfo().getConstPool();
 					for(Method m : ConstPool.class.getDeclaredMethods()) {
 						if(m.getName().equals("getItem")) {
 							m.setAccessible(true);
 							try {
 								Object _o = m.invoke(cp, new Integer(value));
-								System.out.println("entry was " + (_o == null ? "null" : _o.getClass().toString()));
+								//System.out.println("entry was " + (_o == null ? "null" : _o.getClass().toString()));
 								stack.push(new WhateverConstant(_o));
 							} catch (Exception e) {
 								// TODO Auto-generated catch block

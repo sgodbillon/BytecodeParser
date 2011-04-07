@@ -24,14 +24,14 @@ public class ArrayCreationOpcode extends BasicOpcode {
 	@Override
 	public void simulate(Stack stack, Context context, int index) {
 		if(code != Opcode.MULTIANEWARRAY) {
-			System.out.println("creation of new array");
+			//System.out.println("creation of new array");
 			StackElement se = stack.pop();
 			if(se instanceof IntegerConstant) {
-				System.out.print(" - trackable. ");
+				//System.out.print(" - trackable. ");
 				IntegerConstant ic = (IntegerConstant) se;
 				stack.push(new TrackableArray("yop--", ic.getValue()));
 			} else {
-				System.out.print(" - NOT trackable. ");
+				//System.out.print(" - NOT trackable. ");
 				stack.push(new Array("yop"));
 			}
 		} else throw new RuntimeException("unsupported");
