@@ -4,7 +4,6 @@
 package bclibs.analysis.stack;
 
 import java.util.Iterator;
-import java.util.LinkedList;
 
 import javassist.CtBehavior;
 import javassist.bytecode.BadBytecode;
@@ -19,7 +18,6 @@ import bclibs.analysis.opcodes.BranchOpCode;
 import bclibs.analysis.opcodes.ExitOpcode;
 import bclibs.analysis.opcodes.Op;
 import bclibs.analysis.stack.Stack;
-import bclibs.analysis.stack.StackElement;
 import bclibs.analysis.stack.Whatever;
 
 public class StackAnalyzer {
@@ -93,10 +91,6 @@ public class StackAnalyzer {
 				break;
 			}
 		}
-	}
-	
-	public LinkedList<StackElement> getCurrentStack() {
-		return stack.stack;
 	}
 	
 	public static class Frame {

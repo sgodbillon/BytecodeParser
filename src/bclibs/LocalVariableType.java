@@ -6,10 +6,10 @@ package bclibs;
 import java.util.HashMap;
 import java.util.Map;
 
-import javassist.bytecode.BadBytecode;
+import javassist.CtClass;
+import javassist.bytecode.Descriptor;
 import javassist.bytecode.SignatureAttribute;
 import javassist.bytecode.SignatureAttribute.ArrayType;
-import javassist.bytecode.SignatureAttribute.BaseType;
 import javassist.bytecode.SignatureAttribute.ClassType;
 
 public class LocalVariableType {
@@ -26,6 +26,7 @@ public class LocalVariableType {
 		this.isPrimitive = isPrimitive;
 		this.dimensions = dimensions;
 	}
+	
 	public boolean isArray() {
 		return dimensions > 0;
 	}
@@ -50,9 +51,13 @@ public class LocalVariableType {
 			// not a class
 			String typeName = primitiveSymbols.get("" + signature.charAt(dimensions));
 			if(typeName == null)
-				throw new RuntimeException("unknown signature: " + signature);
+				throw new RuntimeException("unknown signature: " + signature, e);
 			return new LocalVariableType(signature, addArrayTypeInfo(typeName, dimensions), typeName, true, dimensions);
 		}
+	}
+	
+	public static LocalVariableType from(CtClass clazz) {
+		return parse(Descriptor.of(clazz));
 	}
 	
 	private static String addArrayTypeInfo(String typeName, int dimensions) {

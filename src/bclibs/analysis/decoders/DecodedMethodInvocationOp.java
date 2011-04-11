@@ -6,12 +6,17 @@ package bclibs.analysis.decoders;
 import static bclibs.analysis.stack.Stack.StackElementLength;
 import static bclibs.analysis.stack.Stack.StackElementLength.*;
 
+import java.util.Collections;
+import java.util.LinkedList;
+
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtPrimitiveType;
 import javassist.NotFoundException;
 import javassist.bytecode.ConstPool;
 import javassist.bytecode.Descriptor;
+import bclibs.LocalVariable;
+import bclibs.LocalVariableType;
 import bclibs.analysis.Context;
 import bclibs.analysis.opcodes.MethodInvocationOpcode;
 import bclibs.analysis.stack.Stack;
@@ -111,19 +116,25 @@ public class DecodedMethodInvocationOp extends DecodedOp {
 		return pushes;
 	}
 	
-	
-	public static String[] resolveParametersNames(DecodedMethodInvocationOp decodedOp, Frame frame) {
+	public static MethodParam[] resolveParameters(Frame frame) {
+		LinkedList<MethodParam> result = new LinkedList<MethodParam>();
 		DecodedMethodInvocationOp decoded = (DecodedMethodInvocationOp) frame.decodedOp;
 		int nbParams = decoded.getNbParameters();
-		String[] result = new String[nbParams];
 		if(nbParams > 0) {
 			int stackIndex = 0;
 			if(frame.stackBefore.stack.get(stackIndex) instanceof TrackableArray) {
 				StackElement[] varargs = ((TrackableArray) frame.stackBefore.stack.get(0)).elements;
 				nbParams = nbParams + varargs.length - 1;
-				result = new String[nbParams];
 				for(int i = 0; i < varargs.length; i++, nbParams--) {
-					result[nbParams - 1] = getLocalVariableName(varargs[i]) + "(" + varargs[i] + ")";
+					StackElement se = varargs[i];
+					if(se instanceof TOP)
+						se = varargs[++i];
+					LocalVariable lv = getLocalVariableIfAvailable(se);
+					if(lv != null) {
+						result.add(new MethodParam(lv.name, lv.type));
+					} else {
+						result.add(new MethodParam(null, null));
+					}
 				}
 				stackIndex++;
 			}
@@ -131,19 +142,34 @@ public class DecodedMethodInvocationOp extends DecodedOp {
 				StackElement se = frame.stackBefore.stack.get(stackIndex++);
 				if(se instanceof TOP)
 					se = frame.stackBefore.stack.get(stackIndex++);
-				result[nbParams - 1] = getLocalVariableName(se) + "(" + se + ")";
+				LocalVariable lv = getLocalVariableIfAvailable(se);
+				if(lv != null) {
+					result.add(new MethodParam(lv.name, lv.type));
+				} else {
+					result.add(new MethodParam(null, null));
+				}
 				nbParams--;
 			}
 		}
-		return result;
+		Collections.reverse(result);
+		return result.toArray(new MethodParam[0]);
 	}
 	
-	private static String getLocalVariableName(StackElement se) {
+	private static LocalVariable getLocalVariableIfAvailable(StackElement se) {
 		if(se instanceof ValueFromLocalVariable) {
 			ValueFromLocalVariable v = (ValueFromLocalVariable) se;
-			if(v.localVariable != null)
-				return v.localVariable.name;
+			return v.localVariable;
 		}
 		return null;
+	}
+	
+	public static class MethodParam {
+		public final String name;
+		public final LocalVariableType type;
+		
+		public MethodParam(String name, LocalVariableType type) {
+			this.name = name;
+			this.type = type;
+		}
 	}
 }

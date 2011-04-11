@@ -4,6 +4,7 @@ import static org.junit.Assert.*;
 
 import java.util.Arrays;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
@@ -16,6 +17,7 @@ import bclibs.analysis.Context;
 import bclibs.analysis.Opcodes;
 import bclibs.analysis.StackOpHandler;
 import bclibs.analysis.decoders.DecodedMethodInvocationOp;
+import bclibs.analysis.decoders.DecodedMethodInvocationOp.MethodParam;
 import bclibs.analysis.opcodes.MethodInvocationOpcode;
 import bclibs.analysis.opcodes.Op;
 import bclibs.analysis.stack.Stack;
@@ -57,7 +59,7 @@ public class Test {
 				if(frame.decodedOp instanceof DecodedMethodInvocationOp) {
 					//System.out.println(frame.op.as(MethodInvocationOpcode.class).decode(parser.context, frame.index).getDescriptor());
 					//MethodInvocationOpcode mop = (MethodInvocationOpcode) frame.op;
-					DecodedMethodInvocationOp decoded = (DecodedMethodInvocationOp) frame.decodedOp;
+					/*DecodedMethodInvocationOp decoded = (DecodedMethodInvocationOp) frame.decodedOp;
 					String name = decoded.getName();
 					String[] names = methodInvocationNames(frame);
 					StringBuffer sb = new StringBuffer();
@@ -68,7 +70,8 @@ public class Test {
 						}
 					}
 					sb.insert(0, "(").insert(0, name).append(")");
-					System.out.println("found method " + sb.toString());
+					System.out.println("found method " + sb.toString());*/
+					System.out.println("found method:: " + getMethodNamedSignature(parser.context, frame));
 				}
 			}
 		}
@@ -163,7 +166,13 @@ public class Test {
 		//System.out.println(frame.op.as(MethodInvocationOpcode.class).decode(context, frame.index).getDescriptor());
 		DecodedMethodInvocationOp decoded = (DecodedMethodInvocationOp) frame.decodedOp;
 		String name = decoded.getName();
-		String[] names = methodInvocationNames(frame);
+		MethodParam[] params = DecodedMethodInvocationOp.resolveParameters(frame);
+		String[] names = new String[params.length];
+		for(int i = 0; i < params.length; i++) {
+			MethodParam param = params[i];
+			names[i] = param.name;
+		}
+		//String[] names = //methodInvocationNames(frame);
 		StringBuffer sb = new StringBuffer();
 		if(names.length > 0) {
 			sb.append(names[0]);
