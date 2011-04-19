@@ -17,6 +17,7 @@ import bclibs.analysis.opcodes.FieldOpcode;
 import bclibs.analysis.opcodes.LocalVariableOpcode;
 import bclibs.analysis.opcodes.MethodInvocationOpcode;
 import bclibs.analysis.opcodes.Op;
+import bclibs.analysis.opcodes.SwitchOpcode;
 import bclibs.analysis.stack.Stack;
 import bclibs.analysis.stack.StackElement;
 
@@ -26,12 +27,18 @@ import static bclibs.analysis.stack.Stack.StackElementLength.*;
 
 public class Opcodes {
 	public static enum OpParameterType {
-		U1,
-		U2,
-		U4,
-		S1,
-		S2,
-		S4
+		U1(1),
+		U2(2),
+		U4(4),
+		S1(1),
+		S2(2),
+		S4(4);
+		
+		public final int size;
+		
+		private OpParameterType(int size) {
+			this.size = size;
+		}
 	}
 	
 	public static String findOpName(int op) {
@@ -300,8 +307,8 @@ public class Opcodes {
 		opcodes.put(Opcode.GOTO, new BranchOpCode(Opcode.GOTO, S2));
 		opcodes.put(Opcode.JSR, new BranchOpCode(Opcode.JSR, S2));
 		opcodes.put(Opcode.RET, new BranchOpCode(Opcode.RET, U1));
-		// TABLESWITCH
-		// LOOKUPSWITCH
+		opcodes.put(Opcode.TABLESWITCH, new SwitchOpcode(Opcode.TABLESWITCH));
+		opcodes.put(Opcode.LOOKUPSWITCH, new SwitchOpcode(Opcode.LOOKUPSWITCH));
 		opcodes.put(Opcode.IRETURN, new ExitOpcode(Opcode.IRETURN).setPops(ONE));
 		opcodes.put(Opcode.LRETURN, new ExitOpcode(Opcode.LRETURN).setPops(DOUBLE));
 		opcodes.put(Opcode.FRETURN, new ExitOpcode(Opcode.FRETURN).setPops(ONE));

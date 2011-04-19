@@ -14,9 +14,11 @@ import bclibs.analysis.Context;
 import bclibs.analysis.OpHandler;
 import bclibs.analysis.Opcodes;
 import bclibs.analysis.decoders.DecodedOp;
+import bclibs.analysis.decoders.DecodedSwitchOpcode;
 import bclibs.analysis.opcodes.BranchOpCode;
 import bclibs.analysis.opcodes.ExitOpcode;
 import bclibs.analysis.opcodes.Op;
+import bclibs.analysis.opcodes.SwitchOpcode;
 import bclibs.analysis.stack.Stack;
 import bclibs.analysis.stack.Whatever;
 
@@ -89,6 +91,14 @@ public class StackAnalyzer {
 					throw new RuntimeException(b);
 				}
 				break;
+			}
+			if(op instanceof SwitchOpcode) {
+				SwitchOpcode switchOpcode = op.as(SwitchOpcode.class);
+				DecodedSwitchOpcode decodedSwitchOpcode = switchOpcode.decode(context, index);
+				//System.out.println(decodedSwitchOpcode.toString());
+				for(int offset : decodedSwitchOpcode.offsets)
+					analyze(offset, frame.stackAfter);
+				analyze(decodedSwitchOpcode.defaultOffset, frame.stackAfter);
 			}
 		}
 	}

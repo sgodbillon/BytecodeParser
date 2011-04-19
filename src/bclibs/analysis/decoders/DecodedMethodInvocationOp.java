@@ -120,6 +120,7 @@ public class DecodedMethodInvocationOp extends DecodedOp {
 		LinkedList<MethodParam> result = new LinkedList<MethodParam>();
 		DecodedMethodInvocationOp decoded = (DecodedMethodInvocationOp) frame.decodedOp;
 		int nbParams = decoded.getNbParameters();
+		System.out.println("nbParams == " + nbParams + " for decoded " + decoded.name);
 		if(nbParams > 0) {
 			int stackIndex = 0;
 			if(frame.stackBefore.stack.get(stackIndex) instanceof TrackableArray) {
@@ -153,6 +154,14 @@ public class DecodedMethodInvocationOp extends DecodedOp {
 		}
 		Collections.reverse(result);
 		return result.toArray(new MethodParam[0]);
+	}
+	
+	public static String[] resolveParametersNames(Frame frame) {
+		MethodParam[] params = resolveParameters(frame);
+		String[] result = new String[params.length];
+		for(int i = 0; i < params.length; i++)
+			result[i] = params[i].name;
+		return result;
 	}
 	
 	private static LocalVariable getLocalVariableIfAvailable(StackElement se) {

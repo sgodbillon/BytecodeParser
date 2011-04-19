@@ -27,34 +27,29 @@ public abstract class DecodedOp {
 		int nextValIndex = index + 1;
 		for(int i = 0; i < parameterTypes.length; i++) {
 			OpParameterType type = parameterTypes[i];
-			switch(type) {
-				case S1:
-					result[i] = iterator.byteAt(nextValIndex);
-					nextValIndex ++;
-					break;
-				case S2:
-					result[i] = iterator.s16bitAt(nextValIndex);
-					nextValIndex += 2;
-					break;
-				case S4:
-					result[i] = iterator.s32bitAt(nextValIndex);
-					nextValIndex += 4;
-					break;
-				case U1:
-					result[i] = iterator.byteAt(nextValIndex);
-					nextValIndex ++;
-					break;
-				case U2:
-					result[i] = iterator.u16bitAt(nextValIndex);
-					nextValIndex += 2;
-					break;
-				case U4:
-				default:
-					throw new RuntimeException("unsupported");
-				
-			}
+			result[i] = decodeValueAt(type, iterator, nextValIndex);
+			nextValIndex += type.size;
 		}
 		return result;
+	}
+	
+	protected final int decodeValueAt(OpParameterType type, CodeIterator iterator, int index) {
+		switch(type) {
+			case S1:
+				return iterator.byteAt(index);
+			case S2:
+				return iterator.s16bitAt(index);
+			case S4:
+				return iterator.s32bitAt(index);
+			case U1:
+				return iterator.byteAt(index);
+			case U2:
+				return iterator.u16bitAt(index);
+			case U4:
+			default:
+				throw new RuntimeException("unsupported");
+			
+		}
 	}
 	
 	public abstract void simulate(Stack stack);
