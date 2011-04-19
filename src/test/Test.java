@@ -31,185 +31,243 @@ import bclibs.analysis.stack.ValueFromLocalVariable;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtMethod;
+import javassist.bytecode.BadBytecode;
+
+import static test.CommonTests.*;
 
 public class Test {
 	@org.junit.Test
-	public void coucou() {
-		try {
-			//File file = new File("/Users/sgo/code/bclibs/tmp/classes/test/subjects/Subject.class");
-			//System.out.println(file.getAbsolutePath() +"::"+ file.exists());
-			ClassPool cp =
-			ClassPool.getDefault();
-		CtClass ctClass = cp.get("test.subjects.Subject");//cp.makeClass(new FileInputStream(file));
-		//ctClass.toBytecode(new DataOutputStream(System.out));
-		
-		CtMethod behavior = null;
-		for(CtMethod ctMethod : ctClass.getMethods()) {
-			if(ctMethod.getName().equals("say")) {
-				behavior = ctMethod;
-				break;
-			}
-		}
-		
-		final StackAnalyzer parser = new StackAnalyzer(behavior);
-		Frames frames = parser.analyze();
+	public void simpleSubjectsSimple() throws BadBytecode {
+		System.out.println("simpleSubjectsSimple");
+		CtClass clazz = getCtClass("test.subjects.SimpleSubjects");
+		CtMethod method = getMethod(clazz, "simple");
+		StackAnalyzer analyzer = new StackAnalyzer(method);
+		Frames frames = analyzer.analyze();
 		for(Frame frame : frames) {
-			if(frame != null) {
-				System.out.println(frame);
-				if(frame.decodedOp instanceof DecodedMethodInvocationOp) {
-					//System.out.println(frame.op.as(MethodInvocationOpcode.class).decode(parser.context, frame.index).getDescriptor());
-					//MethodInvocationOpcode mop = (MethodInvocationOpcode) frame.op;
-					/*DecodedMethodInvocationOp decoded = (DecodedMethodInvocationOp) frame.decodedOp;
-					String name = decoded.getName();
-					String[] names = methodInvocationNames(frame);
-					StringBuffer sb = new StringBuffer();
-					if(names.length > 0) {
-						sb.append(names[0]);
-						for(int i = 1; i < names.length; i++) {
-							sb.append(", ").append(names[i]);
-						}
+			if(frame.decodedOp instanceof DecodedMethodInvocationOp) {
+				DecodedMethodInvocationOp dmio = (DecodedMethodInvocationOp) frame.decodedOp;
+				if(dmio.getName().equals("classic")) {
+					String[] names = DecodedMethodInvocationOp.resolveParametersNames(frame);
+					switch(frame.index) {
+						case 15:
+							assertDeepEquals(names, new String[] {"subject", "myInt", "date"});
+							break;
+						case 21:
+							assertDeepEquals(names, new String[] {null, null, "date"});
+							break;
+						case 30:
+							assertDeepEquals(names, new String[] {null, null, null});
+							break;
+						default:
+							throw new RuntimeException("could not handle index " + frame.index);
 					}
-					sb.insert(0, "(").insert(0, name).append(")");
-					System.out.println("found method " + sb.toString());*/
-					System.out.println("found method:: " + getMethodNamedSignature(parser.context, frame));
+					System.out.println(dmio.getName() + " -> " + Arrays.toString(names));
 				}
 			}
 		}
-		/*parser.parse(new StackOpHandler() {
-			@Override
-			public void beforeComputeStack(Op op, int index) {
-				LinkedList<StackElement> stack = parser.getCurrentStack();
-				System.out.println(stack);
-				if(op instanceof MethodInvocationOpcode) {
-					MethodInvocationOpcode mop = (MethodInvocationOpcode) op;
-					DecodedMethodInvocationOp decoded = mop.decode(parser.parser.context, index);
-					String name = decoded.getName();
-					String[] names = methodInvocationNames(parser, (MethodInvocationOpcode) op, index);
-					StringBuffer sb = new StringBuffer();
-					if(names.length > 0) {
-						sb.append(names[0]);
-						for(int i = 1; i < names.length; i++) {
-							sb.append(", ").append(names[i]);
-						}
+	}
+	
+	@org.junit.Test
+	public void simpleSubjectsSimpleWithParams() throws BadBytecode {
+		System.out.println("simpleSubjectsSimpleWithParams");
+		CtClass clazz = getCtClass("test.subjects.SimpleSubjects");
+		CtMethod method = getMethod(clazz, "simpleWithParams");
+		StackAnalyzer analyzer = new StackAnalyzer(method);
+		Frames frames = analyzer.analyze();
+		for(Frame frame : frames) {
+			if(frame.decodedOp instanceof DecodedMethodInvocationOp) {
+				DecodedMethodInvocationOp dmio = (DecodedMethodInvocationOp) frame.decodedOp;
+				if(dmio.getName().equals("classic")) {
+					String[] names = DecodedMethodInvocationOp.resolveParametersNames(frame);
+					switch(frame.index) {
+						case 17:
+							assertDeepEquals(names, new String[] {"subject", "myInt", "date"});
+							break;
+						case 24:
+							assertDeepEquals(names, new String[] {null, null, "date"});
+							break;
+						case 33:
+							assertDeepEquals(names, new String[] {null, null, null});
+							break;
+						default:
+							throw new RuntimeException("could not handle index " + frame.index);
 					}
-					sb.insert(0, "(").insert(0, name).append(")");
-					System.out.println("found method " + sb.toString());
-					/*MethodInvocationOpcode mop = (MethodInvocationOpcode) op;
-					DecodedMethodInvocationOp decoded = mop.decode(parser.parser.context, index);
-					String name = decoded.getName();
-					//System.out.println("method " + name + " " + decoded.getDescriptor());
-					//System.out.println("found " + name + " (" + decoded.getNbParameters() + " params), stack is: " + stack);
-					String s = ")";
-					int i = 0;
-					int nbParams = 0;
-					while(nbParams < decoded.getNbParameters()) {
-						if(nbParams != 0)
-							s = "," + s;
-						StackElement se = stack.get(i++);
-						if(se instanceof TOP)
-							se = stack.get(i++);
-						String toAppend = se.toString();
-						if(se instanceof TrackableArray) {
-							TrackableArray trackableArray = (TrackableArray) se;
-							if(!trackableArray.isDirty && nbParams == 0) { // varargs
-								StringBuffer asb = new StringBuffer();
-								if(trackableArray.elements.length > 0) {
-									asb.append(trackableArray.elements[0]);
-									for(int j = 1; j < trackableArray.elements.length; j++)
-										asb.append(",").append(trackableArray.elements[j]);
-								}
-								toAppend = asb.toString();
-							}
-						}
-						s = toAppend + s;
-						nbParams++;
-					}
-					s = name + "(" + s;
-					int line = parser.parser.context.behavior.getMethodInfo().getLineNumber(index);
-					System.out.println("method ::: " + s + " at line " + line);* /
+					System.out.println(dmio.getName() + " -> " + Arrays.toString(names));
 				}
 			}
-		}); */
-		//LocalVariablesEnhancer enhancer = new LocalVariablesEnhancer(behavior);
-		//enhancer.proceed();
-		//enhancer.yop();
-		
-		ctClass.defrost();
-		Class<?> clazz = ctClass.toClass(new ClassLoader() {
-		});
-		clazz.getMethod("say", String.class).invoke(clazz.newInstance(), "");
-		
-		//LocalVariablesFinder localeVariablesFinder = new LocalVariablesFinder(behavior);
-		//JavaBeanLoader<LocalVariablesFinder> jbl = new JavaBeanLoader<LocalVariablesFinder>(LocalVariablesFinder.class);
-		//LocalVariablesFinder expected = jbl.load(new FileInputStream(new File("/Users/sgo/code/bclibs/src/test/coucou.yml")));
-		//assertEquals(localeVariablesFinder.variables, expected.variables);
-		//show("read", localeVariablesFinder.reads);
-		//show("write", localeVariablesFinder.writes);
-		assertEquals("t", "t");
-		//System.out.println("yop");
-		} catch (Exception e) {
-			System.out.println("--->" + e);
-			e.printStackTrace();
 		}
 	}
 	
-	private static String getLocalVariableName(StackElement se) {
-		if(se instanceof ValueFromLocalVariable) {
-			ValueFromLocalVariable v = (ValueFromLocalVariable) se;
-			if(v.localVariable != null)
-				return v.localVariable.name;
-		}
-		return null;
-	}
-	
-	public static String getMethodNamedSignature(Context context, Frame frame) {
-		//System.out.println(frame.op.as(MethodInvocationOpcode.class).decode(context, frame.index).getDescriptor());
-		DecodedMethodInvocationOp decoded = (DecodedMethodInvocationOp) frame.decodedOp;
-		String name = decoded.getName();
-		MethodParam[] params = DecodedMethodInvocationOp.resolveParameters(frame);
-		String[] names = new String[params.length];
-		for(int i = 0; i < params.length; i++) {
-			MethodParam param = params[i];
-			names[i] = param.name;
-		}
-		//String[] names = //methodInvocationNames(frame);
-		StringBuffer sb = new StringBuffer();
-		if(names.length > 0) {
-			sb.append(names[0]);
-			for(int i = 1; i < names.length; i++) {
-				sb.append(", ").append(names[i]);
-			}
-		}
-		sb.insert(0, "(").insert(0, name).append(")");
-		return sb.toString();
-	}
-	
-	public static String[] methodInvocationNames(Frame frame) {
-		DecodedMethodInvocationOp decoded = (DecodedMethodInvocationOp) frame.decodedOp;
-		String name = decoded.getName();
-		int nbParams = decoded.getNbParameters();
-		String[] result = new String[nbParams];
-		if(nbParams > 0) {
-			int stackIndex = 0;
-			if(frame.stackBefore.stack.get(stackIndex) instanceof TrackableArray) {
-				StackElement[] varargs = ((TrackableArray) frame.stackBefore.stack.get(0)).elements;
-				nbParams = nbParams + varargs.length - 1;
-				result = new String[nbParams];
-				for(int i = 0; i < varargs.length; i++, nbParams--) {
-					result[nbParams - 1] = getLocalVariableName(varargs[i]) + "(" + varargs[i] + ")";
+	@org.junit.Test
+	public void simpleSubjectsSimpleWithConditionals() throws BadBytecode {
+		System.out.println("simpleSubjectsSimpleWithConditionals");
+		CtClass clazz = getCtClass("test.subjects.SimpleSubjects");
+		CtMethod method = getMethod(clazz, "simpleWithConditionals");
+		StackAnalyzer analyzer = new StackAnalyzer(method);
+		Frames frames = analyzer.analyze();
+		for(Frame frame : frames) {
+			if(frame.decodedOp instanceof DecodedMethodInvocationOp) {
+				DecodedMethodInvocationOp dmio = (DecodedMethodInvocationOp) frame.decodedOp;
+				if(dmio.getName().equals("classic")) {
+					String[] names = DecodedMethodInvocationOp.resolveParametersNames(frame);
+					switch(frame.index) {
+						case 30:
+							assertDeepEquals(names, new String[] {"subject", "myInt2", "date"});
+							break;
+						case 37:
+							assertDeepEquals(names, new String[] {null, null, "date"});
+							break;
+						case 46:
+							assertDeepEquals(names, new String[] {null, null, null});
+							break;
+						default:
+							throw new RuntimeException("could not handle index " + frame.index);
+					}
+					System.out.println(dmio.getName() + " -> " + Arrays.toString(names));
 				}
-				stackIndex++;
-			}
-			while(nbParams > 0) {
-				StackElement se = frame.stackBefore.stack.get(stackIndex++);
-				if(se instanceof TOP)
-					se = frame.stackBefore.stack.get(stackIndex++);
-				result[nbParams - 1] = getLocalVariableName(se) + "(" + se + ")";
-				nbParams--;
 			}
 		}
-		return result;
 	}
+	
+	@org.junit.Test
+	public void simpleSubjectsVarargs() throws BadBytecode {
+		System.out.println("simpleSubjectsVarargs");
+		CtClass clazz = getCtClass("test.subjects.SimpleSubjects");
+		CtMethod method = getMethod(clazz, "varargs");
+		StackAnalyzer analyzer = new StackAnalyzer(method);
+		Frames frames = analyzer.analyze();
+		for(Frame frame : frames) {
+			if(frame.decodedOp instanceof DecodedMethodInvocationOp) {
+				DecodedMethodInvocationOp dmio = (DecodedMethodInvocationOp) frame.decodedOp;
+				if(dmio.getName().equals("varargs")) {
+					String[] names = DecodedMethodInvocationOp.resolveParametersNames(frame);
+					switch(frame.index) {
+						case 14:
+							assertDeepEquals(names, new String[] {});
+							break;
+						case 24:
+							assertDeepEquals(names, new String[] {"myInt"});
+							break;
+						case 34:
+							assertDeepEquals(names, new String[] {null});
+							break;
+						case 43:
+							assertDeepEquals(names, new String[] {"subject", "date"});
+							break;
+						case 56:
+							assertDeepEquals(names, new String[] {"subject", "date", "myInt"});
+							break;
+						case 73:
+							assertDeepEquals(names, new String[] {"subject", "date", "myInt", null});
+							break;
+						case 86:
+							assertDeepEquals(names, new String[] {"subject", "date", null});
+							break;
+						default:
+							throw new RuntimeException("could not handle index " + frame.index);
+					}
+					System.out.println(dmio.getName() + " -> " + Arrays.toString(names));
+				}
+			}
+		}
+	}
+	
+	@org.junit.Test
+	public void simpleSubjectsExceptions() throws BadBytecode {
+		System.out.println("simpleSubjectsExceptions");
+		CtClass clazz = getCtClass("test.subjects.SimpleSubjects");
+		CtMethod method = getMethod(clazz, "exceptions");
+		StackAnalyzer analyzer = new StackAnalyzer(method);
+		Frames frames = analyzer.analyze();
+		for(Frame frame : frames) {
+			if(frame.decodedOp instanceof DecodedMethodInvocationOp) {
+				DecodedMethodInvocationOp dmio = (DecodedMethodInvocationOp) frame.decodedOp;
+				if(dmio.getName().equals("classic")) {
+					String[] names = DecodedMethodInvocationOp.resolveParametersNames(frame);
+					switch(frame.index) {
+						case 15:
+							assertDeepEquals(names, new String[] {"subject", "myInt", "date"});
+							break;
+						case 35:
+							assertDeepEquals(names, new String[] {null, null, "date"});
+							break;
+						case 24:
+						case 44:
+						case 58:
+							assertDeepEquals(names, new String[] {null, null, null});
+							break;
+						default:
+							throw new RuntimeException("could not handle index " + frame.index);
+					}
+					System.out.println(dmio.getName() + " -> " + Arrays.toString(names));
+				}
+			}
+		}
+	}
+	
+	@org.junit.Test
+	public void simpleSubjectsTableSwitchBlock() throws BadBytecode {
+		System.out.println("simpleSubjectsTableSwitchBlock");
+		CtClass clazz = getCtClass("test.subjects.SimpleSubjects");
+		CtMethod method = getMethod(clazz, "tableswitchBlock");
+		StackAnalyzer analyzer = new StackAnalyzer(method);
+		Frames frames = analyzer.analyze();
+		for(Frame frame : frames) {
+			if(frame.decodedOp instanceof DecodedMethodInvocationOp) {
+				DecodedMethodInvocationOp dmio = (DecodedMethodInvocationOp) frame.decodedOp;
+				if(dmio.getName().equals("classic")) {
+					String[] names = DecodedMethodInvocationOp.resolveParametersNames(frame);
+					switch(frame.index) {
+						case 44:
+							assertDeepEquals(names, new String[] {"subject", "myInt", "date"});
+							break;
+						case 53:
+							assertDeepEquals(names, new String[] {null, null, "date"});
+							break;
+						case 65:
+							assertDeepEquals(names, new String[] {null, null, null});
+							break;
+						default:
+							throw new RuntimeException("could not handle index " + frame.index);
+					}
+					System.out.println(dmio.getName() + " -> " + Arrays.toString(names));
+				}
+			}
+		}
+	}
+	
+	@org.junit.Test
+	public void simpleSubjectsLookupSwitchBlock() throws BadBytecode {
+		System.out.println("simpleSubjectsLookupSwitchBlock");
+		CtClass clazz = getCtClass("test.subjects.SimpleSubjects");
+		CtMethod method = getMethod(clazz, "lookupswitchBlock");
+		StackAnalyzer analyzer = new StackAnalyzer(method);
+		Frames frames = analyzer.analyze();
+		for(Frame frame : frames) {
+			if(frame.decodedOp instanceof DecodedMethodInvocationOp) {
+				DecodedMethodInvocationOp dmio = (DecodedMethodInvocationOp) frame.decodedOp;
+				if(dmio.getName().equals("classic")) {
+					String[] names = DecodedMethodInvocationOp.resolveParametersNames(frame);
+					switch(frame.index) {
+						case 52:
+							assertDeepEquals(names, new String[] {"subject", "myInt", "date"});
+							break;
+						case 61:
+							assertDeepEquals(names, new String[] {null, null, "date"});
+							break;
+						case 73:
+							assertDeepEquals(names, new String[] {null, null, null});
+							break;
+						default:
+							throw new RuntimeException("could not handle index " + frame.index);
+					}
+					System.out.println(dmio.getName() + " -> " + Arrays.toString(names));
+				}
+			}
+		}
+	}
+	
+
 	
 	/*
 5		int i;
@@ -232,6 +290,6 @@ public class Test {
 	 */
 	
 	public static void main(String[] args) {
-		new Test().coucou();
+		
 	}
 }
