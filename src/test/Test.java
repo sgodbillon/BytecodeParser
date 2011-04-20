@@ -1,34 +1,11 @@
 package test;
 
-import static org.junit.Assert.*;
-
 import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.Map.Entry;
 
-import com.sun.org.apache.bcel.internal.util.ClassPath;
-
-import bclibs.LocalVariablesEnhancer;
-import bclibs.analysis.CodeParser;
-import bclibs.analysis.Context;
-import bclibs.analysis.Opcodes;
-import bclibs.analysis.StackOpHandler;
 import bclibs.analysis.decoders.DecodedMethodInvocationOp;
-import bclibs.analysis.decoders.DecodedMethodInvocationOp.MethodParam;
-import bclibs.analysis.opcodes.MethodInvocationOpcode;
-import bclibs.analysis.opcodes.Op;
-import bclibs.analysis.stack.Stack;
 import bclibs.analysis.stack.StackAnalyzer;
 import bclibs.analysis.stack.StackAnalyzer.Frame;
 import bclibs.analysis.stack.StackAnalyzer.Frames;
-import bclibs.analysis.stack.StackElement;
-import bclibs.analysis.stack.TOP;
-import bclibs.analysis.stack.TrackableArray;
-import bclibs.analysis.stack.ValueFromLocalVariable;
-import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtMethod;
 import javassist.bytecode.BadBytecode;
@@ -47,7 +24,7 @@ public class Test {
 			if(frame.decodedOp instanceof DecodedMethodInvocationOp) {
 				DecodedMethodInvocationOp dmio = (DecodedMethodInvocationOp) frame.decodedOp;
 				if(dmio.getName().equals("classic")) {
-					String[] names = DecodedMethodInvocationOp.resolveParametersNames(frame);
+					String[] names = DecodedMethodInvocationOp.resolveParametersNames(frame, false);
 					switch(frame.index) {
 						case 15:
 							assertDeepEquals(names, new String[] {"subject", "myInt", "date"});
@@ -78,7 +55,7 @@ public class Test {
 			if(frame.decodedOp instanceof DecodedMethodInvocationOp) {
 				DecodedMethodInvocationOp dmio = (DecodedMethodInvocationOp) frame.decodedOp;
 				if(dmio.getName().equals("classic")) {
-					String[] names = DecodedMethodInvocationOp.resolveParametersNames(frame);
+					String[] names = DecodedMethodInvocationOp.resolveParametersNames(frame, false);
 					switch(frame.index) {
 						case 17:
 							assertDeepEquals(names, new String[] {"subject", "myInt", "date"});
@@ -109,7 +86,7 @@ public class Test {
 			if(frame.decodedOp instanceof DecodedMethodInvocationOp) {
 				DecodedMethodInvocationOp dmio = (DecodedMethodInvocationOp) frame.decodedOp;
 				if(dmio.getName().equals("classic")) {
-					String[] names = DecodedMethodInvocationOp.resolveParametersNames(frame);
+					String[] names = DecodedMethodInvocationOp.resolveParametersNames(frame, false);
 					switch(frame.index) {
 						case 30:
 							assertDeepEquals(names, new String[] {"subject", "myInt2", "date"});
@@ -140,7 +117,7 @@ public class Test {
 			if(frame.decodedOp instanceof DecodedMethodInvocationOp) {
 				DecodedMethodInvocationOp dmio = (DecodedMethodInvocationOp) frame.decodedOp;
 				if(dmio.getName().equals("varargs")) {
-					String[] names = DecodedMethodInvocationOp.resolveParametersNames(frame);
+					String[] names = DecodedMethodInvocationOp.resolveParametersNames(frame, true);
 					switch(frame.index) {
 						case 14:
 							assertDeepEquals(names, new String[] {});
@@ -183,7 +160,7 @@ public class Test {
 			if(frame.decodedOp instanceof DecodedMethodInvocationOp) {
 				DecodedMethodInvocationOp dmio = (DecodedMethodInvocationOp) frame.decodedOp;
 				if(dmio.getName().equals("classic")) {
-					String[] names = DecodedMethodInvocationOp.resolveParametersNames(frame);
+					String[] names = DecodedMethodInvocationOp.resolveParametersNames(frame, false);
 					switch(frame.index) {
 						case 15:
 							assertDeepEquals(names, new String[] {"subject", "myInt", "date"});
@@ -216,7 +193,7 @@ public class Test {
 			if(frame.decodedOp instanceof DecodedMethodInvocationOp) {
 				DecodedMethodInvocationOp dmio = (DecodedMethodInvocationOp) frame.decodedOp;
 				if(dmio.getName().equals("classic")) {
-					String[] names = DecodedMethodInvocationOp.resolveParametersNames(frame);
+					String[] names = DecodedMethodInvocationOp.resolveParametersNames(frame, false);
 					switch(frame.index) {
 						case 44:
 							assertDeepEquals(names, new String[] {"subject", "myInt", "date"});
@@ -247,7 +224,7 @@ public class Test {
 			if(frame.decodedOp instanceof DecodedMethodInvocationOp) {
 				DecodedMethodInvocationOp dmio = (DecodedMethodInvocationOp) frame.decodedOp;
 				if(dmio.getName().equals("classic")) {
-					String[] names = DecodedMethodInvocationOp.resolveParametersNames(frame);
+					String[] names = DecodedMethodInvocationOp.resolveParametersNames(frame, false);
 					switch(frame.index) {
 						case 52:
 							assertDeepEquals(names, new String[] {"subject", "myInt", "date"});
@@ -265,31 +242,5 @@ public class Test {
 				}
 			}
 		}
-	}
-	
-
-	
-	/*
-5		int i;
-6		i = 1;
-7		int j = 0;
-8		int k = j + i;
-9		smth.length();
-10		for(long l = 0; l < "toto".length(); l++) {
-11			Subject s = new Subject();
-12			s.say("truc" + l);
-13		}
-14		final Object o = new Object() {
-15			@Override
-16			public int hashCode() {
-17				// TODO Auto-generated method stub
-18				return super.hashCode();
-19			}
-20		};
-21		o.toString();
-	 */
-	
-	public static void main(String[] args) {
-		
 	}
 }

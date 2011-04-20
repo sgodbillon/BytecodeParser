@@ -4,7 +4,6 @@ import java.util.Arrays;
 
 import bclibs.analysis.Context;
 import bclibs.analysis.decoders.DecodedMethodInvocationOp;
-import bclibs.analysis.decoders.DecodedMethodInvocationOp.MethodParam;
 import bclibs.analysis.stack.StackElement;
 import bclibs.analysis.stack.TOP;
 import bclibs.analysis.stack.TrackableArray;
@@ -55,16 +54,9 @@ public class CommonTests {
 	}
 	
 	public static String getMethodNamedSignature(Context context, Frame frame) {
-		//System.out.println(frame.op.as(MethodInvocationOpcode.class).decode(context, frame.index).getDescriptor());
 		DecodedMethodInvocationOp decoded = (DecodedMethodInvocationOp) frame.decodedOp;
 		String name = decoded.getName();
-		MethodParam[] params = DecodedMethodInvocationOp.resolveParameters(frame);
-		String[] names = new String[params.length];
-		for(int i = 0; i < params.length; i++) {
-			MethodParam param = params[i];
-			names[i] = param.name;
-		}
-		//String[] names = //methodInvocationNames(frame);
+		String[] names = DecodedMethodInvocationOp.resolveParametersNames(frame, true);
 		StringBuffer sb = new StringBuffer();
 		if(names.length > 0) {
 			sb.append(names[0]);
@@ -78,7 +70,6 @@ public class CommonTests {
 	
 	public static String[] methodInvocationNames(Frame frame) {
 		DecodedMethodInvocationOp decoded = (DecodedMethodInvocationOp) frame.decodedOp;
-		String name = decoded.getName();
 		int nbParams = decoded.getNbParameters();
 		String[] result = new String[nbParams];
 		if(nbParams > 0) {

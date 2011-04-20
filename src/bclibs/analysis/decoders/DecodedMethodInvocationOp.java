@@ -6,7 +6,9 @@ package bclibs.analysis.decoders;
 import static bclibs.analysis.stack.Stack.StackElementLength;
 import static bclibs.analysis.stack.Stack.StackElementLength.*;
 
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.LinkedList;
 
 import javassist.ClassPool;
@@ -116,51 +118,51 @@ public class DecodedMethodInvocationOp extends DecodedOp {
 		return pushes;
 	}
 	
-	public static MethodParam[] resolveParameters(Frame frame) {
+	public static MethodParams resolveParameters(Frame frame) {
 		LinkedList<MethodParam> result = new LinkedList<MethodParam>();
 		DecodedMethodInvocationOp decoded = (DecodedMethodInvocationOp) frame.decodedOp;
 		int nbParams = decoded.getNbParameters();
 		System.out.println("nbParams == " + nbParams + " for decoded " + decoded.name);
+		MethodParam[] varargs = null;
+		MethodParam[] params = resolveParameters(frame.stackBefore.stack, nbParams);
 		if(nbParams > 0) {
 			int stackIndex = 0;
+			if(frame.stackBefore.stack.get(stackIndex) instanceof TOP)
+				stackIndex = 1;
 			if(frame.stackBefore.stack.get(stackIndex) instanceof TrackableArray) {
-				StackElement[] varargs = ((TrackableArray) frame.stackBefore.stack.get(0)).elements;
-				nbParams = nbParams + varargs.length - 1;
-				for(int i = 0; i < varargs.length; i++, nbParams--) {
-					StackElement se = varargs[i];
-					if(se instanceof TOP)
-						se = varargs[++i];
-					LocalVariable lv = getLocalVariableIfAvailable(se);
-					if(lv != null) {
-						result.add(new MethodParam(lv.name, lv.type));
-					} else {
-						result.add(new MethodParam(null, null));
-					}
-				}
-				stackIndex++;
-			}
-			while(nbParams > 0) {
-				StackElement se = frame.stackBefore.stack.get(stackIndex++);
-				if(se instanceof TOP)
-					se = frame.stackBefore.stack.get(stackIndex++);
-				LocalVariable lv = getLocalVariableIfAvailable(se);
-				if(lv != null) {
-					result.add(new MethodParam(lv.name, lv.type));
-				} else {
-					result.add(new MethodParam(null, null));
-				}
-				nbParams--;
+				TrackableArray trackableArray = (TrackableArray) frame.stackBefore.stack.get(stackIndex);
+				varargs = resolveParameters(Arrays.asList(trackableArray.elements), trackableArray.elements.length);
+				System.out.println("trackable array " + Arrays.toString(varargs) + " (" + trackableArray.elements.length + ")");
 			}
 		}
 		Collections.reverse(result);
-		return result.toArray(new MethodParam[0]);
+		return new MethodParams(params, varargs);
 	}
 	
-	public static String[] resolveParametersNames(Frame frame) {
-		MethodParam[] params = resolveParameters(frame);
+	public static String[] resolveParametersNames(Frame frame, boolean varargs) {
+		MethodParam[] params = varargs ? resolveParameters(frame).merge() : resolveParameters(frame).params;
 		String[] result = new String[params.length];
-		for(int i = 0; i < params.length; i++)
+		for(int i = 0; i < result.length; i++)
 			result[i] = params[i].name;
+		return result;
+	}
+	
+	private static MethodParam[] resolveParameters(final Iterable<StackElement> stack, final int elements) {
+		MethodParam[] result = new MethodParam[elements];
+		Iterator<StackElement> it = stack.iterator();
+		int i = 0;
+		while(it.hasNext() && i < elements) {
+			StackElement se = it.next();
+			if(se instanceof TOP)
+				se = it.next();
+			LocalVariable lv = getLocalVariableIfAvailable(se);
+			if(lv != null) {
+				result[elements - i - 1] = new MethodParam(lv.name, lv.type);
+			} else {
+				result[elements - i - 1] = new MethodParam(null, null);
+			}
+			i++;
+		}
 		return result;
 	}
 	
@@ -179,6 +181,28 @@ public class DecodedMethodInvocationOp extends DecodedOp {
 		public MethodParam(String name, LocalVariableType type) {
 			this.name = name;
 			this.type = type;
+		}
+	}
+	
+	public static class MethodParams {
+		public final MethodParam[] params;
+		public final MethodParam[] varargs;
+		
+		public MethodParams(MethodParam[] params, MethodParam[] varargs) {
+			this.params = params;
+			this.varargs = varargs;
+		}
+		
+		public MethodParam[] merge() {
+			if(varargs == null)
+				return Arrays.copyOf(params, params.length);
+			MethodParam[] result = new MethodParam[params.length + varargs.length - 1];
+			int i = 0;
+			for(; i < params.length - 1; i++)
+				result[i] = params[i];
+			for(int j = 0; i < result.length; i++, j++)
+				result[i] = varargs[j];
+			return result;
 		}
 	}
 }
