@@ -7,9 +7,7 @@ import static bclibs.analysis.stack.Stack.StackElementLength;
 import static bclibs.analysis.stack.Stack.StackElementLength.*;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Iterator;
-import java.util.LinkedList;
 
 import javassist.ClassPool;
 import javassist.CtClass;
@@ -38,7 +36,7 @@ public class DecodedMethodInvocationOp extends DecodedOp {
 	protected String name;
 	
 	protected StackElementLength[] pops;
-	protected StackElementLength[] pushes;
+	protected StackElementLength returnType;
 	
 	public DecodedMethodInvocationOp(MethodInvocationOpcode mop, Context context, int index) throws NotFoundException {
 		super(mop, context, index);
@@ -50,7 +48,7 @@ public class DecodedMethodInvocationOp extends DecodedOp {
 		ClassPool cp = context.behavior.getDeclaringClass().getClassPool();
 		parameterTypes = Descriptor.getParameterTypes(descriptor, cp);
 		nbParameters = parameterTypes.length;
-		StackElementLength[] pops = new StackElementLength[parameterTypes.length + (mop.isInstanceMethod() ? 1 : 0)];
+		StackElementLength[] pops = new StackElementLength[parameterTypes.length];
 		for(int i = parameterTypes.length - 1, j = 0; i >= 0; i--, j++) {
 			CtClass ctClass = parameterTypes[i];
 			if(ctClass.isPrimitive()) {
@@ -62,8 +60,6 @@ public class DecodedMethodInvocationOp extends DecodedOp {
 				}
 			}
 		}
-		if(mop.isInstanceMethod())
-			pops[pops.length - 1] = ONE;
 		this.pops = pops;
 		CtClass returnType = Descriptor.getReturnType(descriptor, cp);
 		StackElementLength returnTypeLength = ONE;
@@ -76,18 +72,20 @@ public class DecodedMethodInvocationOp extends DecodedOp {
 				returnTypeLength = DOUBLE;
 			}
 		}
-		pushes = returnTypeLength != null ? new StackElementLength[] { returnTypeLength } : new StackElementLength[0];
+		this.returnType = returnTypeLength != null ? returnTypeLength : null;
 	}
 	
 	@Override
 	public void simulate(Stack stack) {
-		for(int i = 0; i < getPops().length; i++) {
-			if(getPops()[i] == DOUBLE)
+		for(int i = 0; i < pops.length; i++) {
+			if(pops[i] == DOUBLE)
 				stack.pop2();
 			else stack.pop();
 		}
-		for(int i = 0; i < getPushes().length; i++) {
-			if(getPushes()[i] == DOUBLE)
+		if(op.as(MethodInvocationOpcode.class).isInstanceMethod())
+			stack.pop();
+		if(returnType != null) {
+			if(returnType == DOUBLE)
 				stack.push2(new Whatever());
 			else stack.push(new Whatever());
 		}
@@ -115,27 +113,25 @@ public class DecodedMethodInvocationOp extends DecodedOp {
 		return pops;
 	}
 	public StackElementLength[] getPushes() {
-		return pushes;
+		return new StackElementLength[] { this.returnType };
 	}
 	
 	public static MethodParams resolveParameters(Frame frame) {
-		LinkedList<MethodParam> result = new LinkedList<MethodParam>();
 		DecodedMethodInvocationOp decoded = (DecodedMethodInvocationOp) frame.decodedOp;
 		int nbParams = decoded.getNbParameters();
 		System.out.println("nbParams == " + nbParams + " for decoded " + decoded.name);
 		MethodParam[] varargs = null;
-		MethodParam[] params = resolveParameters(frame.stackBefore.stack, nbParams);
+		MethodParam[] params = resolveParameters(frame.stackBefore.stack, nbParams, false);
 		if(nbParams > 0) {
 			int stackIndex = 0;
 			if(frame.stackBefore.stack.get(stackIndex) instanceof TOP)
 				stackIndex = 1;
 			if(frame.stackBefore.stack.get(stackIndex) instanceof TrackableArray) {
 				TrackableArray trackableArray = (TrackableArray) frame.stackBefore.stack.get(stackIndex);
-				varargs = resolveParameters(Arrays.asList(trackableArray.elements), trackableArray.elements.length);
+				varargs = resolveParameters(Arrays.asList(trackableArray.elements), trackableArray.elements.length, true);
 				System.out.println("trackable array " + Arrays.toString(varargs) + " (" + trackableArray.elements.length + ")");
 			}
 		}
-		Collections.reverse(result);
 		return new MethodParams(params, varargs);
 	}
 	
@@ -147,7 +143,7 @@ public class DecodedMethodInvocationOp extends DecodedOp {
 		return result;
 	}
 	
-	private static MethodParam[] resolveParameters(final Iterable<StackElement> stack, final int elements) {
+	private static MethodParam[] resolveParameters(final Iterable<StackElement> stack, final int elements, boolean reverse) {
 		MethodParam[] result = new MethodParam[elements];
 		Iterator<StackElement> it = stack.iterator();
 		int i = 0;
@@ -157,9 +153,9 @@ public class DecodedMethodInvocationOp extends DecodedOp {
 				se = it.next();
 			LocalVariable lv = getLocalVariableIfAvailable(se);
 			if(lv != null) {
-				result[elements - i - 1] = new MethodParam(lv.name, lv.type);
+				result[reverse ? i : elements - i - 1] = new MethodParam(lv.name, lv.type);
 			} else {
-				result[elements - i - 1] = new MethodParam(null, null);
+				result[reverse ? i : elements - i - 1] = new MethodParam(null, null);
 			}
 			i++;
 		}

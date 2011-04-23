@@ -119,25 +119,25 @@ public class Test {
 				if(dmio.getName().equals("varargs")) {
 					String[] names = DecodedMethodInvocationOp.resolveParametersNames(frame, true);
 					switch(frame.index) {
-						case 14:
+						case 17:
 							assertDeepEquals(names, new String[] {});
 							break;
-						case 24:
-							assertDeepEquals(names, new String[] {"myInt"});
+						case 35:
+							assertDeepEquals(names, new String[] {"myInt", null, "myInt2"});
 							break;
-						case 34:
+						case 45:
 							assertDeepEquals(names, new String[] {null});
 							break;
-						case 43:
+						case 54:
 							assertDeepEquals(names, new String[] {"subject", "date"});
 							break;
-						case 56:
+						case 67:
 							assertDeepEquals(names, new String[] {"subject", "date", "myInt"});
 							break;
-						case 73:
+						case 84:
 							assertDeepEquals(names, new String[] {"subject", "date", "myInt", null});
 							break;
-						case 86:
+						case 97:
 							assertDeepEquals(names, new String[] {"subject", "date", null});
 							break;
 						default:

@@ -14,6 +14,7 @@ import bclibs.analysis.stack.Stack;
 public class DecodedFieldOp extends DecodedOp {
 	protected String descriptor;
 	protected boolean load;
+	protected boolean isStatic;
 	protected StackElementLength stackElementLength;
 	
 	public DecodedFieldOp(FieldOpcode fo, Context context, int index) {
@@ -25,6 +26,7 @@ public class DecodedFieldOp extends DecodedOp {
 		this.stackElementLength = sel;
 		this.descriptor = descriptor;
 		this.load = fo.getCode() == Opcode.GETFIELD || fo.getCode() == Opcode.GETSTATIC;
+		this.isStatic = fo.getCode() == Opcode.GETSTATIC ||fo.getCode() == Opcode.PUTSTATIC;
 	}
 	
 	@Override
@@ -39,9 +41,13 @@ public class DecodedFieldOp extends DecodedOp {
 		return descriptor;
 	}
 	public StackElementLength[] getPops() {
-		if(!load)
+		if(isStatic && !load)
 			return new StackElementLength[] { stackElementLength };
-		return new StackElementLength[0];
+		else if(isStatic && load)
+			return new StackElementLength[0];
+		else if(!isStatic && !load)
+			return new StackElementLength[] { stackElementLength, ONE };
+		else return new StackElementLength[] { ONE };
 	}
 	public StackElementLength[] getPushes() {
 		if(load)

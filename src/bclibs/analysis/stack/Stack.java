@@ -5,6 +5,7 @@ package bclibs.analysis.stack;
 
 import static bclibs.analysis.stack.Stack.StackElementLength.DOUBLE;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 
 public class Stack {
@@ -30,17 +31,17 @@ public class Stack {
 	public StackElement pop() {
 		StackElement se = stack.pop();
 		if(se instanceof TOP)
-			System.out.println("WARN: popped a TOP!");
+			throw new RuntimeException("WARN: popped a TOP!");
 		return se;
 	}
 	
 	public StackElement pop2() {
 		StackElement se = stack.pop();
 		if( !(se instanceof TOP) )
-			System.out.println("WARN: popped2 top is not a TOP!");
+			throw new RuntimeException("WARN: popped2 top is not a TOP! (is instanceof " + se.getClass() + ")");
 		se = stack.pop();
 		if(se instanceof TOP)
-			System.out.println("WARN: popped2 a TOP!");
+			throw new RuntimeException("WARN: popped2 a TOP!");
 		return se;
 	}
 	
@@ -103,6 +104,7 @@ public class Stack {
 	}
 	
 	public static void processBasicAlteration(Stack stack, StackElementLength[] pops, StackElementLength[] pushes) {
+		System.out.println("process basic alteration with pops=" + Arrays.toString(pops) + " and pushes=" + Arrays.toString(pushes) + " on stack " + stack);
 		for(int i = 0; i < pops.length; i++) {
 			if(pops[i] == DOUBLE)
 				stack.pop2();

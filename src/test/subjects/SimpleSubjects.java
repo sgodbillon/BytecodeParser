@@ -36,10 +36,11 @@ public class SimpleSubjects {
 	
 	public void varargs() {
 		int myInt = 89;
+		int myInt2 = 99;
 		long date = System.currentTimeMillis();
 		String subject = "test";
 		Common.varargs();
-		Common.varargs(myInt);
+		Common.varargs(myInt, 3, myInt2);
 		Common.varargs(1);
 		Common.mixed(subject, date);
 		Common.mixed(subject, date, myInt);

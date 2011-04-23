@@ -150,7 +150,18 @@ public class Opcodes {
 		opcodes.put(Opcode.CASTORE, new ArrayOpcode(Opcode.CASTORE, false).setPops(ONE, ONE, ONE)); // ARRAY
 		opcodes.put(Opcode.SASTORE, new ArrayOpcode(Opcode.SASTORE, false).setPops(ONE, ONE, ONE)); // ARRAY
 		opcodes.put(Opcode.POP, new BasicOpcode(Opcode.POP).setPops(ONE));
-		opcodes.put(Opcode.POP2, new BasicOpcode(Opcode.POP2).setPops(DOUBLE));
+		opcodes.put(Opcode.POP2, new Op(Opcode.POP2) {
+			@Override
+			public DecodedOp decode(Context context, int index) {
+				return new DecodedOp(this, context, index) {
+					@Override
+					public void simulate(Stack stack) {
+						stack.stack.pop();
+						stack.stack.pop();
+					}
+				};
+			}
+		});
 		opcodes.put(Opcode.DUP, new Op(Opcode.DUP) {
 			@Override
 			public DecodedOp decode(Context context, int index) {
@@ -169,7 +180,7 @@ public class Opcodes {
 					@Override
 					public void simulate(Stack stack) {
 						StackElement se = stack.peek().copy();
-						stack.stack.add(stack.stack.size() - 2, se);
+						stack.stack.add(2, se);
 					}
 				};
 			};
@@ -181,7 +192,7 @@ public class Opcodes {
 					@Override
 					public void simulate(Stack stack) {
 						StackElement se = stack.peek().copy();
-						stack.stack.add(stack.stack.size() - 3, se);
+						stack.stack.add(3, se);
 					}
 				};
 			}
@@ -192,7 +203,11 @@ public class Opcodes {
 				return new DecodedOp(this, context, index) {
 					@Override
 					public void simulate(Stack stack) {
-						stack.push2(stack.peek2().copy());
+						StackElement[] elements = new StackElement[2];
+						elements[0] = stack.stack.get(0).copy();
+						elements[1] = stack.stack.get(1).copy();
+						stack.stack.push(elements[1]);
+						stack.stack.push(elements[0]);
 					}
 				};
 			}
@@ -203,19 +218,25 @@ public class Opcodes {
 				return new DecodedOp(this, context, index) {
 					@Override
 					public void simulate(Stack stack) {
-						StackElement se = stack.peek2().copy();
-						stack.stack.add(stack.stack.size() - 3, se);
+						StackElement[] elements = new StackElement[2];
+						elements[0] = stack.stack.get(0).copy();
+						elements[1] = stack.stack.get(1).copy();
+						stack.stack.add(3, elements[0]);
+						stack.stack.add(3, elements[1]);
 					}
 				};
 			}
 		});
-		opcodes.put(Opcode.DUP2_X2, new Op(Opcode.DUP2_X1) {
+		opcodes.put(Opcode.DUP2_X2, new Op(Opcode.DUP2_X2) {
 			public DecodedOp decode(Context context, int index) {
 				return new DecodedOp(this, context, index) {
 					@Override
 					public void simulate(Stack stack) {
-						StackElement se = stack.peek2().copy();
-						stack.stack.add(stack.stack.size() - 4, se);
+						StackElement[] elements = new StackElement[2];
+						elements[0] = stack.stack.get(0).copy();
+						elements[1] = stack.stack.get(1).copy();
+						stack.stack.add(4, elements[0]);
+						stack.stack.add(4, elements[1]);
 					}
 				};
 			}
@@ -332,7 +353,7 @@ public class Opcodes {
 		opcodes.put(Opcode.INSTANCEOF, new BasicOpcode(Opcode.INSTANCEOF, U2).setPops(ONE).setPushes(ONE));
 		opcodes.put(Opcode.MONITORENTER, new BasicOpcode(Opcode.MONITORENTER).setPops(ONE));
 		opcodes.put(Opcode.MONITOREXIT, new BasicOpcode(Opcode.MONITOREXIT).setPops(ONE));
-		opcodes.put(Opcode.WIDE, new BasicOpcode(Opcode.WIDE));
+		//opcodes.put(Opcode.WIDE, new BasicOpcode(Opcode.WIDE)); // TODO
 		// MULTINEWARRAY
 		opcodes.put(Opcode.IFNULL, new BranchOpCode(Opcode.IFNULL, S2).setPops(ONE));
 		opcodes.put(Opcode.IFNONNULL, new BranchOpCode(Opcode.IFNONNULL, S2).setPops(ONE));

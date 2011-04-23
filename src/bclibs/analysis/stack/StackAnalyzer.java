@@ -3,6 +3,7 @@
  */
 package bclibs.analysis.stack;
 
+import java.util.Arrays;
 import java.util.Iterator;
 
 import javassist.CtBehavior;
@@ -13,6 +14,8 @@ import bclibs.analysis.CodeParser;
 import bclibs.analysis.Context;
 import bclibs.analysis.OpHandler;
 import bclibs.analysis.Opcodes;
+import bclibs.analysis.decoders.DecodedBranchOp;
+import bclibs.analysis.decoders.DecodedMethodInvocationOp;
 import bclibs.analysis.decoders.DecodedOp;
 import bclibs.analysis.decoders.DecodedSwitchOpcode;
 import bclibs.analysis.opcodes.BranchOpCode;
@@ -20,6 +23,7 @@ import bclibs.analysis.opcodes.ExitOpcode;
 import bclibs.analysis.opcodes.Op;
 import bclibs.analysis.opcodes.SwitchOpcode;
 import bclibs.analysis.stack.Stack;
+import bclibs.analysis.stack.Stack.StackElementLength;
 import bclibs.analysis.stack.Whatever;
 
 public class StackAnalyzer {
@@ -33,7 +37,7 @@ public class StackAnalyzer {
 		this.frames = new Frame[context.behavior.getMethodInfo().getCodeAttribute().getCodeLength()];
 	}
 	
-	public Frames analyze() throws BadBytecode {
+	public synchronized Frames analyze() throws BadBytecode {
 		if(frames[0] == null) {
 			init();
 			analyze(0, new Stack());
@@ -61,21 +65,36 @@ public class StackAnalyzer {
 		}
 	}
 	
-	void analyze(int from, Stack stack) throws BadBytecode {
+	synchronized void analyze(int from, Stack stack) throws BadBytecode {
 		//System.out.println("parse from " + from + " with stack " + stack);
+		StringBuffer onError = new StringBuffer();
+		try {
 		if(frames[from].isAccessible) // already parsed
 			return;
-		context.iterator.move(from);
-		final Stack[] currentStack = new Stack[] { stack };
-		while(context.iterator.hasNext()) {
-			int index = context.iterator.next();
-			Op op = Opcodes.OPCODES.get(context.iterator.byteAt(index)).init(context, index);
+		CodeIterator iterator = context.behavior.getMethodInfo().getCodeAttribute().iterator();
+		iterator.move(from);
+		Stack currentStack = stack;
+		while(iterator.hasNext()) {
+			int index = iterator.next();
+			Op op = Opcodes.OPCODES.get(iterator.byteAt(index)).init(context, index);
+			onError.append("\n").append(index).append(":").append(op.getName()).append(" --> ");
 			Frame frame = frames[index];
 			frame.isAccessible = true;
-			frame.stackBefore = currentStack[0].copy();
+			frame.stackBefore = currentStack.copy();
 			frame.decodedOp = op.decode(context, index);
-			frame.decodedOp.simulate(currentStack[0]);
-			frame.stackAfter = currentStack[0].copy();
+			Stack _stack = currentStack.copy();
+			if(frame.decodedOp instanceof DecodedBranchOp)
+				onError.append(" [jump to ").append(((DecodedBranchOp)frame.decodedOp).getJump()).append("] ");
+			if(frame.decodedOp instanceof DecodedMethodInvocationOp)
+				onError.append(" [params = ").append(StackElementLength.add(((DecodedMethodInvocationOp)frame.decodedOp).getPops())).append(" -> ").append(Arrays.toString(((DecodedMethodInvocationOp)frame.decodedOp).getParameterTypes())).append("] ");
+			frame.decodedOp.simulate(_stack);
+			frame.stackAfter = _stack.copy();
+			currentStack = _stack.copy();
+			onError.append(frame.stackAfter);
+			
+			if( !(op instanceof ExitOpcode || (op instanceof BranchOpCode && !((BranchOpCode)op).isConditional()) || op instanceof SwitchOpcode) )
+				onError.append(". Next is ").append(iterator.lookAhead());
+			
 			if(op instanceof ExitOpcode) {
 				break;
 			}
@@ -83,23 +102,28 @@ public class StackAnalyzer {
 				BranchOpCode branchOpCode = op.as(BranchOpCode.class);
 				try {
 					int jump = branchOpCode.decode(context, index).getJump();
-					//System.out.println(op + " will jump to " + jump);
-					if(branchOpCode.isConditional())
-						analyze(context.iterator.lookAhead(), frame.stackAfter);
-					analyze(jump, frame.stackAfter);
+					analyze(jump, frame.stackAfter.copy());
 				} catch (BadBytecode b) {
 					throw new RuntimeException(b);
 				}
-				break;
+				if(!branchOpCode.isConditional())
+					break;
 			}
 			if(op instanceof SwitchOpcode) {
 				SwitchOpcode switchOpcode = op.as(SwitchOpcode.class);
 				DecodedSwitchOpcode decodedSwitchOpcode = switchOpcode.decode(context, index);
 				//System.out.println(decodedSwitchOpcode.toString());
 				for(int offset : decodedSwitchOpcode.offsets)
-					analyze(offset, frame.stackAfter);
-				analyze(decodedSwitchOpcode.defaultOffset, frame.stackAfter);
+					analyze(offset, frame.stackAfter.copy());
+				analyze(decodedSwitchOpcode.defaultOffset, frame.stackAfter.copy());
+				break;
 			}
+			
+			
+		}
+		} catch (Exception e) {
+			System.out.println("BCLIBS ERROR !! " + onError.toString());
+			throw new RuntimeException(e);
 		}
 	}
 	
@@ -153,6 +177,14 @@ public class StackAnalyzer {
             @Override
             public boolean hasNext() {
                 return nextIndex() > -1;
+            }
+            
+            public boolean isFirst() {
+            	return i == 0;
+            }
+            
+            public boolean isLast() {
+            	return !hasNext();
             }
             
             public Frame lookAhead() {
