@@ -37,7 +37,7 @@ public class StackAnalyzer {
 		this.frames = new Frame[context.behavior.getMethodInfo().getCodeAttribute().getCodeLength()];
 	}
 	
-	public synchronized Frames analyze() throws BadBytecode {
+	public Frames analyze() throws BadBytecode {
 		if(frames[0] == null) {
 			init();
 			analyze(0, new Stack());
@@ -52,8 +52,6 @@ public class StackAnalyzer {
 			public void handle(Op op, int index) {
 				Frame frame = frames[index] = new Frame();
 				frame.index = index;
-				//frame.decodedOp = op.decode(context, index);
-				//System.out.println("init: " + frame);
 			}
 		});
 	}
@@ -65,62 +63,55 @@ public class StackAnalyzer {
 		}
 	}
 	
-	synchronized void analyze(int from, Stack stack) throws BadBytecode {
+	void analyze(int from, Stack stack) throws BadBytecode {
 		//System.out.println("parse from " + from + " with stack " + stack);
 		StringBuffer onError = new StringBuffer();
 		try {
-		if(frames[from].isAccessible) // already parsed
-			return;
-		CodeIterator iterator = context.behavior.getMethodInfo().getCodeAttribute().iterator();
-		iterator.move(from);
-		Stack currentStack = stack;
-		while(iterator.hasNext()) {
-			int index = iterator.next();
-			Op op = Opcodes.OPCODES.get(iterator.byteAt(index)).init(context, index);
-			onError.append("\n").append(index).append(":").append(op.getName()).append(" --> ");
-			Frame frame = frames[index];
-			frame.isAccessible = true;
-			frame.stackBefore = currentStack.copy();
-			frame.decodedOp = op.decode(context, index);
-			Stack _stack = currentStack.copy();
-			if(frame.decodedOp instanceof DecodedBranchOp)
-				onError.append(" [jump to ").append(((DecodedBranchOp)frame.decodedOp).getJump()).append("] ");
-			if(frame.decodedOp instanceof DecodedMethodInvocationOp)
-				onError.append(" [params = ").append(StackElementLength.add(((DecodedMethodInvocationOp)frame.decodedOp).getPops())).append(" -> ").append(Arrays.toString(((DecodedMethodInvocationOp)frame.decodedOp).getParameterTypes())).append("] ");
-			frame.decodedOp.simulate(_stack);
-			frame.stackAfter = _stack.copy();
-			currentStack = _stack.copy();
-			onError.append(frame.stackAfter);
-			
-			if( !(op instanceof ExitOpcode || (op instanceof BranchOpCode && !((BranchOpCode)op).isConditional()) || op instanceof SwitchOpcode) )
-				onError.append(". Next is ").append(iterator.lookAhead());
-			
-			if(op instanceof ExitOpcode) {
-				break;
-			}
-			if(op instanceof BranchOpCode) {
-				BranchOpCode branchOpCode = op.as(BranchOpCode.class);
-				try {
+			if(frames[from].isAccessible) // already parsed
+				return;
+			CodeIterator iterator = context.behavior.getMethodInfo().getCodeAttribute().iterator();
+			iterator.move(from);
+			Stack currentStack = stack.copy();
+			while(iterator.hasNext()) {
+				int index = iterator.next();
+				Op op = Opcodes.OPCODES.get(iterator.byteAt(index)).init(context, index);
+				onError.append("\n").append(index).append(":").append(op.getName()).append(" --> ");
+				Frame frame = frames[index];
+				frame.isAccessible = true;
+				frame.stackBefore = currentStack.copy();
+				frame.decodedOp = op.decode(context, index);
+				if(frame.decodedOp instanceof DecodedBranchOp)
+					onError.append(" [jump to ").append(((DecodedBranchOp)frame.decodedOp).getJump()).append("] ");
+				if(frame.decodedOp instanceof DecodedMethodInvocationOp)
+					onError.append(" [params = ").append(StackElementLength.add(((DecodedMethodInvocationOp)frame.decodedOp).getPops())).append(" -> ").append(Arrays.toString(((DecodedMethodInvocationOp)frame.decodedOp).getParameterTypes())).append("] ");
+				frame.decodedOp.simulate(currentStack);
+				frame.stackAfter = currentStack.copy();
+				onError.append(frame.stackAfter);
+				
+				if( !(op instanceof ExitOpcode || (op instanceof BranchOpCode && !((BranchOpCode)op).isConditional()) || op instanceof SwitchOpcode) )
+					onError.append(". Next is ").append(iterator.lookAhead());
+				
+				if(op instanceof ExitOpcode)
+					return;
+				
+				if(op instanceof BranchOpCode) {
+					BranchOpCode branchOpCode = op.as(BranchOpCode.class);
 					int jump = branchOpCode.decode(context, index).getJump();
-					analyze(jump, frame.stackAfter.copy());
-				} catch (BadBytecode b) {
-					throw new RuntimeException(b);
+					analyze(jump, frame.stackAfter);
+					if(!branchOpCode.isConditional())
+						return;
 				}
-				if(!branchOpCode.isConditional())
-					break;
+				
+				if(op instanceof SwitchOpcode) {
+					SwitchOpcode switchOpcode = op.as(SwitchOpcode.class);
+					DecodedSwitchOpcode decodedSwitchOpcode = switchOpcode.decode(context, index);
+					//System.out.println(decodedSwitchOpcode.toString());
+					for(int offset : decodedSwitchOpcode.offsets)
+						analyze(offset, frame.stackAfter);
+					analyze(decodedSwitchOpcode.defaultOffset, frame.stackAfter);
+					return;
+				}
 			}
-			if(op instanceof SwitchOpcode) {
-				SwitchOpcode switchOpcode = op.as(SwitchOpcode.class);
-				DecodedSwitchOpcode decodedSwitchOpcode = switchOpcode.decode(context, index);
-				//System.out.println(decodedSwitchOpcode.toString());
-				for(int offset : decodedSwitchOpcode.offsets)
-					analyze(offset, frame.stackAfter.copy());
-				analyze(decodedSwitchOpcode.defaultOffset, frame.stackAfter.copy());
-				break;
-			}
-			
-			
-		}
 		} catch (Exception e) {
 			System.out.println("BCLIBS ERROR !! " + onError.toString());
 			throw new RuntimeException(e);
@@ -201,7 +192,7 @@ public class StackAnalyzer {
             }
             
             public void insert(byte[] code, boolean after) throws BadBytecode {
-                System.out.println("insert bc " + code.length);
+                //System.out.println("insert bc " + code.length);
                 int index = 0;
                 if(!after && i != -1)
                     index = frames[i].index; 
@@ -221,7 +212,7 @@ public class StackAnalyzer {
             
             @Override
             protected void updateCursors(int pos, int length) {
-                System.out.println("updateCursors: gap of length " + length + " inserted at " + pos);
+                //System.out.println("updateCursors: gap of length " + length + " inserted at " + pos);
                 super.updateCursors(pos, length);
                 for(Frame frame : frames) {
                     if(frame != null && frame.index > pos)
