@@ -1,16 +1,18 @@
 package test;
 
+import static test.CommonTests.assertDeepEquals;
+import static test.CommonTests.getCtClass;
+import static test.CommonTests.getMethod;
+
 import java.util.Arrays;
 
-import bclibs.analysis.decoders.DecodedMethodInvocationOp;
-import bclibs.analysis.stack.StackAnalyzer;
-import bclibs.analysis.stack.StackAnalyzer.Frame;
-import bclibs.analysis.stack.StackAnalyzer.Frames;
 import javassist.CtClass;
 import javassist.CtMethod;
 import javassist.bytecode.BadBytecode;
-
-import static test.CommonTests.*;
+import bytecodeparser.analysis.decoders.DecodedMethodInvocationOp;
+import bytecodeparser.analysis.stack.StackAnalyzer;
+import bytecodeparser.analysis.stack.StackAnalyzer.Frame;
+import bytecodeparser.analysis.stack.StackAnalyzer.Frames;
 
 public class Test {
 	@org.junit.Test

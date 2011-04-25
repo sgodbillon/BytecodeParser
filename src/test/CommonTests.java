@@ -2,18 +2,17 @@ package test;
 
 import java.util.Arrays;
 
-import bclibs.analysis.Context;
-import bclibs.analysis.decoders.DecodedMethodInvocationOp;
-import bclibs.analysis.stack.StackElement;
-import bclibs.analysis.stack.TOP;
-import bclibs.analysis.stack.TrackableArray;
-import bclibs.analysis.stack.ValueFromLocalVariable;
-import bclibs.analysis.stack.StackAnalyzer.Frame;
-
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtMethod;
 import javassist.NotFoundException;
+import bytecodeparser.Context;
+import bytecodeparser.analysis.decoders.DecodedMethodInvocationOp;
+import bytecodeparser.analysis.stack.StackAnalyzer.Frame;
+import bytecodeparser.analysis.stack.StackElement;
+import bytecodeparser.analysis.stack.TOP;
+import bytecodeparser.analysis.stack.TrackableArray;
+import bytecodeparser.analysis.stack.ValueFromLocalVariable;
 
 public class CommonTests {
 	public static CtClass getCtClass(String clazz) {
