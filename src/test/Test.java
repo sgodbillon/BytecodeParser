@@ -243,4 +243,13 @@ public class Test {
 			}
 		}
 	}
+	
+	@org.junit.Test
+	public void simpleMultinewarray() throws BadBytecode {
+		System.out.println("multinewarray");
+		CtClass clazz = getCtClass("test.subjects.SimpleSubjects");
+		CtMethod method = getMethod(clazz, "multinewarray");
+		StackAnalyzer analyzer = new StackAnalyzer(method);
+		analyzer.analyze();
+	}
 }

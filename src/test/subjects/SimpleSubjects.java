@@ -94,4 +94,14 @@ public class SimpleSubjects {
 				break;
 		}
 	}
+	
+	public void multinewarray() {
+		int[][] integers = new int[2][5];
+		String[][][] strings = new String[5][6][7];
+		integers[1][4] = 555;
+		long[] longs = new long[66];
+		String[] simpleStrings = new String[2];
+		simpleStrings[1] = strings[1][2][3] = "toto";
+		longs[1] = 4669292874L;
+	}
 }

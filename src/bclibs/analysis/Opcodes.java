@@ -354,7 +354,7 @@ public class Opcodes {
 		opcodes.put(Opcode.MONITORENTER, new BasicOpcode(Opcode.MONITORENTER).setPops(ONE));
 		opcodes.put(Opcode.MONITOREXIT, new BasicOpcode(Opcode.MONITOREXIT).setPops(ONE));
 		//opcodes.put(Opcode.WIDE, new BasicOpcode(Opcode.WIDE)); // TODO
-		// MULTINEWARRAY
+		opcodes.put(Opcode.MULTIANEWARRAY, new ArrayCreationOpcode(Opcode.MULTIANEWARRAY, U2, U1));
 		opcodes.put(Opcode.IFNULL, new BranchOpCode(Opcode.IFNULL, S2).setPops(ONE));
 		opcodes.put(Opcode.IFNONNULL, new BranchOpCode(Opcode.IFNONNULL, S2).setPops(ONE));
 		opcodes.put(Opcode.GOTO_W, new BranchOpCode(Opcode.GOTO_W, S4));
