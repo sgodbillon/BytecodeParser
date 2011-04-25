@@ -1,0 +1,7 @@
+BytecodeParser, Copyright (C) 2011 Stephane Godbillon
+
+BytecodeParser is released under the GNU Lesser General Public License
+(LGPL), version 3 (or any later version at your option).
+
+You should have received a copy of the GNU Lesser General Public License
+along with BytecodeParser. If not, see <http://www.gnu.org/licenses/>.
