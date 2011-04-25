@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project name="ZDB module" default="build" basedir=".">
+<project name="BytecodeParser" default="build" basedir=".">
 
     <path id="project.classpath">
         <fileset dir="lib">
@@ -17,7 +17,6 @@
     <path id="junit.classpath">
         <pathelement location="lib/junit-4.8.2.jar" />
         <pathelement location="lib/javassist.jar" />
-        <pathelement location="lib/snakeyaml-1.8.jar" />
         <pathelement location="tmp/classes" />
     </path>
 
