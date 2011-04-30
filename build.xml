@@ -28,7 +28,7 @@
                 <include name="**/*.java" />
             </fileset>
         </copy>
-        <jar destfile="dist/bytecode.jar" basedir="tmp/classes" />
+        <jar destfile="dist/bytecodeparser.jar" basedir="tmp/classes" />
     </target>
 
     <target name="compile">
