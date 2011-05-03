@@ -72,13 +72,11 @@ public class StackAnalyzer {
 	
 	void parseCatchBlocks() throws BadBytecode {
 		for(int index : context.exceptionHandlers) {
-			//System.out.println("parse catch block " + index + ", " + frames[index]);
 			analyze(index, new Stack().push(new Whatever()));
 		}
 	}
 	
 	void analyze(int from, Stack stack) throws BadBytecode {
-		//System.out.println("parse from " + from + " with stack " + stack);
 		StringBuffer onError = new StringBuffer();
 		try {
 			if(frames[from].isAccessible) // already parsed
@@ -119,7 +117,6 @@ public class StackAnalyzer {
 				if(op instanceof SwitchOpcode) {
 					SwitchOpcode switchOpcode = op.as(SwitchOpcode.class);
 					DecodedSwitchOpcode decodedSwitchOpcode = switchOpcode.decode(context, index);
-					//System.out.println(decodedSwitchOpcode.toString());
 					for(int offset : decodedSwitchOpcode.offsets)
 						analyze(offset, frame.stackAfter);
 					analyze(decodedSwitchOpcode.defaultOffset, frame.stackAfter);
@@ -146,93 +143,93 @@ public class StackAnalyzer {
 	}
 	
 	public static class Frames implements Iterable<Frame> {
-        public final Frame[] frames;
-        public final CtBehavior behavior;
-        
-        
-        public Frames(CtBehavior behavior, Frame[] frames) {
-            this.frames = frames;
-            this.behavior = behavior;
-        }
-        
-        @Override
-        public FrameIterator iterator() {
-            return new FrameIterator();
-        }
-        
-        public class FrameIterator implements Iterator<Frame> {
-            private int i = -1;
-            private FrameCodeIterator iterator = new FrameCodeIterator(behavior.getMethodInfo().getCodeAttribute(), frames);
-            
-            @Override
-            public void remove() {
-                throw new UnsupportedOperationException();
-            }
-            
-            @Override
-            public Frame next() {
-                int nextIndex = nextIndex();
-                if(nextIndex > -1) {
-                    i = nextIndex;
-                    return frames[nextIndex];
-                }
-                throw new IllegalStateException();
-            }
-            
-            @Override
-            public boolean hasNext() {
-                return nextIndex() > -1;
-            }
-            
-            public boolean isFirst() {
-            	return i == 0;
-            }
-            
-            public boolean isLast() {
-            	return !hasNext();
-            }
-            
-            public Frame lookAhead() {
-                if(nextIndex() != -1)
-                    return frames[nextIndex()];
-                return null;
-            }
-            
-            private int nextIndex() {
-                for(int j = i + 1; j < frames.length; j++)
-                    if(frames[j] != null)
-                        return j;
-                return -1;
-            }
-            
-            public void insert(byte[] code, boolean after) throws BadBytecode {
-                //System.out.println("insert bc " + code.length);
-                int index = 0;
-                if(!after && i != -1)
-                    index = frames[i].index; 
-                if(after && lookAhead() != null)
-                    index = lookAhead().index;
-                iterator.move(index);
-                iterator.insert(code);
-            }
-        }
-        
-        static class FrameCodeIterator extends CodeIterator {
-            final Frame[] frames;
-            public FrameCodeIterator(CodeAttribute codeAttribute, Frame[] frames) {
-                super(codeAttribute);
-                this.frames = frames;
-            }
-            
-            @Override
-            protected void updateCursors(int pos, int length) {
-                //System.out.println("updateCursors: gap of length " + length + " inserted at " + pos);
-                super.updateCursors(pos, length);
-                for(Frame frame : frames) {
-                    if(frame != null && frame.index > pos)
-                        frame.index += length;
-                }
-            }
-        }
-    }
+		public final Frame[] frames;
+		public final CtBehavior behavior;
+
+		public Frames(CtBehavior behavior, Frame[] frames) {
+			this.frames = frames;
+			this.behavior = behavior;
+		}
+
+		@Override
+		public FrameIterator iterator() {
+			return new FrameIterator();
+		}
+
+		public class FrameIterator implements Iterator<Frame> {
+			private int i = -1;
+			private FrameCodeIterator iterator = new FrameCodeIterator(behavior
+					.getMethodInfo().getCodeAttribute(), frames);
+
+			@Override
+			public void remove() {
+				throw new UnsupportedOperationException();
+			}
+
+			@Override
+			public Frame next() {
+				int nextIndex = nextIndex();
+				if (nextIndex > -1) {
+					i = nextIndex;
+					return frames[nextIndex];
+				}
+				throw new IllegalStateException();
+			}
+
+			@Override
+			public boolean hasNext() {
+				return nextIndex() > -1;
+			}
+
+			public boolean isFirst() {
+				return i == 0;
+			}
+
+			public boolean isLast() {
+				return !hasNext();
+			}
+
+			public Frame lookAhead() {
+				if (nextIndex() != -1)
+					return frames[nextIndex()];
+				return null;
+			}
+
+			private int nextIndex() {
+				for (int j = i + 1; j < frames.length; j++)
+					if (frames[j] != null)
+						return j;
+				return -1;
+			}
+
+			public void insert(byte[] code, boolean after) throws BadBytecode {
+				// System.out.println("insert bc " + code.length);
+				int index = 0;
+				if (!after && i != -1)
+					index = frames[i].index;
+				if (after && lookAhead() != null)
+					index = lookAhead().index;
+				iterator.move(index);
+				iterator.insert(code);
+			}
+		}
+
+		static class FrameCodeIterator extends CodeIterator {
+			final Frame[] frames;
+
+			public FrameCodeIterator(CodeAttribute codeAttribute, Frame[] frames) {
+				super(codeAttribute);
+				this.frames = frames;
+			}
+
+			@Override
+			protected void updateCursors(int pos, int length) {
+				super.updateCursors(pos, length);
+				for (Frame frame : frames) {
+					if (frame != null && frame.index > pos)
+						frame.index += length;
+				}
+			}
+		}
+	}
 }

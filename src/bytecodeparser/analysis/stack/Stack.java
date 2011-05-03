@@ -21,7 +21,6 @@ package bytecodeparser.analysis.stack;
 
 import static bytecodeparser.analysis.stack.Stack.StackElementLength.DOUBLE;
 
-import java.util.Arrays;
 import java.util.LinkedList;
 
 public class Stack {
@@ -120,7 +119,6 @@ public class Stack {
 	}
 	
 	public static void processBasicAlteration(Stack stack, StackElementLength[] pops, StackElementLength[] pushes) {
-		System.out.println("process basic alteration with pops=" + Arrays.toString(pops) + " and pushes=" + Arrays.toString(pushes) + " on stack " + stack);
 		for(int i = 0; i < pops.length; i++) {
 			if(pops[i] == DOUBLE)
 				stack.pop2();

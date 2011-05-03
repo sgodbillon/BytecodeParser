@@ -32,6 +32,7 @@ import bytecodeparser.analysis.stack.Constant.IntegerConstant;
 import bytecodeparser.analysis.stack.Constant.LongConstant;
 import bytecodeparser.analysis.stack.Constant.StringConstant;
 import bytecodeparser.analysis.stack.Constant.WhateverConstant;
+import bytecodeparser.analysis.stack.Stack.StackElementLength;
 import bytecodeparser.analysis.stack.Stack;
 
 public class DecodedConstantPushOp extends DecodedBasicOp {
@@ -41,7 +42,6 @@ public class DecodedConstantPushOp extends DecodedBasicOp {
 	
 	@Override
 	public void simulate(Stack stack) {
-		//System.out.println("simulate constantpush");
 		ConstantPushOpcode cpop = this.op.as(ConstantPushOpcode.class);
 		if(cpop.getParameterTypes().length == 0) {
 			switch(cpop.baseCode) {
@@ -64,7 +64,6 @@ public class DecodedConstantPushOp extends DecodedBasicOp {
 			OpParameterType type = cpop.getParameterTypes()[0];
 			int value = cpop.decode(context, index).parameterValues[0];
 			if(type == OpParameterType.S1 || type == OpParameterType.S2) {
-				//System.out.println("is bipush or sipush: " + value);
 				for(int i = 0; i < getPops().length; i++) {
 					stack.pop(getPops()[i]);
 				}
@@ -72,23 +71,22 @@ public class DecodedConstantPushOp extends DecodedBasicOp {
 			} else if(type == OpParameterType.U1 || type == OpParameterType.U2) {
 				Object o = context.behavior.getMethodInfo().getConstPool().getLdcValue(value);
 				if(o == null) {
-					//System.out.println("$$ ERROR $$ " + index + ": " + getCode() + " (" + getName() + "), val="+value);
 					ConstPool cp = context.behavior.getMethodInfo().getConstPool();
 					for(Method m : ConstPool.class.getDeclaredMethods()) {
 						if(m.getName().equals("getItem")) {
 							m.setAccessible(true);
 							try {
 								Object _o = m.invoke(cp, new Integer(value));
-								//System.out.println("entry was " + (_o == null ? "null" : _o.getClass().toString()));
 								stack.push(new WhateverConstant(_o));
 							} catch (Exception e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
+								throw new RuntimeException(e);
 							}
 						}
 					}
 					return;
 				}
+				if(pushes[0].equals(StackElementLength.DOUBLE) && !(o instanceof Long) && !(o instanceof Double))
+					throw new RuntimeException("Constant push of type " + op.getName() + " should push a double-size element but is not! (o = " + o + ")");
 				if(o instanceof Integer)
 					stack.push(new IntegerConstant((Integer)o));
 				else if(o instanceof Long)

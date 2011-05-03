@@ -24,6 +24,7 @@ import bytecodeparser.Context;
 import bytecodeparser.analysis.LocalVariable;
 import bytecodeparser.analysis.opcodes.LocalVariableOpcode;
 import bytecodeparser.analysis.stack.Stack;
+import bytecodeparser.analysis.stack.StackElement;
 import bytecodeparser.analysis.stack.ValueFromLocalVariable;
 
 public class DecodedLocalVariableOp extends DecodedBasicOp {
@@ -43,18 +44,25 @@ public class DecodedLocalVariableOp extends DecodedBasicOp {
 	@Override
 	public void simulate(Stack stack) {
 		ValueFromLocalVariable toPush = new ValueFromLocalVariable(localVariable);
-		//System.out.println("load " + index + ":" + getName() + " " + toPush.localVariable + "? " + load);
 		for(int i = 0; i < getPops().length; i++) {
-			//System.out.println("pop");
+			StackElement poppedSe;
 			if(getPops()[i] == DOUBLE)
-				stack.pop2();
-			else stack.pop();
+				poppedSe = stack.pop2();
+			else poppedSe = stack.pop();
+			/* when a name is null while LocalVariableTable is present, it is likely that this class has been
+			 * previously enhanced and this local variable is just a variable proxy, so grab the original local
+			 * variable and consider its name
+			 */
+			if(poppedSe instanceof ValueFromLocalVariable && (localVariable == null || localVariable.name == null)) {
+				System.out.println("WARN ************** variable proxy for lv = '" + ((ValueFromLocalVariable) poppedSe).localVariable + "'");
+				toPush = new ValueFromLocalVariable(((ValueFromLocalVariable) poppedSe).localVariable);
+			}
 		}
 		for(int i = 0; i < getPushes().length; i++) {
-			//System.out.println("push");
 			if(getPushes()[i] == DOUBLE)
 				stack.push2(toPush);
 			else stack.push(toPush);
 		}
+		System.out.println("stack is now " + stack);
 	}
 }

@@ -41,6 +41,7 @@ public class TrackableArray extends Array {
 		return this;
 	}
 	public TrackableArray set(int i, StackElement element) {
+		System.out.println("in trackable array, set " + i + " => " + element);
 		elements[i] = element;
 		return this;
 	}
