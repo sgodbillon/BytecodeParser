@@ -20,6 +20,9 @@
 package bytecodeparser.analysis.decoders;
 
 import static bytecodeparser.analysis.stack.Stack.StackElementLength.DOUBLE;
+
+import org.apache.log4j.Logger;
+
 import bytecodeparser.Context;
 import bytecodeparser.analysis.LocalVariable;
 import bytecodeparser.analysis.opcodes.LocalVariableOpcode;
@@ -28,6 +31,7 @@ import bytecodeparser.analysis.stack.StackElement;
 import bytecodeparser.analysis.stack.ValueFromLocalVariable;
 
 public class DecodedLocalVariableOp extends DecodedBasicOp {
+	private static final Logger LOGGER = Logger.getLogger(DecodedLocalVariableOp.class);
 	public final LocalVariable localVariable;
 	public final boolean load;
 	
@@ -54,7 +58,7 @@ public class DecodedLocalVariableOp extends DecodedBasicOp {
 			 * variable and consider its name
 			 */
 			if(poppedSe instanceof ValueFromLocalVariable && (localVariable == null || localVariable.name == null)) {
-				System.out.println("WARN ************** variable proxy for lv = '" + ((ValueFromLocalVariable) poppedSe).localVariable + "'");
+				LOGGER.debug("ATTENTION ************** variable proxy for lv = '" + ((ValueFromLocalVariable) poppedSe).localVariable + "'");
 				toPush = new ValueFromLocalVariable(((ValueFromLocalVariable) poppedSe).localVariable);
 			}
 		}
@@ -63,6 +67,5 @@ public class DecodedLocalVariableOp extends DecodedBasicOp {
 				stack.push2(toPush);
 			else stack.push(toPush);
 		}
-		System.out.println("stack is now " + stack);
 	}
 }

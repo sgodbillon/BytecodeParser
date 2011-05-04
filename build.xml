@@ -16,8 +16,10 @@
 
     <path id="junit.classpath">
         <pathelement location="lib/junit-4.8.2.jar" />
+        <pathelement location="lib/log4j-1.2.16.jar" />
         <pathelement location="lib/javassist.jar" />
         <pathelement location="tmp/classes" />
+        <pathelement location="log4j.properties.test.jar" />
     </path>
 
     <target name="build" depends="compile">
@@ -41,6 +43,7 @@
 
     <target name="test" depends="compile">
         <junit printsummary="yes" fork="yes" haltonfailure="yes" showoutput="true">
+            <jvmarg value="-Dlog4j.configuration=log4j.properties"/>
             <classpath refid="junit.classpath" />
             <formatter type="plain"/>
             <test name="test.Test"/>

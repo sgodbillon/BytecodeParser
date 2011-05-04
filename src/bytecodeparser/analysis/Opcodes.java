@@ -378,7 +378,20 @@ public class Opcodes {
 		opcodes.put(Opcode.INSTANCEOF, new BasicOpcode(Opcode.INSTANCEOF, U2).setPops(ONE).setPushes(ONE));
 		opcodes.put(Opcode.MONITORENTER, new BasicOpcode(Opcode.MONITORENTER).setPops(ONE));
 		opcodes.put(Opcode.MONITOREXIT, new BasicOpcode(Opcode.MONITOREXIT).setPops(ONE));
-		//opcodes.put(Opcode.WIDE, new BasicOpcode(Opcode.WIDE)); // TODO
+		opcodes.put(Opcode.WIDE, new Op(Opcode.WIDE) { // TODO
+			@Override
+			public DecodedOp decode(Context context, int index) {
+				throw new UnsupportedOperationException("WIDE opcode is not handled yet");
+			}
+			@Override
+			public OpParameterType[] getParameterTypes() {
+				throw new UnsupportedOperationException("WIDE opcode is not handled yet");
+			}
+			@Override
+			public Op init(Context context, int index) {
+				throw new UnsupportedOperationException("WIDE opcode is not handled yet");
+			}
+		});
 		opcodes.put(Opcode.MULTIANEWARRAY, new ArrayCreationOpcode(Opcode.MULTIANEWARRAY, U2, U1));
 		opcodes.put(Opcode.IFNULL, new BranchOpCode(Opcode.IFNULL, S2).setPops(ONE));
 		opcodes.put(Opcode.IFNONNULL, new BranchOpCode(Opcode.IFNONNULL, S2).setPops(ONE));

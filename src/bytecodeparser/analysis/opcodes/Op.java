@@ -33,7 +33,6 @@ public abstract class Op {
 		this.parameterTypes = opParameterTypes;
 	}
 	
-	//public abstract void simulate(Stack stack, Context context, int index);
 	public abstract DecodedOp decode(Context context, int index);
 	
 	/**

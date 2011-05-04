@@ -21,10 +21,13 @@ package bytecodeparser.analysis.stack;
 
 import java.util.Arrays;
 
+import org.apache.log4j.Logger;
+
 import bytecodeparser.analysis.stack.Stack.StackElementLength;
 
-
 public class TrackableArray extends Array {
+	private static final Logger LOGGER = Logger.getLogger(TrackableArray.class);
+	
 	public final StackElement[] elements;
 	public final StackElementLength componentLength;
 	public boolean isDirty;
@@ -41,7 +44,7 @@ public class TrackableArray extends Array {
 		return this;
 	}
 	public TrackableArray set(int i, StackElement element) {
-		System.out.println("in trackable array, set " + i + " => " + element);
+		LOGGER.trace("in trackable array, set " + i + " => " + element);
 		elements[i] = element;
 		return this;
 	}

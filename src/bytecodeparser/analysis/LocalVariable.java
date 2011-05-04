@@ -23,6 +23,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.apache.log4j.Logger;
+
 import javassist.CtBehavior;
 import javassist.Modifier;
 import javassist.NotFoundException;
@@ -31,6 +33,8 @@ import javassist.bytecode.LocalVariableAttribute;
 import bytecodeparser.utils.Utils;
 
 public class LocalVariable {
+	private static final Logger LOGGER = Logger.getLogger(LocalVariable.class);
+	
 	public final CtBehavior behavior;
 	public final String name;
 	public final int index;
@@ -67,35 +71,37 @@ public class LocalVariable {
 		Map<Integer, LocalVariable> variables = new HashMap<Integer, LocalVariable>();
 		CodeAttribute codeAttribute = behavior.getMethodInfo().getCodeAttribute();
 		LocalVariableAttribute localVariableAttribute = (LocalVariableAttribute) codeAttribute.getAttribute("LocalVariableTable");
-		//System.out.println("search vars : " + localVariableAttribute + " > " + (localVariableAttribute != null ? localVariableAttribute.tableLength() : 0));
+		LOGGER.debug("search vars : " + localVariableAttribute + " > " + (localVariableAttribute != null ? localVariableAttribute.tableLength() : 0));
 		if(localVariableAttribute != null) {
 			for(int i = 0; i < localVariableAttribute.tableLength(); i++) {
 				boolean isParameter = i < nbParameters || !isStatic && i == nbParameters;
 				LocalVariable localVariable = new LocalVariable(i, localVariableAttribute.variableName(i), LocalVariableType.parse(localVariableAttribute.signature(i)), isParameter, behavior);
 				variables.put(i, localVariable);
-				//System.out.println("found var "+localVariable);
-				//System.out.println(String.format("findLocalVariables: var %s is '%s' (slot %s)", i, localVariable.name, localVariable.getSlot()));
+				LOGGER.debug(String.format("findLocalVariables: foud var %s is '%s' (slot %s)", i, localVariable.name, localVariable.getSlot()));
 			}
-		} //else System.out.println("no local vars found");
+		} else LOGGER.debug("no local vars found");
 		return variables;
 	}
 	
 	public static LocalVariable getLocalVariable(int slot, int index, Map<Integer, LocalVariable> variables) {
 		TreeMap<Integer, LocalVariable> variablesByDistance = new TreeMap<Integer, LocalVariable>();
 		for(LocalVariable lv : variables.values()) {
-			//System.out.println("lv " + lv);
 			if(lv.getSlot() == slot) {
 				int[] validityRange = lv.getValidityRange();
 				if(validityRange[1] >= index) {
-					if(validityRange[0] <= index)
+					if(validityRange[0] <= index) {
+						LOGGER.debug("getLocalVariable in slot " + slot + " at index " + index + ": found " + lv);
 						return lv;
-					else
+					} else
 						variablesByDistance.put(validityRange[0] - index, lv);
 				}
 			}
 		}
-		if(variablesByDistance.size() > 0)
+		if(variablesByDistance.size() > 0) {
+			LOGGER.debug("getLocalVariable in slot " + slot + " at index " + index + ": found by shorter distance " + variablesByDistance.firstEntry().getValue());
 			return variablesByDistance.firstEntry().getValue();
+		}
+		LOGGER.debug("getLocalVariable in slot " + slot + " at index " + index + ": NOT FOUND");
 		return null;
 	}
 }
