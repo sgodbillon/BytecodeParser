@@ -23,17 +23,16 @@ import java.util.Map;
 
 import javassist.CtBehavior;
 import javassist.NotFoundException;
-import javassist.bytecode.CodeIterator;
 import javassist.bytecode.ExceptionTable;
 import bytecodeparser.analysis.LocalVariable;
 
 public class Context {
 	public final CtBehavior behavior;
-	public final CodeIterator iterator;
+	public final MultiMarkerCodeIterator iterator;
 	public final Map<Integer, LocalVariable> localVariables;
 	public final int[] exceptionHandlers;
 	
-	public Context(CtBehavior behavior, CodeIterator iterator, Map<Integer, LocalVariable> localVariables) {
+	public Context(CtBehavior behavior, MultiMarkerCodeIterator iterator, Map<Integer, LocalVariable> localVariables) {
 		this.behavior = behavior;
 		this.iterator = iterator;
 		this.localVariables = localVariables;
@@ -49,12 +48,12 @@ public class Context {
 		}
 	}
 	
-	public Context(CtBehavior behavior, CodeIterator iterator) {
+	public Context(CtBehavior behavior, MultiMarkerCodeIterator iterator) {
 		this(behavior, iterator, findLocalVariables(behavior));
 	}
 	
 	public Context(CtBehavior behavior) {
-		this(behavior, behavior.getMethodInfo().getCodeAttribute().iterator(), findLocalVariables(behavior));
+		this(behavior, new MultiMarkerCodeIterator(behavior.getMethodInfo().getCodeAttribute()), findLocalVariables(behavior));
 	}
 	
 	public boolean isStartOfExceptionHandler(int index) {
