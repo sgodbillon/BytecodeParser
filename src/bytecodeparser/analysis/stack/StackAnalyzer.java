@@ -58,11 +58,13 @@ public class StackAnalyzer {
 	public Frames analyze() throws BadBytecode {
 		if(frames[0] == null) {
 			long start = System.currentTimeMillis();
-			LOGGER.debug("Start analyzis of " + context.behavior.getLongName());
+			if(LOGGER.isDebugEnabled())
+				LOGGER.debug("Start analyzis of " + context.behavior.getLongName());
 			init();
 			analyze(0, new Stack());
 			parseCatchBlocks();
-			LOGGER.debug("Analyzis ended, took " + (System.currentTimeMillis() - start) + " ms");
+			if(LOGGER.isDebugEnabled())
+				LOGGER.debug("Analyzis ended, took " + (System.currentTimeMillis() - start) + " ms");
 		}
 		return new Frames(context.behavior, frames);
 	}
@@ -110,7 +112,8 @@ public class StackAnalyzer {
 				if( !(op instanceof ExitOpcode || (op instanceof BranchOpCode && !((BranchOpCode)op).isConditional()) || op instanceof SwitchOpcode) )
 					trace.append(". Next is ").append(iterator.lookAhead());
 				
-				LOGGER.trace(trace);
+				if(LOGGER.isTraceEnabled())
+					LOGGER.trace(trace);
 				
 				if(op instanceof ExitOpcode)
 					return;
@@ -133,7 +136,7 @@ public class StackAnalyzer {
 				}
 			}
 		} catch (Exception e) {
-			LOGGER.error("BCLIBS ERROR !! " + trace.toString());
+			LOGGER.error("BCLIBS ERROR !! " + trace.toString(), e);
 			throw new RuntimeException(e);
 		}
 	}

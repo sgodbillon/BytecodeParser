@@ -29,7 +29,7 @@ public class CodeParser {
 	private boolean stop = false;
 	
 	public CodeParser(CtBehavior behavior) {
-		this.context = new Context(behavior, behavior.getMethodInfo().getCodeAttribute().iterator());
+		this.context = new Context(behavior);
 	}
 	public void parse(OpHandler opHandler) throws BadBytecode {
 		while(context.iterator.hasNext()) {

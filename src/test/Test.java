@@ -273,4 +273,22 @@ public class Test {
 		StackAnalyzer analyzer = new StackAnalyzer(method);
 		analyzer.analyze();
 	}
+	
+	@org.junit.Test
+	public void wideTest() throws BadBytecode {
+		System.out.println("WideTestSubject.wideTestSubject");
+		CtClass clazz = getCtClass("test.subjects.WideTestSubject");
+		CtMethod method = getMethod(clazz, "wideTestSubject");
+		StackAnalyzer analyzer = new StackAnalyzer(method);
+		Frames frames = analyzer.analyze();
+		for(Frame frame : frames) {
+			if(frame.decodedOp instanceof DecodedMethodInvocationOp) {
+				DecodedMethodInvocationOp dmio = (DecodedMethodInvocationOp) frame.decodedOp;
+				String[] names = DecodedMethodInvocationOp.resolveParametersNames(frame, true);
+				if(dmio.getName().equals("mixed2")) {
+					assertDeepEquals(names, new String[] { "sum", "i1", "i255", "i256", "i300" });
+				}
+			}
+		}
+	}
 }

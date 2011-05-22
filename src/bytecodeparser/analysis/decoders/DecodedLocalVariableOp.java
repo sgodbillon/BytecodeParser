@@ -19,53 +19,86 @@
  */
 package bytecodeparser.analysis.decoders;
 
-import static bytecodeparser.analysis.stack.Stack.StackElementLength.DOUBLE;
+import java.util.Arrays;
+
+import javassist.bytecode.Opcode;
 
 import org.apache.log4j.Logger;
 
 import bytecodeparser.Context;
+import bytecodeparser.analysis.Opcodes.OpParameterType;
+import static bytecodeparser.analysis.Opcodes.OpParameterType.*;
 import bytecodeparser.analysis.LocalVariable;
 import bytecodeparser.analysis.opcodes.LocalVariableOpcode;
 import bytecodeparser.analysis.stack.Stack;
 import bytecodeparser.analysis.stack.StackElement;
 import bytecodeparser.analysis.stack.ValueFromLocalVariable;
 
-public class DecodedLocalVariableOp extends DecodedBasicOp {
+public class DecodedLocalVariableOp extends DecodedOp {
 	private static final Logger LOGGER = Logger.getLogger(DecodedLocalVariableOp.class);
 	public final LocalVariable localVariable;
 	public final boolean load;
+	public final boolean doubleLength;
+	public final boolean isWide;
 	
-	public DecodedLocalVariableOp(LocalVariableOpcode lvo, Context context, int index) {
-		super(lvo, context, index);
+	public DecodedLocalVariableOp(LocalVariableOpcode lvo, Context context, int index, boolean isWide) {
+		super(lvo, context, index, guessTypes(lvo, context, index, isWide), decodeValues(guessTypes(lvo, context, index, isWide), context.iterator, index + (isWide ? 1 : 0)));
+		this.isWide = isWide;
+		System.out.println("DecodedLocalVariableOp for (lvo=" + lvo + ") at index " + index + ", parameterTypes=" + Arrays.toString(parameterTypes) + ", parameterValues=" + Arrays.toString(parameterValues));
 		int slot;
 		if(parameterTypes.length > 0)
 			slot = parameterValues[0];
 		else slot = lvo.getCode() - lvo.getBaseOpcode();
-		this.load = lvo.isLoad();
 		localVariable = LocalVariable.getLocalVariable(slot, index, context.localVariables);
+		int base = lvo.getBaseOpcode();
+		this.load = lvo.isLoad();
+		doubleLength = base == Opcode.DLOAD || base == Opcode.DLOAD_0 || base == Opcode.LLOAD || base == Opcode.LLOAD_0 || base == Opcode.DSTORE || base == Opcode.DSTORE_0 || base == Opcode.LSTORE || base == Opcode.LSTORE_0;
 	}
 	
 	@Override
 	public void simulate(Stack stack) {
-		ValueFromLocalVariable toPush = new ValueFromLocalVariable(localVariable);
-		for(int i = 0; i < getPops().length; i++) {
-			StackElement poppedSe;
-			if(getPops()[i] == DOUBLE)
-				poppedSe = stack.pop2();
-			else poppedSe = stack.pop();
-			/* when a name is null while LocalVariableTable is present, it is likely that this class has been
-			 * previously enhanced and this local variable is just a variable proxy, so grab the original local
-			 * variable and consider its name
-			 */
-			if(poppedSe instanceof ValueFromLocalVariable && (localVariable == null || localVariable.name == null)) {
-				LOGGER.debug("ATTENTION ************** variable proxy for lv = '" + ((ValueFromLocalVariable) poppedSe).localVariable + "'");
-				toPush = new ValueFromLocalVariable(((ValueFromLocalVariable) poppedSe).localVariable);
+		if(op.code != Opcode.IINC) {
+			ValueFromLocalVariable toPush = new ValueFromLocalVariable(localVariable);
+			if(!load) {
+				StackElement poppedSe;
+				if(doubleLength)
+					poppedSe = stack.pop2();
+				else poppedSe = stack.pop();
+				/* when a name is null while LocalVariableTable is present, it is likely that this class has been
+				 * previously enhanced and this local variable is just a variable proxy, so grab the original local
+				 * variable and consider its name
+				 */
+				if(poppedSe instanceof ValueFromLocalVariable && (localVariable == null || localVariable.name == null)) {
+					LOGGER.debug("ATTENTION ************** variable proxy for lv = '" + ((ValueFromLocalVariable) poppedSe).localVariable + "'");
+					toPush = new ValueFromLocalVariable(((ValueFromLocalVariable) poppedSe).localVariable);
+				}
+			} else {
+				if(doubleLength)
+					stack.push2(toPush);
+				else stack.push(toPush);
 			}
 		}
-		for(int i = 0; i < getPushes().length; i++) {
-			if(getPushes()[i] == DOUBLE)
-				stack.push2(toPush);
-			else stack.push(toPush);
-		}
+	}
+	
+	private static OpParameterType[] guessTypes(LocalVariableOpcode lvo, Context context, int index, boolean isWide) {
+		int code = lvo.code;
+		if(code != Opcode.ALOAD &&
+				code != Opcode.ASTORE &&
+				code != Opcode.DLOAD &&
+				code != Opcode.DSTORE &&
+				code != Opcode.FLOAD &&
+				code != Opcode.FSTORE &&
+				code != Opcode.ILOAD &&
+				code != Opcode.ISTORE &&
+				code != Opcode.LLOAD &&
+				code != Opcode.LSTORE &&
+				code != Opcode.IINC)
+			return new OpParameterType[0];
+		boolean isIINC = lvo.code == Opcode.IINC;
+		OpParameterType[] result = new OpParameterType[isIINC ? 2 : 1];
+		result[0] = isWide ? U2 : U1;
+		if(isIINC)
+			result[1] = isWide ? S2 : S1;
+		return result;
 	}
 }

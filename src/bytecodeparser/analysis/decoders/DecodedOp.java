@@ -34,14 +34,22 @@ public abstract class DecodedOp {
 	public final int[] parameterValues;
 	
 	public DecodedOp(Op op, Context context, int index) {
+		this(op, context, index, op.getParameterTypes());
+	}
+	
+	public DecodedOp(Op op, Context context, int index, OpParameterType[] parameterTypes) {
+		this(op, context, index, parameterTypes, decodeValues(parameterTypes, context.iterator, index));
+	}
+	
+	public DecodedOp(Op op, Context context, int index, OpParameterType[] parameterTypes, int[] parameterValues) {
 		this.context = context;
 		this.index = index;
 		this.op = op;
-		this.parameterTypes = op.getParameterTypes();
-		this.parameterValues = decodeValues(context.iterator, index);
+		this.parameterTypes = parameterTypes;
+		this.parameterValues = parameterValues;
 	}
 	
-	protected final int[] decodeValues(CodeIterator iterator, int index) {
+	public static int[] decodeValues(OpParameterType[] parameterTypes, CodeIterator iterator, int index) {
 		int[] result = new int[parameterTypes.length];
 		int nextValIndex = index + 1;
 		for(int i = 0; i < parameterTypes.length; i++) {
@@ -52,7 +60,7 @@ public abstract class DecodedOp {
 		return result;
 	}
 	
-	protected final int decodeValueAt(OpParameterType type, CodeIterator iterator, int index) {
+	public static int decodeValueAt(OpParameterType type, CodeIterator iterator, int index) {
 		switch(type) {
 			case S1:
 				return iterator.byteAt(index);
