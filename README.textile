@@ -1,0 +1,24 @@
+h1. BytecodeParser
+
+p. BytecodeParser is a java library that can help you statically to parse java bytecode by extracting as much information as possible. It is based upon "javassist":http://www.csg.is.titech.ac.jp/~chiba/javassist/.
+
+p. It can also statically analyze each method's frame, for particular purposes like retrieving the names of the local variable names given as parameters of a method call (its original purpose), check if all the frames are reachable, etc.
+
+p. BytecodeParser simulates the stack operations made by the opcodes in the CodeAttribute. It can give you the state of the stack before and after the frame is run.
+
+p. BytecodeParser is released under the "LGPL, version 3":http://www.gnu.org/licenses/lgpl.html.
+
+h2. How to use it
+
+bc. ClassPool cp = ClassPool.getDefault();
+CtClass ctClass = cp.get("org.project.MyClass");
+for(CtBehavior behavior : ctClass.getDeclaredMethods()) {
+    StackAnalyzer parser = new StackAnalyzer(behavior);
+    Frames frames = parser.analyze();
+    FrameIterator iterator = frames.iterator();
+    while(iterator.hasNext()) {
+        Frame frame = iterator.next();
+        // you can get some extended information about this frame with frame.decodedOp
+        // you can also get the state of the stack before or after this frame with frame.stackBefore and frame.stackAfter
+    }
+}
