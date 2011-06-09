@@ -19,8 +19,6 @@
  */
 package bytecodeparser.analysis.decoders;
 
-import java.util.Arrays;
-
 import javassist.bytecode.Opcode;
 
 import org.apache.log4j.Logger;
@@ -44,7 +42,6 @@ public class DecodedLocalVariableOp extends DecodedOp {
 	public DecodedLocalVariableOp(LocalVariableOpcode lvo, Context context, int index, boolean isWide) {
 		super(lvo, context, index, guessTypes(lvo, context, index, isWide), decodeValues(guessTypes(lvo, context, index, isWide), context.iterator, index + (isWide ? 1 : 0)));
 		this.isWide = isWide;
-		System.out.println("DecodedLocalVariableOp for (lvo=" + lvo + ") at index " + index + ", parameterTypes=" + Arrays.toString(parameterTypes) + ", parameterValues=" + Arrays.toString(parameterValues));
 		int slot;
 		if(parameterTypes.length > 0)
 			slot = parameterValues[0];

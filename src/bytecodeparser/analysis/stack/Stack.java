@@ -23,7 +23,10 @@ import static bytecodeparser.analysis.stack.Stack.StackElementLength.DOUBLE;
 
 import java.util.LinkedList;
 
+import org.apache.log4j.Logger;
+
 public class Stack {
+	private static final Logger LOGGER = Logger.getLogger(Stack.class);
 	public static enum StackElementLength {
 		ONE, // one word
 		DOUBLE; // two words
@@ -69,14 +72,14 @@ public class Stack {
 	public StackElement peek() {
 		StackElement se = stack.peek();
 		if(se instanceof TOP)
-			System.out.println("WARN: popped a TOP!");
+			LOGGER.warn("WARN: popped a TOP!");
 		return se;
 	}
 	
 	public StackElement peek2() {
 		StackElement se = stack.get(stack.size() - 2);
 		if(se instanceof TOP)
-			System.out.println("WARN: peek2 a TOP!");
+			LOGGER.warn("WARN: peek2 a TOP!");
 		return se;
 	}
 	
