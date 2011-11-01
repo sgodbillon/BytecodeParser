@@ -22,6 +22,11 @@ package bytecodeparser.analysis.opcodes;
 import bytecodeparser.Context;
 import bytecodeparser.analysis.decoders.DecodedLocalVariableOp;
 
+/**
+ * An opcode concerning a local variable (read, write).
+ * @author Stephane Godbillon
+ *
+ */
 public class LocalVariableOpcode extends Op {
 	private final int base;
 	private final boolean load;
@@ -48,6 +53,10 @@ public class LocalVariableOpcode extends Op {
 		return base;
 	}
 	
+	/**
+	 * States if this opcode is a read (load -> true) or a write (store -> false).
+	 * @return
+	 */
 	public boolean isLoad() {
 		return load;
 	}

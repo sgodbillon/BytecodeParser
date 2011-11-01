@@ -24,6 +24,11 @@ import bytecodeparser.analysis.Opcodes.OpParameterType;
 import bytecodeparser.analysis.decoders.DecodedBasicOp;
 import bytecodeparser.analysis.stack.Stack.StackElementLength;
 
+/**
+ * A basic op that performs classic push/pops on the stack.
+ * @author Stephane Godbillon
+ *
+ */
 public class BasicOpcode extends Op {
 	protected StackElementLength[] pops, pushes;
 	public BasicOpcode(int code, OpParameterType... opParameterTypes) {
@@ -34,9 +39,15 @@ public class BasicOpcode extends Op {
 		this.pops = pops;
 		this.pushes = pushes;
 	}
+	/**
+	 * @return the pops of this opcode.
+	 */
 	public StackElementLength[] getPops() {
 		return pops;
 	}
+	/**
+	 * @return the pushes of this opcode.
+	 */
 	public StackElementLength[] getPushes() {
 		return pushes;
 	}
@@ -48,11 +59,17 @@ public class BasicOpcode extends Op {
 	public String toString() {
 		return "BasicOp: " + getName();
 	}
+	/**
+	 * Internal use only.
+	 */
 	public BasicOpcode setPops(StackElementLength... pops) {
 		if(pops != null)
 			this.pops = pops;
 		return this;
 	}
+	/**
+	 * Internal use only.
+	 */
 	public BasicOpcode setPushes(StackElementLength... pushes) {
 		if(pushes != null)
 			this.pushes = pushes;

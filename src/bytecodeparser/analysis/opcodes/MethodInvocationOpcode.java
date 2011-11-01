@@ -24,10 +24,18 @@ import javassist.bytecode.Opcode;
 import bytecodeparser.Context;
 import bytecodeparser.analysis.decoders.DecodedMethodInvocationOp;
 
+/**
+ * An opcode that stands for a method invocation.
+ * @author Stephane Godbillon
+ *
+ */
 public class MethodInvocationOpcode extends Op {
 	public MethodInvocationOpcode(int code) {
 		super(code, U2);
 	}
+	/**
+	 * States if the invoked method is static or not.
+	 */
 	public boolean isInstanceMethod() {
 		return code != Opcode.INVOKESTATIC;
 	}

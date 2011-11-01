@@ -19,7 +19,15 @@
  */
 package bytecodeparser.analysis.stack;
 
+/**
+ * A StackElement that stands for an array.
+ * @author Stephane Godbillon
+ *
+ */
 public class Array extends StackElement {
+	/**
+	 * The signature of this array.
+	 */
 	public final String signature;
 	public Array(String signature) {
 		this.signature = signature;

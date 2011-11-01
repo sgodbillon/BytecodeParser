@@ -19,6 +19,11 @@
  */
 package bytecodeparser.analysis.stack;
 
+/**
+ * A StackElement that is a part of a two-words Element.
+ * @author Stephane Godbillon
+ *
+ */
 public class TOP extends StackElement {
 	@Override
 	public StackElement copy() {

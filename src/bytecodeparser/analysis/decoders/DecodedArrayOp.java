@@ -29,6 +29,11 @@ import bytecodeparser.analysis.stack.Stack.StackElementLength;
 import bytecodeparser.analysis.stack.StackElement;
 import bytecodeparser.analysis.stack.TrackableArray;
 
+/**
+ * A decoded array operation op.
+ * @author Stephane Godbillon
+ *
+ */
 public class DecodedArrayOp extends DecodedBasicOp {
 	public DecodedArrayOp(ArrayOpcode op, Context context, int index) {
 		super(op, context, index);

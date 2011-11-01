@@ -19,6 +19,11 @@
  */
 package bytecodeparser.analysis.stack;
 
+/**
+ * A StackElement of something we don't know anything about at compile-time.
+ * @author Stephane Godbillon
+ *
+ */
 public class Whatever extends StackElement {
 	@Override
 	public StackElement copy() {

@@ -28,11 +28,34 @@ import javassist.bytecode.SignatureAttribute;
 import javassist.bytecode.SignatureAttribute.ArrayType;
 import javassist.bytecode.SignatureAttribute.ClassType;
 
+/**
+ * Information about a localVariable type.
+ * @author Stephane Godbillon
+ *
+ */
 public class LocalVariableType {
+	/**
+	 * Is it a primitive type (int, long, etc.)
+	 */
 	public final boolean isPrimitive;
+	/**
+	 * The signature of this type.
+	 */
 	public final String signature;
+	/**
+	 * The name of this type, including array info.
+	 * Examples: int, long[], String
+	 */
 	public final String typeName;
+	/**
+	 * The name of this type, without any array info.
+	 * Examples: int, long, String
+	 */
 	public final String shortTypeName;
+	/**
+	 * The dimensions of the array, if any.
+	 * Examples: int => 0, int[][] => 2
+	 */
 	public final int dimensions;
 	
 	private LocalVariableType(String signature, String typeName, String shortTypeName, boolean isPrimitive, int dimensions) {
@@ -43,10 +66,18 @@ public class LocalVariableType {
 		this.dimensions = dimensions;
 	}
 	
+	/**
+	 * States if this type is an array.
+	 */
 	public boolean isArray() {
 		return dimensions > 0;
 	}
 	
+	/**
+	 * Makes a localVariableType from a given signature.
+	 * @return LocalVariableType
+	 * @throws RuntimeException if the signature could not be parsed.
+	 */
 	public static LocalVariableType parse(String signature) {
 		int dimensions = 0;
 		for(int i = 0; i < signature.length(); i++) {
@@ -72,6 +103,10 @@ public class LocalVariableType {
 		}
 	}
 	
+	/**
+	 * Makes a localVariableType from a given CtClass.
+	 * @return LocalVariableType
+	 */
 	public static LocalVariableType from(CtClass clazz) {
 		return parse(Descriptor.of(clazz));
 	}

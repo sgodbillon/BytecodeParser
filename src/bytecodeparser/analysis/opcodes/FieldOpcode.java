@@ -22,8 +22,12 @@ package bytecodeparser.analysis.opcodes;
 import static bytecodeparser.analysis.Opcodes.OpParameterType.U2;
 import bytecodeparser.Context;
 import bytecodeparser.analysis.decoders.DecodedFieldOp;
-import bytecodeparser.analysis.stack.Stack.StackElementLength;
 
+/**
+ * An opcode concerning a field (read, write).
+ * @author Stephane Godbillon
+ *
+ */
 public class FieldOpcode extends Op {
 	private final DecodedFieldOp decodedOp;
 	
@@ -48,17 +52,5 @@ public class FieldOpcode extends Op {
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
-	}
-	
-	public StackElementLength[] getPops() {
-		if(decodedOp == null)
-			throw new IllegalStateException("must be initialized before !");
-		return decodedOp.getPops();
-	}
-	
-	public StackElementLength[] getPushes() {
-		if(decodedOp == null)
-			throw new IllegalStateException("must be initialized before !");
-		return decodedOp.getPushes();
 	}
 }

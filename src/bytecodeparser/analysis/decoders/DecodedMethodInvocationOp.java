@@ -45,6 +45,11 @@ import bytecodeparser.analysis.stack.ValueFromLocalVariable;
 import bytecodeparser.analysis.stack.Whatever;
 import bytecodeparser.utils.Utils;
 
+/**
+ * A decoded method operation op.
+ * @author Stephane Godbillon
+ *
+ */
 public class DecodedMethodInvocationOp extends DecodedOp {
 	protected int nbParameters;
 	protected String descriptor;
@@ -110,38 +115,65 @@ public class DecodedMethodInvocationOp extends DecodedOp {
 		}
 	}
 	
+	/**
+	 * @return The method ref index of the matching method.
+	 */
 	public int getMethodRefIndex() {
 		return parameterValues[0];
 	}
 	
+	/**
+	 * @return The descriptor of the matching method.
+	 */
 	public String getDescriptor() {
 		return descriptor;
 	}
 	
+	/**
+	 * @return The name of the matching method.
+	 */
 	public String getName() {
 		return name;
 	}
 	
+	/**
+	 * @return The name of the matching method's declaring class.
+	 */
 	public String getDeclaringClassName() {
 		return declaringClassName;
 	}
 	
+	/**
+	 * @return The parameters types of the matching method.
+	 */
 	public CtClass[] getParameterTypes() {
 		return parameterTypes;
 	}
 	
+	/**
+	 * @return The return type of the matching method.
+	 */
 	public CtClass getReturnType() {
 		return returnType;
 	}
 	
+	/**
+	 * @return The number of parameters of the matching method.
+	 */
 	public int getNbParameters() {
 		return nbParameters;
 	}
 	
+	/**
+	 * @return The pops needed by this operation.
+	 */
 	public StackElementLength[] getPops() {
 		return pops;
 	}
 	
+	/**
+	 * @return The pushes performed by this operation.
+	 */
 	public StackElementLength[] getPushes() {
 		return new StackElementLength[] { this.returnTypeLength };
 	}
@@ -162,6 +194,12 @@ public class DecodedMethodInvocationOp extends DecodedOp {
 				"java.lang.Double".equals(declaringClassName) && descriptor.equals("(D)Ljava/lang/Double;"));
 	}
 	
+	/**
+	 * Resolve the parameters given to the matching method.
+	 * The frame's op MUST be a {@link MethodInvocationOpcode}
+	 * @param frame A frame which op is a {@link MethodInvocationOpcode}
+	 * @return An instance of MethodParams containing the params of the matching method.
+	 */
 	public static MethodParams resolveParameters(Frame frame) {
 		DecodedMethodInvocationOp decoded = (DecodedMethodInvocationOp) frame.decodedOp;
 		int nbParams = decoded.getNbParameters();
@@ -184,6 +222,12 @@ public class DecodedMethodInvocationOp extends DecodedOp {
 		return new MethodParams(null, params, varargs);
 	}
 	
+	/**
+	 * Resolve the parameters names given to the matching method.
+	 * The frame's op MUST be a {@link MethodInvocationOpcode}
+	 * @param frame A frame which op is a {@link MethodInvocationOpcode}
+	 * @return An array of String containing the params names of the matching method.
+	 */
 	public static String[] resolveParametersNames(Frame frame, boolean varargs) {
 		MethodParam[] params = varargs ? resolveParameters(frame).merge() : resolveParameters(frame).params;
 		String[] result = new String[params.length];
@@ -219,8 +263,19 @@ public class DecodedMethodInvocationOp extends DecodedOp {
 		return null;
 	}
 	
+	/**
+	 * A method param.
+	 * @author Stephane Godbillon
+	 *
+	 */
 	public static class MethodParam {
+		/**
+		 * The name of the parameter, if any.
+		 */
 		public final String name;
+		/**
+		 * The type of this parameter.
+		 */
 		public final LocalVariableType type;
 		
 		public MethodParam(String name, LocalVariableType type) {
@@ -235,8 +290,17 @@ public class DecodedMethodInvocationOp extends DecodedOp {
 	}
 	
 	public static class MethodParams {
+		/**
+		 * The instance on which the method is invoked.
+		 */
 		public final MethodParam subject;
+		/**
+		 * The params of this method call.
+		 */
 		public final MethodParam[] params;
+		/**
+		 * The params of the varargs, if any.
+		 */
 		public final MethodParam[] varargs;
 		
 		public MethodParams(MethodParam subject, MethodParam[] params, MethodParam[] varargs) {
@@ -245,6 +309,11 @@ public class DecodedMethodInvocationOp extends DecodedOp {
 			this.varargs = varargs;
 		}
 		
+		/**
+		 * Merges the params and the varargs. In the result, the last original param, which is an array, is flattened
+		 * so that we get the n-1 original params + those contained in the varargs array.
+		 * @return a new MethodParam array containing the params and the varargs.
+		 */
 		public MethodParam[] merge() {
 			if(varargs == null)
 				return Arrays.copyOf(params, params.length);

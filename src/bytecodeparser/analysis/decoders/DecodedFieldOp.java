@@ -28,6 +28,11 @@ import bytecodeparser.analysis.opcodes.FieldOpcode;
 import bytecodeparser.analysis.stack.Stack;
 import bytecodeparser.analysis.stack.Stack.StackElementLength;
 
+/**
+ * A decoded field operation op.
+ * @author Stephane Godbillon
+ *
+ */
 public class DecodedFieldOp extends DecodedOp {
 	protected String descriptor;
 	protected boolean load;
@@ -51,12 +56,23 @@ public class DecodedFieldOp extends DecodedOp {
 		Stack.processBasicAlteration(stack, getPops(), getPushes());
 	}
 	
+	/**
+	 * @return the methodRef index of this op.
+	 */
 	public int getMethodRefIndex() {
 		return parameterValues[0];
 	}
+	
+	/**
+	 * @return the descriptor of the field.
+	 */
 	public String getDescriptor() {
 		return descriptor;
 	}
+	
+	/**
+	 * Pops needed by this decoded op.
+	 */
 	public StackElementLength[] getPops() {
 		if(isStatic && !load)
 			return new StackElementLength[] { stackElementLength };
@@ -66,11 +82,19 @@ public class DecodedFieldOp extends DecodedOp {
 			return new StackElementLength[] { stackElementLength, ONE };
 		else return new StackElementLength[] { ONE };
 	}
+	
+	/**
+	 * Pushes needed by this decoded op.
+	 */
 	public StackElementLength[] getPushes() {
 		if(load)
 			return new StackElementLength[] { stackElementLength };
 		return new StackElementLength[0];
 	}
+	
+	/**
+	 * States if this op is a read or write operation.
+	 */
 	public boolean isRead() {
 		return load;
 	}

@@ -24,6 +24,11 @@ import java.util.ArrayList;
 import javassist.bytecode.CodeAttribute;
 import javassist.bytecode.CodeIterator;
 
+/**
+ * A code iterator that tracks more than one mark in the bytecode.
+ * @author Stephane Godbillon
+ *
+ */
 public class MultiMarkerCodeIterator extends CodeIterator {
 	public ArrayList<Integer> marks = new ArrayList<Integer>();
 
@@ -41,11 +46,21 @@ public class MultiMarkerCodeIterator extends CodeIterator {
 		}
 	}
 	
+	/**
+	 * Puts a mark on the given index in the bytecode.
+	 * @param index
+	 * @return the id of this mark, in order to get it later.
+	 */
 	public int putMark(int index) {
 		marks.add(index);
 		return marks.size() - 1;
 	}
 	
+	/**
+	 * Gets the index in the bytecode tracked by the mark matching the given mark id.
+	 * @param mark the mark id.
+	 * @return the index of this mark.
+	 */
 	public int getMark(int mark) {
 		return marks.get(mark);
 	}

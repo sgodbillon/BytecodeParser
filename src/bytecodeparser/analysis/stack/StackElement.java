@@ -19,7 +19,15 @@
  */
 package bytecodeparser.analysis.stack;
 
+/**
+ * A Stack Element.
+ * @author Stephane Godbillon
+ *
+ */
 public abstract class StackElement {
+	/**
+	 * @return a copy of this StackElement.
+	 */
 	public abstract StackElement copy();
 	@Override public String toString() {
 		return this.getClass().toString();

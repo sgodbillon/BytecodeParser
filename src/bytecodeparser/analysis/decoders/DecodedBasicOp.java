@@ -24,8 +24,19 @@ import bytecodeparser.analysis.opcodes.BasicOpcode;
 import bytecodeparser.analysis.stack.Stack;
 import bytecodeparser.analysis.stack.Stack.StackElementLength;
 
+/**
+ * A decoded basic op.
+ * @author Stephane Godbillon
+ *
+ */
 public class DecodedBasicOp extends DecodedOp {
+	/**
+	 * Pops needed by this decoded op.
+	 */
 	public final StackElementLength[] pops;
+	/**
+	 * Pushes needed by this decoded op.
+	 */
 	public final StackElementLength[] pushes;
 	
 	public DecodedBasicOp(BasicOpcode op, Context context, int index) {
@@ -40,10 +51,16 @@ public class DecodedBasicOp extends DecodedOp {
 		Stack.processBasicAlteration(stack, getPops(), getPushes());
 	}
 	
+	/**
+	 * Pops needed by this decoded op.
+	 */
 	public StackElementLength[] getPops() {
 		return pops;
 	}
 	
+	/**
+	 * Pushes needed by this decoded op.
+	 */
 	public StackElementLength[] getPushes() {
 		return pushes;
 	}

@@ -22,6 +22,11 @@ package bytecodeparser.analysis.opcodes;
 import bytecodeparser.Context;
 import bytecodeparser.analysis.decoders.DecodedSwitchOpcode;
 
+/**
+ * LookupSwitch or TableSwitch opcode.
+ * @author Stephane Godbillon
+ *
+ */
 public class SwitchOpcode extends Op {
 	
 	public SwitchOpcode(int code) {

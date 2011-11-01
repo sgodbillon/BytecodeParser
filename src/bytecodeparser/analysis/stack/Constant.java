@@ -19,6 +19,13 @@
  */
 package bytecodeparser.analysis.stack;
 
+/**
+ * A StackElement that is a constant.
+ * 
+ * @author Stephane Godbillon
+ *
+ * @param <T> T can be one of : String, Integer, Float, Long, Double, or Object. See the subclasses for more information.
+ */
 public abstract class Constant<T> extends StackElement {
 	protected final T value;
 
@@ -26,6 +33,9 @@ public abstract class Constant<T> extends StackElement {
 		this.value = value;
 	}
 	
+	/**
+	 * @return The wrapped value.
+	 */
 	public T getValue() {
 		return value;
 	}
@@ -35,6 +45,11 @@ public abstract class Constant<T> extends StackElement {
 		return this.getClass().getSimpleName() + ": " + value;
 	}
 	
+	/**
+	 * A StackElement that stands for a String Constant.
+	 * @author Stephane Godbillon
+	 *
+	 */
 	public static class StringConstant extends Constant<String> {
 		public StringConstant(String value) {
 			super(value);
@@ -45,6 +60,11 @@ public abstract class Constant<T> extends StackElement {
 		}
 	}
 
+	/**
+	 * A StackElement that stands for an Integer Constant.
+	 * @author Stephane Godbillon
+	 *
+	 */
 	public static class IntegerConstant extends Constant<Integer> {
 		public IntegerConstant(Integer value) {
 			super(value);
@@ -55,6 +75,11 @@ public abstract class Constant<T> extends StackElement {
 		}
 	}
 	
+	/**
+	 * A StackElement that stands for a Float Constant.
+	 * @author Stephane Godbillon
+	 *
+	 */
 	public static class FloatConstant extends Constant<Float> {
 		public FloatConstant(Float value) {
 			super(value);
@@ -65,6 +90,11 @@ public abstract class Constant<T> extends StackElement {
 		}
 	}
 	
+	/**
+	 * A StackElement that stands for a Long Constant.
+	 * @author Stephane Godbillon
+	 *
+	 */
 	public static class LongConstant extends Constant<Long> {
 		public LongConstant(Long value) {
 			super(value);
@@ -75,6 +105,11 @@ public abstract class Constant<T> extends StackElement {
 		}
 	}
 	
+	/**
+	 * A StackElement that stands for a Double Constant.
+	 * @author Stephane Godbillon
+	 *
+	 */
 	public static class DoubleConstant extends Constant<Double> {
 		public DoubleConstant(Double value) {
 			super(value);
@@ -85,6 +120,11 @@ public abstract class Constant<T> extends StackElement {
 		}
 	}
 	
+	/**
+	 * A StackElement that stands for an Object Constant (so, whatever constant...).
+	 * @author Stephane Godbillon
+	 *
+	 */
 	public static class WhateverConstant extends Constant<Object> {
 		public WhateverConstant(Object value) {
 			super(value);

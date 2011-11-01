@@ -24,13 +24,27 @@ import javassist.bytecode.BadBytecode;
 import bytecodeparser.analysis.Opcodes;
 import bytecodeparser.analysis.opcodes.Op;
 
+/**
+ * A basic bytecode parser.
+ * @author Stephane Godbillon
+ *
+ */
 public class CodeParser {
+	/**
+	 * The matching context.
+	 */
 	public final Context context;
 	private boolean stop = false;
 	
 	public CodeParser(CtBehavior behavior) {
 		this.context = new Context(behavior);
 	}
+	/**
+	 * Parses the bytecode with the given OpHandler.
+	 * @param opHandler
+	 * @throws BadBytecode
+	 * @see {@link OpHandler}
+	 */
 	public void parse(OpHandler opHandler) throws BadBytecode {
 		while(context.iterator.hasNext()) {
 			if(stop)
@@ -41,20 +55,34 @@ public class CodeParser {
 		}
 	}
 	
+	/**
+	 * Moves the code iterator to the given index.
+	 * @param index
+	 */
 	public void move(int index) {
 		stop = false;
 		context.iterator.move(index);
 	}
 	
+	/**
+	 * Looks the next frame's index.
+	 * @return
+	 */
 	public int nextIndex() {
 		return context.iterator.lookAhead();
 	}
 	
+	/**
+	 * Resets the code iterator at the beginning of the bytecode.
+	 */
 	public void begin() {
 		stop = false;
 		context.iterator.begin();
 	}
 	
+	/**
+	 * Stops the parsing.
+	 */
 	public void stop() {
 		stop = true;
 	}

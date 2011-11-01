@@ -23,6 +23,11 @@ import bytecodeparser.Context;
 import bytecodeparser.analysis.Opcodes.OpParameterType;
 import bytecodeparser.analysis.decoders.DecodedConstantPushOp;
 
+/**
+ * An opcode that stands for a push of a constant onto the stack.
+ * @author Stephane Godbillon
+ *
+ */
 public class ConstantPushOpcode extends BasicOpcode {
 	public final int baseCode;
 	

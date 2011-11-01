@@ -25,10 +25,27 @@ import org.apache.log4j.Logger;
 
 import bytecodeparser.analysis.stack.Stack.StackElementLength;
 
+/**
+ * A trackable Array is an array of known elements at compile time: its content can be "guessed" by the analyzer.
+ * When this array gets updated with a value that is unknown at compile-time, this value is an instance of WhateverElement.
+ * 
+ * This is particularly useful to guess the names of the varargs, for example.
+ * 
+ * If a trackable array contains some elements that cannot be guessed
+ * 
+ * @author Stephane Godbillon
+ *
+ */
 public class TrackableArray extends Array {
 	private static final Logger LOGGER = Logger.getLogger(TrackableArray.class);
 	
+	/**
+	 * The StackElements of this array.
+	 */
 	public final StackElement[] elements;
+	/**
+	 * The length of each component.
+	 */
 	public final StackElementLength componentLength;
 	public boolean isDirty;
 	public TrackableArray(String signature, int size) {

@@ -51,15 +51,46 @@ import bytecodeparser.analysis.opcodes.WideOpcode;
 import bytecodeparser.analysis.stack.Stack;
 import bytecodeparser.analysis.stack.StackElement;
 
+/**
+ * The opcodes that are used by the JVM, and their handling classes.
+ * @author Stephane Godbillon
+ *
+ */
 public class Opcodes {
+	/**
+	 * A Parameter of an opcode.
+	 * @author Stephane Godbillon
+	 *
+	 */
 	public static enum OpParameterType {
+		/**
+		 * Unsigned one-byte parameter.
+		 */
 		U1(1),
+		/**
+		 * Unsigned two-bytes parameter.
+		 */
 		U2(2),
+		/**
+		 * Unsigned four-bytes parameter.
+		 */
 		U4(4),
+		/**
+		 * Signed one-byte parameter.
+		 */
 		S1(1),
+		/**
+		 * Signed two-bytes parameter.
+		 */
 		S2(2),
+		/**
+		 * Signed four-bytes parameter.
+		 */
 		S4(4);
 		
+		/**
+		 * Number of bytes of this parameter.
+		 */
 		public final int size;
 		
 		private OpParameterType(int size) {
@@ -67,6 +98,11 @@ public class Opcodes {
 		}
 	}
 	
+	/**
+	 * Gets the name of the given opcode.
+	 * @param op
+	 * @return the name of the given opcode, or UNKNOWN_OP if unknown.
+	 */
 	public static String findOpName(int op) {
 		for(Field field : javassist.bytecode.Opcode.class.getFields()) {
 			if(Modifier.isStatic(field.getModifiers())) {
@@ -83,6 +119,9 @@ public class Opcodes {
 		return "UNKNOWN_OP";
 	}
 	
+	/**
+	 * Mapping between the opcode and its matching Op.
+	 */
 	public static final Map<Integer, Op> OPCODES;
 	
 	static {

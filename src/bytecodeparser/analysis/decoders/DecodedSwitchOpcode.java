@@ -28,12 +28,35 @@ import bytecodeparser.Context;
 import bytecodeparser.analysis.opcodes.SwitchOpcode;
 import bytecodeparser.analysis.stack.Stack;
 
+/**
+ * A decoded switch (lookup/tableswitch) op.
+ * @author Stephane Godbillon
+ *
+ */
 public class DecodedSwitchOpcode extends DecodedOp {
+	/**
+	 * The default offset of the switch.
+	 */
 	public final int defaultOffset;
+	/**
+	 * The number of padding bytes, if any.
+	 */
 	public final int padding;
+	/**
+	 * The low index of entries (tableswitch). -1 if lookupswitch.
+	 */
 	public final int low;
+	/**
+	 * The high index of entries (tableswitch). -1 if lookupswitch.
+	 */
 	public final int high;
+	/**
+	 * The number of entries of the switch.
+	 */
 	public final int nbEntries;
+	/**
+	 * The offsets of the entries.
+	 */
 	public final int[] offsets;
 	
 	public DecodedSwitchOpcode(SwitchOpcode op, Context context, int index) {

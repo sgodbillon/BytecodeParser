@@ -21,7 +21,15 @@ package bytecodeparser.analysis.stack;
 
 import bytecodeparser.analysis.LocalVariable;
 
+/**
+ * A StackElement representing a value that was read from a localVariable (so the value may be known at this time).
+ * @author Stephane Godbillon
+ *
+ */
 public class ValueFromLocalVariable extends StackElement {
+	/**
+	 * The local variable from which this value was read.
+	 */
 	public final LocalVariable localVariable;
 	public ValueFromLocalVariable(LocalVariable localVariable) {
 		this.localVariable = localVariable;

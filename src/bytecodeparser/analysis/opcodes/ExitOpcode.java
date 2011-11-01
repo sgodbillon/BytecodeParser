@@ -22,6 +22,11 @@ package bytecodeparser.analysis.opcodes;
 import bytecodeparser.analysis.Opcodes.OpParameterType;
 import bytecodeparser.analysis.stack.Stack.StackElementLength;
 
+/**
+ * An opcode that stands for an exit of the behavior (like a return).
+ * @author Stephane Godbillon
+ *
+ */
 public class ExitOpcode extends BasicOpcode {
 	public ExitOpcode(int code, OpParameterType... opParameterTypes) {
 		super(code, opParameterTypes);

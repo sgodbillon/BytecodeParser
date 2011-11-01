@@ -23,7 +23,15 @@ import bytecodeparser.Context;
 import bytecodeparser.analysis.Opcodes.OpParameterType;
 import bytecodeparser.analysis.decoders.DecodedArrayOp;
 
+/**
+ * An opcode that is an operation on an array.
+ * @author Stephane Godbillon
+ *
+ */
 public class ArrayOpcode extends BasicOpcode {
+	/**
+	 * States if the operation is a read (load -> true) or a write (store -> false).
+	 */
 	public final boolean isLoad;
 	
 	public ArrayOpcode(int code, boolean isLoad, OpParameterType... opParameterTypes) {

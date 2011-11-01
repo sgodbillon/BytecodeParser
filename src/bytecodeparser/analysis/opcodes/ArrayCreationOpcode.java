@@ -23,6 +23,11 @@ import bytecodeparser.Context;
 import bytecodeparser.analysis.Opcodes.OpParameterType;
 import bytecodeparser.analysis.decoders.DecodedArrayCreationOp;
 
+/**
+ * An array creation opcode.
+ * @author Stephane Godbillon
+ *
+ */
 public class ArrayCreationOpcode extends BasicOpcode {
 	public ArrayCreationOpcode(int code, OpParameterType... opParameterTypes) {
 		super(code, opParameterTypes);

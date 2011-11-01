@@ -25,6 +25,11 @@ import bytecodeparser.analysis.Opcodes.OpParameterType;
 import bytecodeparser.analysis.decoders.DecodedBranchOp;
 import bytecodeparser.analysis.stack.Stack.StackElementLength;
 
+/**
+ * An opcode that stands for a fork in the bytecode.
+ * @author Stephane Godbillon
+ *
+ */
 public class BranchOpCode extends BasicOpcode {
 	public BranchOpCode(int code, OpParameterType... opParameterTypes) {
 		super(code, opParameterTypes);
@@ -38,6 +43,9 @@ public class BranchOpCode extends BasicOpcode {
 		return new DecodedBranchOp(this, context, index);
 	}
 	
+	/**
+	 * States if this opcode is conditional fork or not.
+	 */
 	public boolean isConditional() {
 		return code >= Opcode.IFEQ && code <= Opcode.IF_ACMPNE || code == Opcode.IFNULL || code == Opcode.IFNONNULL;
 	}

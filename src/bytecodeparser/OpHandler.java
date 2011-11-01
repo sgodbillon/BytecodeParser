@@ -21,6 +21,16 @@ package bytecodeparser;
 
 import bytecodeparser.analysis.opcodes.Op;
 
+/**
+ * A handler for opcodes, used when parsing bytecode with the CodeParser.
+ * @author Stephane Godbillon
+ * @see CodeParser#parse(OpHandler)
+ */
 public interface OpHandler {
+	/**
+	 * Handle the given op at the given index.
+	 * @param op
+	 * @param index
+	 */
 	void handle(Op op, int index);
 }

@@ -25,9 +25,23 @@ import bytecodeparser.analysis.Opcodes.OpParameterType;
 import bytecodeparser.analysis.opcodes.Op;
 import bytecodeparser.analysis.stack.Stack;
 
+/**
+ * A decoded Op.
+ * @author Stephane Godbillon
+ *
+ */
 public abstract class DecodedOp {
+	/**
+	 * The context in which this op has been decoded.
+	 */
 	public final Context context;
+	/**
+	 * The index at which this op has been decoded.
+	 */
 	public final int index;
+	/**
+	 * The op that has been decoded.
+	 */
 	public final Op op;
 	
 	public final OpParameterType[] parameterTypes;
@@ -79,5 +93,9 @@ public abstract class DecodedOp {
 		}
 	}
 	
+	/**
+	 * Simulate this op onto the given stack.
+	 * @param stack
+	 */
 	public abstract void simulate(Stack stack);
 }

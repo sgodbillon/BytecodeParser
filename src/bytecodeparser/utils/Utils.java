@@ -26,15 +26,35 @@ import javassist.bytecode.LineNumberAttribute;
 import javassist.bytecode.LocalVariableAttribute;
 
 public class Utils {
+	/**
+	 * Gets the LocalVariableAttribute of the behavior.
+	 * @param behavior
+	 * @throws NullPointerException if this behavior has no code attribute.
+	 * @return the LocalVariableAttribute or null if none.
+	 */
 	public static LocalVariableAttribute getLocalVariableAttribute(CtBehavior behavior) {
 		return (LocalVariableAttribute) behavior.getMethodInfo().getCodeAttribute().getAttribute("LocalVariableTable");
 	}
+	
+	/**
+	 * Gets the LineNumberAttribute of the behavior.
+	 * @param behavior
+	 * @throws NullPointerException if this behavior has no code attribute.
+	 * @return the LineNumberAttribute or null if none.
+	 */
 	public static LineNumberAttribute getLineNumberAttribute(CtBehavior behavior) {
 		return (LineNumberAttribute) behavior.getMethodInfo().getCodeAttribute().getAttribute("LineNumberTable");
 	}
+	
+	/**
+	 * Gets the constpool attribute of this behavior.
+	 * @param behavior
+	 * @return the constpool attribute of this behavior or null if none.
+	 */
 	public static ConstPool getConstPool(CtBehavior behavior) {
 		return behavior.getMethodInfo().getConstPool();
 	}
+	
 	public static void debugExceptionTable(ExceptionTable et, ConstPool cp) {
 		for(int i = 0; i < et.size(); i++) {
 			System.out.println(et.startPc(i) + " -> " + et.endPc(i) + " : " + et.handlerPc(i) + ", type=" + (et.catchType(i) != 0 ? cp.getClassInfo(et.catchType(i)) : "any"));

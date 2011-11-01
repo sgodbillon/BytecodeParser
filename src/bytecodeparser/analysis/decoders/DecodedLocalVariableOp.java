@@ -32,11 +32,28 @@ import bytecodeparser.analysis.stack.Stack;
 import bytecodeparser.analysis.stack.StackElement;
 import bytecodeparser.analysis.stack.ValueFromLocalVariable;
 
+/**
+ * A decoded local variable operation op.
+ * @author Stephane Godbillon
+ *
+ */
 public class DecodedLocalVariableOp extends DecodedOp {
 	private static final Logger LOGGER = Logger.getLogger(DecodedLocalVariableOp.class);
+	/**
+	 * The matching local variable.
+	 */
 	public final LocalVariable localVariable;
+	/**
+	 * States if this op is a read (load) or write (store).
+	 */
 	public final boolean load;
+	/**
+	 * States if the matching localVariable is one- or two-words long.
+	 */
 	public final boolean doubleLength;
+	/**
+	 * States if the op is wide (nb localvars > 256)
+	 */
 	public final boolean isWide;
 	
 	public DecodedLocalVariableOp(LocalVariableOpcode lvo, Context context, int index, boolean isWide) {

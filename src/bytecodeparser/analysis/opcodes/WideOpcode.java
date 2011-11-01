@@ -24,6 +24,11 @@ import bytecodeparser.analysis.decoders.DecodedLocalVariableOp;
 import bytecodeparser.analysis.decoders.DecodedWideOp;
 import javassist.bytecode.Opcode;
 
+/**
+ * Wide opcode for localvariables (if there is more than 256 local vars in the method's body).
+ * @author Stephane Godbillon
+ *
+ */
 public class WideOpcode extends Op {
 	private final DecodedWideOp decodedWideOp;
 	
@@ -48,12 +53,24 @@ public class WideOpcode extends Op {
 		throw new RuntimeException("must be initialized before !");
 	}
 	
+	/**
+	 * Gets the wrapped localVariable opcode.
+	 * This op MUST be decoded before invoking this method.
+	 * @return the wrapped localVariable op.
+	 * @throws RuntimeException if this op has not been initialized with init(context, index) before.
+	 */
 	public LocalVariableOpcode getWrappedLocalVariableOpcode() {
 		if(decodedWideOp != null)
 			return decodedWideOp.op.as(LocalVariableOpcode.class);
 		throw new RuntimeException("must be initialized before !");
 	}
 	
+	/**
+	 * Gets the wrapped decoded localVariable opcode.
+	 * This op MUST be decoded before invoking this method.
+	 * @return the wrapped decoded localVariable op.
+	 * @throws RuntimeException if this op has not been initialized with init(context, index) before.
+	 */
 	public DecodedLocalVariableOp getWrappedDecodedLocalVariableOp() {
 		if(decodedWideOp != null)
 			return decodedWideOp.wrappedDecodedLocalVariableOp;

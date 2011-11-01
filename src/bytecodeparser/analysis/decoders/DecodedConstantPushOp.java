@@ -35,6 +35,11 @@ import bytecodeparser.analysis.stack.Constant.WhateverConstant;
 import bytecodeparser.analysis.stack.Stack.StackElementLength;
 import bytecodeparser.analysis.stack.Stack;
 
+/**
+ * A decoded constant push op.
+ * @author Stephane Godbillon
+ *
+ */
 public class DecodedConstantPushOp extends DecodedBasicOp {
 	public DecodedConstantPushOp(ConstantPushOpcode op, Context context, int index) {
 		super(op, context, index);

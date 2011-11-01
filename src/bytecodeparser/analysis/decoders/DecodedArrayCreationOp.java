@@ -29,8 +29,19 @@ import bytecodeparser.analysis.stack.StackElement;
 import bytecodeparser.analysis.stack.TrackableArray;
 import bytecodeparser.utils.Utils;
 
+/**
+ * A decoded array creation op.
+ * @author Stephane Godbillon
+ *
+ */
 public class DecodedArrayCreationOp extends DecodedBasicOp {
+	/**
+	 * The number of dimensions of the created array.
+	 */
 	public final int dimensions;
+	/**
+	 * The signature of the created array.
+	 */
 	public final String signature;
 	
 	public DecodedArrayCreationOp(ArrayCreationOpcode op, Context context, int index) {

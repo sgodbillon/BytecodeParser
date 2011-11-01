@@ -25,6 +25,9 @@ import bytecodeparser.analysis.Opcodes.OpParameterType;
 import bytecodeparser.analysis.decoders.DecodedOp;
 
 public abstract class Op {
+	/**
+	 * The opcode int.
+	 */
 	public final int code;
 	protected final OpParameterType[] parameterTypes;
 	private String name;
@@ -33,6 +36,12 @@ public abstract class Op {
 		this.parameterTypes = opParameterTypes;
 	}
 	
+	/**
+	 * Decodes this op with a given context.
+	 * @param context
+	 * @param index
+	 * @return the matching decodedOp.
+	 */
 	public abstract DecodedOp decode(Context context, int index);
 	
 	/**
@@ -43,20 +52,34 @@ public abstract class Op {
 		return this;
 	}
 	
+	/**
+	 * @return the opcode int.
+	 */
 	public int getCode() {
 		return code;
 	}
 	
+	/**
+	 * @return the paramaters types of this op, if any.
+	 */
 	public OpParameterType[] getParameterTypes() {
 		return parameterTypes;
 	}
 	
+	/**
+	 * @return the name of this opcode.
+	 */
 	public String getName() {
 		if(name == null)
 			name = Opcodes.findOpName(code);
 		return name;
 	}
 	
+	/**
+	 * Shortcut for chaining and casting.
+	 * @param specificOpClass
+	 * @return the casted op.
+	 */
 	@SuppressWarnings(value="unchecked")
 	public <T extends Op> T as(Class<T> specificOpClass) {
 		return (T) this;

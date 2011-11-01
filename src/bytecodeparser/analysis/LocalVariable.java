@@ -32,15 +32,38 @@ import javassist.bytecode.CodeAttribute;
 import javassist.bytecode.LocalVariableAttribute;
 import bytecodeparser.utils.Utils;
 
+/**
+ * A local variable.
+ * @author Stephane Godbillon
+ *
+ */
 public class LocalVariable {
 	private static final Logger LOGGER = Logger.getLogger(LocalVariable.class);
 	
+	/**
+	 * The declaring behavior of this variable.
+	 */
 	public final CtBehavior behavior;
+	/**
+	 * The name of this variable.
+	 */
 	public final String name;
+	/**
+	 * The index of this local variable in the LocalVariableTable attribute.
+	 */
 	public final int index;
+	/**
+	 * The type of this variable.
+	 */
 	public final LocalVariableType type;
+	/**
+	 * Is this local variable a parameter of this behavior?
+	 */
 	public final boolean isParameter;
 	
+	/**
+	 * Gives the range the local variable is valid within.
+	 */
 	public int[] getValidityRange() {
 		int[] result = new int[2];
 		LocalVariableAttribute localVariableAttribute = Utils.getLocalVariableAttribute(behavior);
@@ -48,7 +71,10 @@ public class LocalVariable {
 		result[1] = result[0] + localVariableAttribute.codeLength(index);
 		return result;
 	}
-	
+	/**
+	 * The slot the local variable is put into.
+	 * @return
+	 */
 	public int getSlot() {
 		return Utils.getLocalVariableAttribute(behavior).index(index);
 	}
@@ -65,6 +91,12 @@ public class LocalVariable {
 		return name + " (" + type.typeName + ") " + "[" + index + " -> " + getSlot() + "] between [" + getValidityRange()[0] + "," + getValidityRange()[1] + "]";
 	}
 	
+	/**
+	 * Gets all the local variables of the given behavior, indexed by their index in the LocalVariableTable attribute.
+	 * @param behavior
+	 * @return the local variables of the given behavior, indexed by their index in the LocalVariableTable attribute.
+	 * @throws NotFoundException
+	 */
 	public static Map<Integer, LocalVariable> findVariables(CtBehavior behavior) throws NotFoundException {
 		int nbParameters = behavior.getParameterTypes().length;
 		boolean isStatic = Modifier.isStatic(behavior.getModifiers());
@@ -83,6 +115,13 @@ public class LocalVariable {
 		return variables;
 	}
 	
+	/**
+	 * Get the local variable in the given slot at the given index in the given map of local variables.
+	 * @param slot
+	 * @param index
+	 * @param variables
+	 * @return the local variable in the given slot at the given index.
+	 */
 	public static LocalVariable getLocalVariable(int slot, int index, Map<Integer, LocalVariable> variables) {
 		TreeMap<Integer, LocalVariable> variablesByDistance = new TreeMap<Integer, LocalVariable>();
 		for(LocalVariable lv : variables.values()) {

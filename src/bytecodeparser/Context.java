@@ -26,10 +26,27 @@ import javassist.NotFoundException;
 import javassist.bytecode.ExceptionTable;
 import bytecodeparser.analysis.LocalVariable;
 
+/**
+ * A context for parsing bytecode.
+ * @author Stephane Godbillon
+ *
+ */
 public class Context {
+	/**
+	 * The behavior which bytecode is being parsed.
+	 */
 	public final CtBehavior behavior;
+	/**
+	 * The bytecode iterator used for parsing.
+	 */
 	public final MultiMarkerCodeIterator iterator;
+	/**
+	 * The local variables of the behavior.
+	 */
 	public final Map<Integer, LocalVariable> localVariables;
+	/**
+	 * The exception handlers, from the ExceptionTable attribute.
+	 */
 	public final int[] exceptionHandlers;
 	
 	public Context(CtBehavior behavior, MultiMarkerCodeIterator iterator, Map<Integer, LocalVariable> localVariables) {
@@ -56,6 +73,10 @@ public class Context {
 		this(behavior, new MultiMarkerCodeIterator(behavior.getMethodInfo().getCodeAttribute()), findLocalVariables(behavior));
 	}
 	
+	/**
+	 * States if the given index is a start of an exception handler.
+	 * @param index
+	 */
 	public boolean isStartOfExceptionHandler(int index) {
 		for(int i = 0; i < exceptionHandlers.length; i++)
 			if(exceptionHandlers[i] == index)

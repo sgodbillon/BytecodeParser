@@ -22,6 +22,11 @@ package bytecodeparser.analysis.decoders;
 import bytecodeparser.Context;
 import bytecodeparser.analysis.opcodes.BasicOpcode;
 
+/**
+ * A decoded branch op.
+ * @author Stephane Godbillon
+ *
+ */
 public class DecodedBranchOp extends DecodedBasicOp {
 	private final int jump;
 	
@@ -30,6 +35,9 @@ public class DecodedBranchOp extends DecodedBasicOp {
 		jump = parameterValues[0];
 	}
 	
+	/**
+	 * @return the index this decoded op will jump to.
+	 */
 	public int getJump() {
 		return jump + index;
 	}

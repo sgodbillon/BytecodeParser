@@ -42,19 +42,37 @@ import bytecodeparser.analysis.opcodes.Op;
 import bytecodeparser.analysis.opcodes.SwitchOpcode;
 import bytecodeparser.analysis.stack.Stack.StackElementLength;
 
+/**
+ * A class to analyze a behavior.
+ * Any statement can be inserted after or before the frames produced by the analysis using the FrameIterator.
+ * @author Stephane Godbillon
+ *
+ */
 public class StackAnalyzer {
 	private static final Logger LOGGER = Logger.getLogger(StackAnalyzer.class);
 	
+	/**
+	 * Context of this analysis.
+	 */
 	public final Context context;
 	final Stack stack;
 	final Frame[] frames;
 	
+	/**
+	 * Constructs an analyzer for the given behavior.
+	 * @param behavior
+	 */
 	public StackAnalyzer(CtBehavior behavior) {
 		this.context = new Context(behavior);
 		this.stack = new Stack();
 		this.frames = new Frame[context.behavior.getMethodInfo().getCodeAttribute().getCodeLength()];
 	}
 	
+	/**
+	 * Analyzes the behavior and returns the frames of its code.
+	 * @return the frames of the bytecode.
+	 * @throws BadBytecode thrown by javassist if the bytecode of this method is wrong.
+	 */
 	public Frames analyze() throws BadBytecode {
 		if(frames[0] == null) {
 			long start = System.currentTimeMillis();
@@ -141,21 +159,56 @@ public class StackAnalyzer {
 		}
 	}
 	
+	/**
+	 * A bytecode frame. A frame instance holds a reference of the stack (before and after it).
+	 * @author Stephane Godbillon
+	 *
+	 */
 	public static class Frame {
+		/**
+		 * The state of the stack before the frame is run.
+		 */
 		public Stack stackBefore;
+		/**
+		 * The state of the stack after the frame is run.
+		 */
 		public Stack stackAfter;
+		/**
+		 * The index of this frame in the bytecode. A frame produced by the StackAnalyzer gets its index updated if any bytecode is inserted.
+		 */
 		public int index;
+		/**
+		 * The decoded op.
+		 */
 		public DecodedOp decodedOp;
+		/**
+		 * States if the frame is accessible.
+		 * Generally, a frame which isAccessible field is false denotes a wrong bytecode.
+		 */
 		public boolean isAccessible = false;
 		
+		/**
+		 * A String representation of this frame.
+		 */
 		@Override
 		public String toString() {
 			return "Frame " + index + " (" + decodedOp.op.getName() + "):" + stackBefore + " -> " + stackAfter + " " + (isAccessible ? "" : " NOT ACCESSIBLE");
 		}
 	}
 	
+	/**
+	 * An collection of Frame, allowing to iterate over the frames and insert some bytecode if needed.
+	 * @author Stephane Godbillon
+	 *
+	 */
 	public static class Frames implements Iterable<Frame> {
+		/**
+		 * The backed frames.
+		 */
 		public final Frame[] frames;
+		/**
+		 * The behavior containing these frames.
+		 */
 		public final CtBehavior behavior;
 
 		public Frames(CtBehavior behavior, Frame[] frames) {
@@ -168,16 +221,30 @@ public class StackAnalyzer {
 			return new FrameIterator();
 		}
 
+		/**
+		 * An iterator of Frames allowing to insert some bytecode before or after the iterated frames.
+		 * The indexes of the backed frames always get updated after an insertion.
+		 * @author Stephane Godbillon
+		 *
+		 */
 		public class FrameIterator implements Iterator<Frame> {
 			private int i = -1;
 			private FrameCodeIterator iterator = new FrameCodeIterator(behavior
 					.getMethodInfo().getCodeAttribute(), frames);
 
+			/**
+			 * Should never be used, this operation is not supported.
+			 * @throws UnsupportedOperationException
+			 */
 			@Override
 			public void remove() {
 				throw new UnsupportedOperationException();
 			}
 
+			/**
+			 * Returns the next frame.
+			 * @return the next frame.
+			 */
 			@Override
 			public Frame next() {
 				int nextIndex = nextIndex();
@@ -188,19 +255,35 @@ public class StackAnalyzer {
 				throw new IllegalStateException();
 			}
 
+			/**
+			 * States if there is a next frame.
+			 * @return true if there is at least one remaining frame, false if not.
+			 */
 			@Override
 			public boolean hasNext() {
 				return nextIndex() > -1;
 			}
 
+			/**
+			 * States if the iterator is at the start of the backed frames array.
+			 * @return true if at the start of the backed frames array, false if not.
+			 */
 			public boolean isFirst() {
 				return i == 0;
 			}
 
+			/**
+			 * States if the iterator is at the end of the backed frames array.
+			 * @return true if at the end of the backed frames array, false if not.
+			 */
 			public boolean isLast() {
 				return !hasNext();
 			}
 
+			/**
+			 * Gets the next frame, but does not update the iterator cursor. This operation is indempotent.
+			 * @return the next frame.
+			 */
 			public Frame lookAhead() {
 				if (nextIndex() != -1)
 					return frames[nextIndex()];
@@ -214,6 +297,12 @@ public class StackAnalyzer {
 				return -1;
 			}
 
+			/**
+			 * Inserts the given bytecode before or after the current Frame.
+			 * @param code Bytecode.
+			 * @param after true if after, false if before the current Frame.
+			 * @throws BadBytecode if the given bytecode is wrong.
+			 */
 			public void insert(byte[] code, boolean after) throws BadBytecode {
 				int index = 0;
 				if (!after && i != -1)

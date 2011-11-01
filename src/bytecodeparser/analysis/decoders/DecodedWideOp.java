@@ -25,7 +25,15 @@ import bytecodeparser.analysis.opcodes.LocalVariableOpcode;
 import bytecodeparser.analysis.opcodes.WideOpcode;
 import bytecodeparser.analysis.stack.Stack;
 
+/**
+ * A decoded wide local variable operation op.
+ * @author Stephane Godbillon
+ *
+ */
 public class DecodedWideOp extends DecodedOp {
+	/**
+	 * The wrapped decoded local variable opcode.
+	 */
 	public final DecodedLocalVariableOp wrappedDecodedLocalVariableOp;
 	
 	public DecodedWideOp(WideOpcode wide, Context context, int index) {
