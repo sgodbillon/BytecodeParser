@@ -41,6 +41,11 @@
         </javac>
     </target>
 
+    <target name="javadoc">
+        <javadoc destdir="documentation/api" author="true" windowTitle="BytecodeParser API" sourcepath="src" classpathref="project.classpath">
+        </javadoc>
+    </target>
+
     <target name="test" depends="compile">
         <junit printsummary="yes" fork="yes" haltonfailure="yes" showoutput="true">
             <jvmarg value="-Dlog4j.configuration=log4j.properties"/>
