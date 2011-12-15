@@ -183,7 +183,7 @@ public class DecodedMethodInvocationOp extends DecodedOp {
 		return "decodedMethodInvocation " + (isAutoboxing() ? "[ISAUTOBOXING]" : "") + " class=" + declaringClassName + ", descriptor=" + descriptor + ", name=" + name;
 	}
 	
-	private boolean isAutoboxing() {
+	public boolean isAutoboxing() {
 		return name.equals("valueOf") && ("java.lang.Boolean".equals(this.declaringClassName) && descriptor.equals("(Z)Ljava/lang/Boolean;") ||
 				"java.lang.Byte".equals(declaringClassName) && descriptor.equals("(B)Ljava/lang/Byte;") ||
 				"java.lang.Character".equals(declaringClassName) && descriptor.equals("(C)L/java/lang/Character;") ||
