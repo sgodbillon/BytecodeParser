@@ -343,11 +343,11 @@ public class Opcodes {
 		opcodes.put(Opcode.FNEG, new BasicOpcode(Opcode.FNEG).setPops(ONE).setPushes(ONE));
 		opcodes.put(Opcode.DNEG, new BasicOpcode(Opcode.DNEG).setPops(DOUBLE).setPushes(DOUBLE));
 		opcodes.put(Opcode.ISHL, new BasicOpcode(Opcode.ISHL).setPops(ONE, ONE).setPushes(ONE));
-		opcodes.put(Opcode.LSHL, new BasicOpcode(Opcode.LSHL).setPops(ONE, DOUBLE).setPushes(ONE));
+		opcodes.put(Opcode.LSHL, new BasicOpcode(Opcode.LSHL).setPops(ONE, DOUBLE).setPushes(DOUBLE));
 		opcodes.put(Opcode.ISHR, new BasicOpcode(Opcode.ISHR).setPops(ONE, ONE).setPushes(ONE));
-		opcodes.put(Opcode.LSHR, new BasicOpcode(Opcode.LSHR).setPops(ONE, DOUBLE).setPushes(ONE));
+		opcodes.put(Opcode.LSHR, new BasicOpcode(Opcode.LSHR).setPops(ONE, DOUBLE).setPushes(DOUBLE));
 		opcodes.put(Opcode.IUSHR, new BasicOpcode(Opcode.IUSHR).setPops(ONE, ONE).setPushes(ONE));
-		opcodes.put(Opcode.LUSHR, new BasicOpcode(Opcode.LUSHR).setPops(ONE, DOUBLE).setPushes(ONE));
+		opcodes.put(Opcode.LUSHR, new BasicOpcode(Opcode.LUSHR).setPops(ONE, DOUBLE).setPushes(DOUBLE));
 		opcodes.put(Opcode.IAND, new BasicOpcode(Opcode.IAND).setPops(ONE, ONE).setPushes(ONE));
 		opcodes.put(Opcode.LAND, new BasicOpcode(Opcode.LAND).setPops(DOUBLE, DOUBLE).setPushes(DOUBLE));
 		opcodes.put(Opcode.IOR, new BasicOpcode(Opcode.IOR).setPops(ONE, ONE).setPushes(ONE));
