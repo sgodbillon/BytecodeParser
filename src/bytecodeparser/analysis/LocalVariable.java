@@ -106,7 +106,7 @@ public class LocalVariable {
 		LOGGER.debug("search vars : " + localVariableAttribute + " > " + (localVariableAttribute != null ? localVariableAttribute.tableLength() : 0));
 		if(localVariableAttribute != null) {
 			for(int i = 0; i < localVariableAttribute.tableLength(); i++) {
-				boolean isParameter = i < nbParameters || !isStatic && i == nbParameters;
+				boolean isParameter = isStatic ? i < nbParameters : (i > 0 && i <= nbParameters);
 				LocalVariable localVariable = new LocalVariable(i, localVariableAttribute.variableName(i), LocalVariableType.parse(localVariableAttribute.signature(i)), isParameter, behavior);
 				variables.put(i, localVariable);
 				LOGGER.debug(String.format("findLocalVariables: foud var %s is '%s' (slot %s)", i, localVariable.name, localVariable.getSlot()));
