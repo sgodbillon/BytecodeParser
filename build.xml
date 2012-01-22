@@ -42,7 +42,7 @@
     </target>
 
     <target name="javadoc">
-        <javadoc destdir="documentation/api" author="true" windowTitle="BytecodeParser API" sourcepath="src" classpathref="project.classpath">
+        <javadoc destdir="documentation/api" author="true" windowTitle="BytecodeParser API" sourcepath="src" excludepackagenames="test.*" classpathref="project.classpath">
         </javadoc>
     </target>
 
