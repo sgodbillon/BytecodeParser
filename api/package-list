@@ -1,0 +1,6 @@
+bytecodeparser
+bytecodeparser.analysis
+bytecodeparser.analysis.decoders
+bytecodeparser.analysis.opcodes
+bytecodeparser.analysis.stack
+bytecodeparser.utils
