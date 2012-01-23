@@ -6,11 +6,11 @@ p. It can also statically analyze each method's frame, for particular purposes l
 
 p. BytecodeParser simulates the stack operations made by the opcodes in the CodeAttribute. It can give you the state of the stack before and after the frame is run.
 
-p. BytecodeParser is released under the "LGPL, version 3":http://www.gnu.org/licenses/lgpl.html. It is actively developped. You can download the latest version ("v0.3":https://github.com/sgodbillon/BytecodeParser/zipball/v0.3), explore its capabilities and extend it if you need to.
+p. BytecodeParser is released under the "LGPL, version 3":http://www.gnu.org/licenses/lgpl.html. It is actively developped. You can download the latest version ("v0.3":http://sgodbillon.github.com/BytecodeParser/releases/0.3/bytecodeparser-0.3.jar), explore its capabilities and extend it if you need to.
 
 h2. How to use it
 
-p. See the "project's website":http://sgodbillon.github.com/BytecodeParser/ for detailed examples and more information. You can also "browse the API":http://sgodbillon.github.com/BytecodeParser/api/index.html.
+p. See the "project's website":http://sgodbillon.github.com/BytecodeParser/ for detailed examples and more information. You can also "browse the API":http://sgodbillon.github.com/BytecodeParser/releases/0.3/api/index.html.
 
 h2. A small example
 
