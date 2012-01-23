@@ -198,12 +198,19 @@ Thanks to the stack simulation, you can get a lot of information on many things,
     }
 {% endhighlight %}
 
-## Version
-BytecodeParser is being actively developped. The latest version is [0.3](https://github.com/sgodbillon/BytecodeParser/zipball/v0.3).
+## Release
+
+BytecodeParser is being actively developped. The latest version is 0.3 and can be downloaded [here](releases/0.3/bytecodeparser-0.3.jar).
+
+### Dependencies
+
+* [javassist](http://javassist.org) >= 3.0.9.GA
+* [log4j](http://logging.apache.org/log4j/) >= 1.2.16
+* [junit](http://junit.org) >= 4.8.2 (for building/testing)
 
 ## Documentation
 
-You can browse the [javadoc](api/index.html) to get a complete documentation about the API.
+You can browse the [javadoc](releases/0.3/api/index.html) to get a complete documentation about the API.
 
 ## License
 
