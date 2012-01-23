@@ -29,7 +29,7 @@ h1, h2, h3, h4, h5, h6 {
 
 h1 { font-size: 130%; color: #1162AF; }
 h2 { font-size: 120%; margin-top: 25px;}
-h3 { font-size: 110%; }
+h3 { font-style: italic; }
 
 
 h1 {
@@ -56,6 +56,10 @@ a:visited {
 table {
   font-size: inherit;
   font: 100%;
+}
+
+ul {
+  list-style: inside;
 }
 
 /*****************************************************************************/
