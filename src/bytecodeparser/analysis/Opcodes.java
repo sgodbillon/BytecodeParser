@@ -313,7 +313,9 @@ public class Opcodes {
 					@Override
 					public void simulate(Stack stack) {
 						StackElement se = stack.pop();
-						stack.stack.add(stack.stack.size() - 1, se);
+						//Previously stack.stack.size() was putting the element at the BOTTOM of the stack
+						//fix this to put it at the second position in the stack from the top.
+						stack.stack.add(1, se);
 					}
 				};
 			}
