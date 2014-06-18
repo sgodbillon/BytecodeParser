@@ -50,7 +50,9 @@ public class CodeParser {
 			if(stop)
 				break;
 			int index = context.iterator.next();
-			Op op = Opcodes.OPCODES.get(context.iterator.byteAt(index)).init(context, index);
+            Op opcode = Opcodes.OPCODES.get(context.iterator.byteAt(index));
+            if(opcode == null) continue;
+            Op op = opcode.init(context, index);
 			opHandler.handle(op, index);
 		}
 	}

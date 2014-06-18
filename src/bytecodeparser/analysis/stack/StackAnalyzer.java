@@ -113,7 +113,9 @@ public class StackAnalyzer {
 			Stack currentStack = stack.copy();
 			while(iterator.hasNext()) {
 				int index = iterator.next();
-				Op op = Opcodes.OPCODES.get(iterator.byteAt(index)).init(context, index);
+                Op opcode = Opcodes.OPCODES.get(iterator.byteAt(index));
+                if(opcode == null) continue;
+                Op op = opcode.init(context, index);
 				trace.append("\n").append(index).append(":").append(op.getName()).append(" --> ");
 				Frame frame = frames[index];
 				frame.isAccessible = true;
