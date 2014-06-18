@@ -106,7 +106,7 @@ public class DecodedMethodInvocationOp extends DecodedOp {
 				se = stack.pop2();
 			else se = stack.pop();
 		}
-		if(op.as(MethodInvocationOpcode.class).isInstanceMethod())
+        if (op.as(MethodInvocationOpcode.class).isInstanceMethod() && !stack.isEmpty())
 			stack.pop();
 		if(returnTypeLength != null) {
 			if(returnTypeLength == DOUBLE)
